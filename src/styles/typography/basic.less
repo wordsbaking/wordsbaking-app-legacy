@@ -46,6 +46,7 @@ body > * {
   text-rendering: optimizeLegibility;
   outline: none;
   box-sizing: border-box;
+  color: @color-text;
   -webkit-touch-callout: none;
 }
 
@@ -77,16 +78,16 @@ button {
 
 input,
 textarea {
-  color: @gray-3;
+  color: @color-text;
   outline: none;
-  border: solid 1px @gray-8;
+  border: solid 1px @color-fg-f;
 
   &:focus {
-    border-color: @theme-5;
+    border-color: @color-text-l;
   }
 
   &::placeholder {
-    color: @gray-7;
+    color: @color-text-xl;
   }
 }
 
