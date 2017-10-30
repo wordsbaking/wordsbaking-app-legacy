@@ -1,0 +1,109 @@
+@import '../common.less';
+
+html,
+body {
+  cursor: default;
+}
+
+html {
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-overflow-scrolling: touch;
+
+  .user-select-none;
+}
+
+body {
+  margin: 0;
+  height: 100%;
+  width: 100%;
+  font-size: 16px;
+  line-height: 1.5;
+}
+
+body > * {
+  position: relative;
+  z-index: 0;
+
+  /* Platform fonts usage
+    mac/ios:
+      -apple-system, BlinkMacSystemFont, 'Helvetica Neue', STHeiti, 'Hiragino Sans GB'
+
+    windows/windows phone:
+      'Microsoft Yahei UI', 'Microsoft Yahei', 'WenQuanYi Micro Hei', DengXian
+
+    android:
+      ...
+
+    all:
+      Helvetica, sans-serif
+
+  */
+  font-family: -apple-system, BlinkMacSystemFont, STHeiti, 'Helvetica Neue', 'Hiragino Sans GB',
+    'Microsoft Yahei UI', 'Microsoft Yahei', 'WenQuanYi Micro Hei', DengXian, Helvetica, sans-serif;
+  text-rendering: optimizeLegibility;
+  outline: none;
+  box-sizing: border-box;
+  -webkit-touch-callout: none;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  margin: 0;
+  font-weight: normal;
+  font-size: inherit;
+}
+
+p {
+  margin: 0;
+}
+
+a {
+  text-decoration: none;
+}
+
+input,
+textarea,
+select,
+button {
+  font: inherit;
+}
+
+input,
+textarea {
+  color: @gray-3;
+  outline: none;
+  border: solid 1px @gray-8;
+
+  &:focus {
+    border-color: @theme-5;
+  }
+
+  &::placeholder {
+    color: @gray-7;
+  }
+}
+
+ul,
+ol,
+li,
+dl,
+dt,
+dd {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+body,
+div,
+button,
+a {
+  -webkit-tap-highlight-color: transparent;
+}

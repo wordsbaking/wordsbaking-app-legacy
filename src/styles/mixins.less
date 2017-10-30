@@ -1,0 +1,12 @@
+.user-select-none() {
+  cursor: inherit;
+  user-select: none;
+}
+
+.clear() {
+  &::after {
+    content: '';
+    display: block;
+    clear: both;
+  }
+}
