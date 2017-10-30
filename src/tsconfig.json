@@ -1,0 +1,7 @@
+{
+  "extends": "../tsconfig.json",
+  "compilerOptions": {
+    "outDir": "../bld/out-tsc",
+    "baseUrl": "./"
+  }
+}

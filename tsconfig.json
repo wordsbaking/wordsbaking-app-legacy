@@ -1,0 +1,28 @@
+{
+  "compileOnSave": false,
+  "compilerOptions": {
+    "target": "es5",
+    "lib": ["es2016", "dom"],
+    "module": "es2015",
+    "moduleResolution": "node",
+    "strict": true,
+    "noImplicitReturns": true,
+    "noEmitOnError": true,
+    "noUnusedLocals": true,
+    "skipDefaultLibCheck": true,
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "downlevelIteration": true,
+    "sourceMap": true,
+    "newLine": "LF",
+    "baseUrl": ".",
+    "rootDir": ".",
+    "typeRoots": ["node_modules/@types"],
+    "plugins": [
+      {
+        "name": "tslint-language-service"
+      }
+    ]
+  },
+  "exclude": ["**/*.1.ts", "**/*.1", "**/*.exclude.ts", "**/*.exclude"]
+}

@@ -1,0 +1,10 @@
+{
+  "recommendations": [
+    "Angular.ng-template",
+    "mf.ng-utils",
+    "streetsidesoftware.code-spell-checker",
+    "shinnn.stylelint",
+    "shardulm94.trailing-spaces",
+    "esbenp.prettier-vscode"
+  ]
+}
