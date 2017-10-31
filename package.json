@@ -9,7 +9,7 @@
     "lint:scripts": "ng lint --format verbose --type-check",
     "lint:styles": "stylelint src/**/*.less",
     "lint": "yarn lint:styles && yarn lint:scripts",
-    "start": "ng serve --hmr -e hmr",
+    "start": "ng serve --host 0.0.0.0 --hmr -e hmr",
     "build": "ng build"
   },
   "private": true,
@@ -27,6 +27,7 @@
     "core-js": "^2.5.1",
     "debug": "^3.1.0",
     "rxjs": "^5.4.3",
+    "web-animations-js": "^2.3.1",
     "zone.js": "^0.8.14"
   },
   "devDependencies": {

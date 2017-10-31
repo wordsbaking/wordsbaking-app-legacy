@@ -5054,6 +5054,10 @@ wbuf@^1.1.0, wbuf@^1.7.2:
   dependencies:
     minimalistic-assert "^1.0.0"
 
+web-animations-js@^2.3.1:
+  version "2.3.1"
+  resolved "http://registry.npm.taobao.org/web-animations-js/download/web-animations-js-2.3.1.tgz#3a6d9bc15196377a90f8e2803fa5262165b04510"
+
 webpack-concat-plugin@1.4.0:
   version "1.4.0"
   resolved "http://registry.npm.taobao.org/webpack-concat-plugin/download/webpack-concat-plugin-1.4.0.tgz#a6eb3f0082d03c79d8ee2f1518c7f48e44ee12c5"

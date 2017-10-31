@@ -7,26 +7,27 @@
   width: 100%;
   height: 100%;
 
-  & > .frame-header,
-  & > .frame-footer {
+  > .frame-header,
+  > .frame-footer {
     position: relative;
     flex: none;
   }
-}
 
-:host > .frame-header {
-  background-color: @color-theme-xl;
+  > .frame-header {
+    background-color: @color-theme-xl;
 
-  .inner {
-    background-color: @color-theme;
+    .inner {
+      background-color: @color-theme;
+    }
   }
-}
 
-:host > .frame-content {
-  flex: 1;
-}
+  > .frame-content {
+    flex: 1;
+    background-color: @color-fg;
+  }
 
-:host > .frame-footer {
-  padding: 10px 12px 12px;
-  background-color: @color-fg-xf;
+  > .frame-footer {
+    padding: 10px 12px 12px;
+    background-color: @color-fg-xf;
+  }
 }
