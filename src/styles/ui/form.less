@@ -1,0 +1,33 @@
+@import '~styles/common.less';
+
+form {
+  position: relative;
+  display: block;
+
+  .form-item {
+    display: block;
+    margin-bottom: 15px;
+  }
+
+  .form-item > label {
+    display: block;
+    margin-top: 8px;
+
+    .label-text {
+      display: block;
+      line-height: 30px;
+      color: @color-text-xl;
+    }
+
+    input {
+      display: block;
+      background-color: @color-fg-f;
+      line-height: 20px;
+      padding: 6px 8px;
+      width: 100%;
+      font-size: @size-text-larger;
+      color: @color-text;
+      border-radius: 2px;
+    }
+  }
+}

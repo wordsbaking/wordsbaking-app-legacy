@@ -1,0 +1,35 @@
+@import '../common.less';
+
+button {
+  height: 36px;
+  line-height: 36px;
+  margin: 0;
+  padding: 0 15px;
+  font-size: 17px;
+  border: none;
+  border-radius: 2px;
+  color: @color-theme-text;
+  background-color: @color-theme;
+  transition: @transition-all;
+  outline: none;
+
+  &:active {
+    background-color: @color-theme-l;
+    transform: translateY(1px);
+  }
+
+  &.small {
+    height: 30px;
+    line-height: 30px;
+    font-size: @size-text-smaller;
+    padding: 0 10px;
+  }
+
+  &.secondary {
+    background-color: @color-theme-g;
+  }
+
+  &.secondary:active {
+    background-color: @color-theme-g-f;
+  }
+}
