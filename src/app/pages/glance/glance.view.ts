@@ -1,16 +1,16 @@
 import {trigger} from '@angular/animations';
 import {Component, HostBinding} from '@angular/core';
 
-import {frameTransitions} from 'app/core/ui';
+import {pageTransitions} from 'app/core/ui';
 
-const glanceTransitions = trigger('glanceTransitions', [...frameTransitions]);
+const glanceViewTransitions = trigger('glanceViewTransitions', [...pageTransitions]);
 
 @Component({
   selector: 'wb-view.glance-view',
   templateUrl: './glance.view.html',
   styleUrls: ['./glance.view.less'],
-  animations: [glanceTransitions],
+  animations: [glanceViewTransitions],
 })
 export class GlanceView {
-  @HostBinding('@glanceTransitions') glanceTransitions = 'active';
+  @HostBinding('@glanceViewTransitions') glanceViewTransitions = 'active';
 }

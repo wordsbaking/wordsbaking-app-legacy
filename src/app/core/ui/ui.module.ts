@@ -1,11 +1,10 @@
 import {CommonModule} from '@angular/common';
 import {NgModule} from '@angular/core';
 
-import {FrameComponent} from './frame/frame.component';
+import {PageModule} from './page';
 
 @NgModule({
-  imports: [CommonModule],
-  declarations: [FrameComponent],
-  exports: [FrameComponent],
+  imports: [CommonModule, PageModule],
+  exports: [PageModule],
 })
 export class CoreUIModule {}

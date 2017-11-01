@@ -1,0 +1,14 @@
+@import '~styles/common.less';
+
+:host {
+  display: flex;
+  color: @color-theme-text;
+  font-size: @size-text-smaller;
+  min-height: @size-page-header-height;
+  line-height: @size-page-header-height;
+  padding: 0 12px;
+
+  ::ng-deep .title {
+    font-size: @size-text-normal;
+  }
+}

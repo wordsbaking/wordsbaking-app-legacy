@@ -1,0 +1,32 @@
+<wb-page>
+  <wb-page-header>
+    <h1 class="title">注册词焙账号</h1>
+  </wb-page-header>
+
+  <form>
+    <div class="form-item">
+      <label>
+        <span class="label-text">邮箱</span>
+        <input type="text" />
+      </label>
+    </div>
+
+    <div class="form-item">
+      <label>
+        <span class="label-text">密码</span>
+        <input type="text" />
+      </label>
+    </div>
+
+    <div class="form-item why-account-wrapper">
+      <a class="title" (click)="toggleWhyAccountDescriptionDisplay()">为什么需要一个账号?</a>
+      <p class="description" [class.hidden]="!whyAccountDescriptionVisible">词焙账号是为了方便学习记录, 生词本等信息的同步, 避免用户因为重装应用或者更换手机而遗失学习进度.</p>
+    </div>
+  </form>
+
+
+  <wb-page-footer>
+    <button routerLink="/sign-in" class="secondary">登录</button>
+    <button>完成注册</button>
+  </wb-page-footer>
+</wb-page>
