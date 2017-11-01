@@ -1,0 +1,21 @@
+@import '~styles/common.less';
+
+:host {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-content: center;
+  width: 100%;
+  border-bottom: 1px solid @color-fg-xf;
+  color: @color-text-l;
+
+  .text {
+    font-size: @size-text-larger;
+    line-height: 30px;
+  }
+
+  button {
+    padding: 0;
+    background-color: transparent;
+  }
+}

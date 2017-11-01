@@ -15,18 +15,36 @@
 
   > .page-header {
     background-color: @color-theme-xl;
+    overflow: hidden;
 
-    .inner {
+    > .inner {
       background-color: @color-theme;
+    }
+
+    > .inner ::ng-deep wb-page-header,
+    > .inner ::ng-deep wb-page-header-extend {
+      padding: 0 12px;
+    }
+
+    > .header-extend-wrapper {
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      overflow: hidden;
     }
   }
 
   > .page-content {
     flex: 1;
     background-color: @color-fg;
+    padding: 20px 12px;
   }
 
   > .page-footer {
     background-color: @color-fg-xf;
+  }
+
+  > .page-footer ::ng-deep wb-page-footer {
+    padding: 10px 12px 12px;
   }
 }

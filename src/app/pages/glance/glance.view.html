@@ -1,13 +1,41 @@
 <wb-page>
-  <wb-page-header>
-    <h1>Glance</h1>
+  <wb-page-header page-header-extend-trigger>
+    <div class="user-profile">
+      <div class="avatar-wrapper">
+        <span class="avatar" [style.backgroundImage]="'url(https://picsum.photos/128/128)'"></span>
+      </div>
+      <div class="meta">
+        <span class="meta-item nickname">狮子哥哥</span>
+        <span class="meta-item tagline">时光在飞逝，生命知多少.</span>
+      </div>
+    </div>
+    <div class="toolbar">
+      <span class="time">00:00</span>
+      <span class="icon more"></span>
+    </div>
   </wb-page-header>
+  <wb-page-header-extend>
+    <button class="ghost">设置</button>
+  </wb-page-header-extend>
 
-  <p>Hello, world,
-    <a routerLink="/sign-in" routerLinkActive="active">Sign out</a>
-  </p>
+  <div class="databoard">
+    <wb-glance-view-collection-selector></wb-glance-view-collection-selector>
+    <wb-glance-view-progress title="总体进度" info="150/300" percentage="50" pendingPercentage="50"></wb-glance-view-progress>
+    <wb-glance-view-progress title="今日进度" info="已学习0分钟" percentage="0" pendingPercentage="0"></wb-glance-view-progress>
+
+    <div class="progress-details">
+      <wb-glance-view-progress-simple title="新学" info="-/-"></wb-glance-view-progress-simple>
+      <wb-glance-view-progress-simple title="复习" info="-/-"></wb-glance-view-progress-simple>
+      <wb-glance-view-progress-simple title="生词本" info="-/-"></wb-glance-view-progress-simple>
+    </div>
+  </div>
 
   <wb-page-footer>
-    <p>Glance footer</p>
+    <div class="flex-row buttons-wrapper">
+      <button class="secondary">打卡</button>
+      <button class="icon search secondary"></button>
+    </div>
+
+    <button>开始学习</button>
   </wb-page-footer>
 </wb-page>

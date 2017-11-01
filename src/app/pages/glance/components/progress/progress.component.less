@@ -1,0 +1,38 @@
+@import '~styles/common.less';
+
+:host {
+  display: block;
+
+  .head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: @size-text-smaller;
+    height: 20px;
+    line-height: 20px;
+    color: @color-text-l;
+  }
+
+  .progress-bar {
+    height: 4px;
+    background-color: @color-fg-f;
+    margin-top: 4px;
+
+    div {
+      height: 4px;
+      width: 0;
+      transition: @transition-width;
+    }
+
+    > div {
+      display: flex;
+      background-color: @color-theme;
+      justify-content: flex-end;
+      overflow: hidden;
+
+      > div {
+        background-color: @color-theme-xxl;
+      }
+    }
+  }
+}

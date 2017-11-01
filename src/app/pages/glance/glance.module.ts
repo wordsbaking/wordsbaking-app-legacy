@@ -6,6 +6,12 @@ import {CoreUIModule} from 'app/core/ui';
 
 import {GlanceView} from './glance.view';
 
+import {
+  CollectionSelectorComponent,
+  ProgressComponent,
+  ProgressSimpleComponent,
+} from './components';
+
 const routes: Routes = [
   {
     path: '',
@@ -19,7 +25,11 @@ const routes: Routes = [
 
 @NgModule({
   imports: [CommonModule, CoreUIModule, RouterModule.forChild(routes)],
-  declarations: [GlanceView],
-  exports: [],
+  declarations: [
+    GlanceView,
+    CollectionSelectorComponent,
+    ProgressComponent,
+    ProgressSimpleComponent,
+  ],
 })
 export class GlanceModule {}

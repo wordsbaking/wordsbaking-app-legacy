@@ -21,6 +21,5 @@ const routes: Routes = [
 @NgModule({
   imports: [CommonModule, CoreUIModule, RouterModule.forChild(routes)],
   declarations: [SignInView],
-  exports: [],
 })
 export class SignInModule {}
