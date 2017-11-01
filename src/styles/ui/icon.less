@@ -1,0 +1,46 @@
+@font-face {
+  font-family: 'wb-iconfont'; /* project id 460943 */
+  src: url('//at.alicdn.com/t/font_460943_u5ijyfiixm2qehfr.eot');
+  src: url('//at.alicdn.com/t/font_460943_u5ijyfiixm2qehfr.eot?#iefix') format('embedded-opentype'),
+    url('//at.alicdn.com/t/font_460943_u5ijyfiixm2qehfr.woff') format('woff'),
+    url('//at.alicdn.com/t/font_460943_u5ijyfiixm2qehfr.ttf') format('truetype'),
+    url('//at.alicdn.com/t/font_460943_u5ijyfiixm2qehfr.svg#wb-iconfont') format('svg');
+}
+
+.icon {
+  font-style: normal;
+  vertical-align: baseline;
+  text-align: center;
+  text-transform: none;
+  text-rendering: auto;
+  line-height: 1;
+  -webkit-font-smoothing: antialiased;
+  -webkit-text-stroke-width: 0.2px;
+  -moz-osx-font-smoothing: grayscale;
+  display: inline-block;
+
+  &::before {
+    display: block;
+    font-family: 'wb-iconfont' !important;
+  }
+}
+
+.icon.back::before {
+  content: '\e626';
+}
+
+.icon.search::before {
+  content: '\e64f';
+}
+
+.icon.voice::before {
+  content: '\e61d';
+}
+
+.icon.more::before {
+  content: '\e629';
+}
+
+.icon.plus::before {
+  content: '\e65d';
+}

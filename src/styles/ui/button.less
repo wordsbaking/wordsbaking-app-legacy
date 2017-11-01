@@ -32,4 +32,23 @@ button {
   &.secondary:active {
     background-color: @color-theme-g-f;
   }
+
+  &.icon {
+    padding: 0 12px;
+  }
+}
+
+button.ghost {
+  background-color: transparent;
+  transform: translate(0, 0);
+  border-radius: 0;
+  padding: 0 10px;
+
+  &:active {
+    background-color: rgba(0, 0, 0, 0.08);
+  }
+
+  &.dark-text {
+    color: @color-text-l;
+  }
 }
