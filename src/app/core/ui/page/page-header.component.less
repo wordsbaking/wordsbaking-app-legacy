@@ -7,6 +7,24 @@
   min-height: @size-page-header-height;
   line-height: @size-page-header-height;
 
+  ::ng-deep .back-button {
+    padding: 0;
+    background-color: transparent;
+    display: flex;
+    align-items: center;
+    transform: translate(0);
+
+    .icon.back {
+      font-size: 12px;
+      transform: translateY(1px);
+      margin: 0 3px 0 -2px;
+    }
+
+    .title {
+      font-size: @size-text-normal;
+    }
+  }
+
   ::ng-deep .title {
     font-size: @size-text-normal;
   }

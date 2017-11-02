@@ -12,6 +12,11 @@ const routes: Routes = [
     data: {target: 'glance'},
   },
   {
+    path: 'settings',
+    loadChildren: './pages/settings/settings.module#SettingsModule',
+    data: {target: 'settings'},
+  },
+  {
     path: 'sign-in',
     loadChildren: './pages/sign-in/sign-in.module#SignInModule',
     data: {target: 'sign-in'},

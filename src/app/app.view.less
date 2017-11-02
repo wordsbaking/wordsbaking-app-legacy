@@ -1,4 +1,8 @@
 :host {
   display: block;
   height: 100%;
+
+  & > ::ng-deep * {
+    z-index: 0;
+  }
 }

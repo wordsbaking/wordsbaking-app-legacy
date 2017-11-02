@@ -3,7 +3,7 @@ import {NgModule} from '@angular/core';
 
 import {PageContentComponent} from './page-content.component';
 import {PageFooterComponent} from './page-footer.component';
-import {PageHeaderExtendComponent} from './page-header-extend.component';
+import {PageheaderExtensionComponent} from './page-header-extension.component';
 import {PageHeaderComponent} from './page-header.component';
 import {PageComponent} from './page.component';
 
@@ -12,14 +12,14 @@ import {PageComponent} from './page.component';
   declarations: [
     PageComponent,
     PageHeaderComponent,
-    PageHeaderExtendComponent,
+    PageheaderExtensionComponent,
     PageContentComponent,
     PageFooterComponent,
   ],
   exports: [
     PageComponent,
     PageHeaderComponent,
-    PageHeaderExtendComponent,
+    PageheaderExtensionComponent,
     PageContentComponent,
     PageFooterComponent,
   ],

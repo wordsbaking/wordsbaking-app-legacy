@@ -8,8 +8,10 @@ import {
   transition,
   trigger,
 } from '@angular/animations';
-import {Component, ElementRef, OnInit} from '@angular/core';
-import * as $ from 'jquery';
+
+import {ChangeDetectionStrategy, Component, ElementRef} from '@angular/core';
+
+import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 
 const q = (
   selector: string,
@@ -25,14 +27,28 @@ export const pageTransitions = [
     q('.page-footer', style({transform: 'translateY(100%)'})),
     group(
       [
-        q('.page-header', animate('0.2s ease-out', style({transform: 'translateY(0)'}))),
-        q('.page-header > .inner', animate('0.2s ease-out', style({transform: 'translateY(0)'})), {
+        q(
+          '.page-header',
+          animate('0.2s ease-out', style({transform: 'translateY(0)'})),
+        ),
+        q(
+          '.page-header > .inner',
+          animate('0.2s ease-out', style({transform: 'translateY(0)'})),
+          {
+            delay: 200,
+          },
+        ),
+        q('.page-content', animate('0.2s linear', style({opacity: '1'})), {
           delay: 200,
         }),
-        q('.page-content', animate('0.2s linear', style({opacity: '1'})), {delay: 200}),
-        q('.page-footer', animate('0.2s ease-out', style({transform: 'translateY(0)'})), {
-          delay: 200,
-        }),
+        q(
+          '.page-footer',
+          animate('0.2s ease-out', style({transform: 'translateY(0)'})),
+          {
+            delay: 200,
+          },
+        ),
+        style({opacity: 1}),
       ],
       {
         delay: 200,
@@ -41,18 +57,31 @@ export const pageTransitions = [
   ]),
   transition(':leave', [
     group([
-      q('.page-header > .inner', animate('0.2s ease-out', style({transform: 'translateY(-100%)'}))),
-      q('.page-header', animate('0.2s ease-out', style({transform: 'translateY(-100%)'})), {
-        delay: 200,
-      }),
+      q(
+        '.page-header > .inner',
+        animate('0.2s ease-out', style({transform: 'translateY(-100%)'})),
+      ),
+      q(
+        '.page-header',
+        animate('0.2s ease-out', style({transform: 'translateY(-100%)'})),
+        {
+          delay: 200,
+        },
+      ),
       q('.page-content', animate('0.2s linear', style({opacity: '0'}))),
-      q('.page-footer', animate('0.2s ease-out', style({transform: 'translateY(100%)'}))),
+      q(
+        '.page-footer',
+        animate('0.2s ease-out', style({transform: 'translateY(100%)'})),
+      ),
     ]),
   ]),
 ];
 
-const headerExtendTransitions = trigger('headerExtendTransitions', [
-  transition(':enter', [style({height: 0}), animate('0.2s ease-out', style({height: '*'}))]),
+const headerExtensionTransitions = trigger('headerExtensionTransitions', [
+  transition(':enter', [
+    style({height: 0}),
+    animate('0.2s ease-out', style({height: '*'})),
+  ]),
   transition(':leave', animate('0.2s ease-out', style({height: 0}))),
 ]);
 
@@ -60,10 +89,11 @@ const headerExtendTransitions = trigger('headerExtendTransitions', [
   selector: 'wb-page',
   templateUrl: './page.component.html',
   styleUrls: ['./page.component.less'],
-  animations: [headerExtendTransitions],
+  animations: [headerExtensionTransitions],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class PageComponent implements OnInit {
-  expandedHeaderExtend = false;
+export class PageComponent {
+  headerExtensionExpanded$ = new BehaviorSubject<boolean>(false);
 
   element: HTMLElement;
 
@@ -71,26 +101,11 @@ export class PageComponent implements OnInit {
     this.element = ref.nativeElement;
   }
 
-  toggleHeaderExtend(force?: boolean): void {
+  toggleHeaderExtension(force?: boolean): void {
     if (force !== undefined) {
-      this.expandedHeaderExtend = force;
+      this.headerExtensionExpanded$.next(force);
     } else {
-      this.expandedHeaderExtend = !this.expandedHeaderExtend;
+      this.headerExtensionExpanded$.next(!this.headerExtensionExpanded$.value);
     }
-  }
-
-  ngOnInit(): void {
-    $(this.element).on('click', event => {
-      let $target = $(event.target);
-      if ($target.closest('[page-header-extend-trigger]').length) {
-        this.toggleHeaderExtend();
-      } else if (this.expandedHeaderExtend) {
-        if ($target.closest('[routerlink]').length) {
-          return;
-        }
-
-        this.toggleHeaderExtend(false);
-      }
-    });
   }
 }

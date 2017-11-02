@@ -2,10 +2,11 @@
   <div class="inner">
     <ng-content select="wb-page-header"></ng-content>
   </div>
-
-  <div class="header-extend-wrapper" [@headerExtendTransitions] *ngIf="expandedHeaderExtend">
+  <div class="header-extension-wrapper"
+    *ngIf="headerExtensionExpanded$ | async"
+    [@headerExtensionTransitions]>
     <div class="inner">
-      <ng-content select="wb-page-header-extend"></ng-content>
+      <ng-content select="wb-page-header-extension"></ng-content>
     </div>
   </div>
 </div>

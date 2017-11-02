@@ -1,5 +1,5 @@
-<wb-page>
-  <wb-page-header page-header-extend-trigger>
+<wb-page #page (wbTap)="page.toggleHeaderExtension(false)" [wbTapPreventDefault]="false">
+  <wb-page-header (wbTap)="page.toggleHeaderExtension()" [wbTapStop]="true">
     <div class="user-profile">
       <div class="avatar-wrapper">
         <span class="avatar" [style.backgroundImage]="'url(https://picsum.photos/128/128)'"></span>
@@ -14,9 +14,9 @@
       <span class="icon more"></span>
     </div>
   </wb-page-header>
-  <wb-page-header-extend>
-    <button class="ghost">设置</button>
-  </wb-page-header-extend>
+  <wb-page-header-extension>
+    <button wbTapLink="/settings" class="ghost">设置</button>
+  </wb-page-header-extension>
 
   <wb-page-content>
     <div class="content-top">
@@ -38,7 +38,7 @@
 
   <wb-page-footer>
     <div class="flex-row buttons-wrapper">
-      <button class="secondary">打卡</button>
+      <button wbTapLink="/settings" class="secondary">打卡</button>
       <button class="icon search secondary"></button>
     </div>
 
