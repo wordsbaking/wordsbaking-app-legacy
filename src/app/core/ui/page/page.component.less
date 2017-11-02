@@ -37,15 +37,22 @@
   > .page-content {
     flex: 1;
     background-color: @color-fg;
-    padding: 20px 12px;
     overflow: auto;
+
+    .inner {
+      height: 100%;
+    }
+
+    ::ng-deep wb-page-content {
+      padding: 20px 12px;
+    }
   }
 
   > .page-footer {
     background-color: @color-fg-xf;
-  }
 
-  > .page-footer ::ng-deep wb-page-footer {
-    padding: 10px 12px 12px;
+    ::ng-deep wb-page-footer {
+      padding: 10px 12px 12px;
+    }
   }
 }
