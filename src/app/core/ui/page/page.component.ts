@@ -19,13 +19,13 @@ const q = (
 
 export const pageTransitions = [
   transition(':enter', [
-    q('.page-header', style({height: '0'})),
+    q('.page-header', style({transform: 'translateY(-100%)'})),
     q('.page-header > .inner', style({transform: 'translateY(-100%)'})),
     q('.page-content', style({opacity: '0'})),
     q('.page-footer', style({transform: 'translateY(100%)'})),
     group(
       [
-        q('.page-header', animate('0.2s ease-out', style({height: '*'}))),
+        q('.page-header', animate('0.2s ease-out', style({transform: 'translateY(0)'}))),
         q('.page-header > .inner', animate('0.2s ease-out', style({transform: 'translateY(0)'})), {
           delay: 200,
         }),
@@ -42,7 +42,9 @@ export const pageTransitions = [
   transition(':leave', [
     group([
       q('.page-header > .inner', animate('0.2s ease-out', style({transform: 'translateY(-100%)'}))),
-      q('.page-header', animate('0.2s ease-out', style({height: '0'})), {delay: 200}),
+      q('.page-header', animate('0.2s ease-out', style({transform: 'translateY(-100%)'})), {
+        delay: 200,
+      }),
       q('.page-content', animate('0.2s linear', style({opacity: '0'}))),
       q('.page-footer', animate('0.2s ease-out', style({transform: 'translateY(100%)'}))),
     ]),
