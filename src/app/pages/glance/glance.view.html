@@ -19,14 +19,20 @@
   </wb-page-header-extend>
 
   <div class="databoard">
-    <wb-glance-view-collection-selector></wb-glance-view-collection-selector>
-    <wb-glance-view-progress title="总体进度" info="150/300" percentage="50" pendingPercentage="50"></wb-glance-view-progress>
-    <wb-glance-view-progress title="今日进度" info="已学习0分钟" percentage="0" pendingPercentage="0"></wb-glance-view-progress>
+    <div class="content-top">
+      <wb-glance-view-collection-selector></wb-glance-view-collection-selector>
+      <wb-glance-view-progress title="总体进度" info="150/300" percentage="50" pendingPercentage="50"> </wb-glance-view-progress>
+      <wb-glance-view-progress title="今日进度" info="已学习0分钟" percentage="0" pendingPercentage="0"></wb-glance-view-progress>
 
-    <div class="progress-details">
-      <wb-glance-view-progress-simple title="新学" info="-/-"></wb-glance-view-progress-simple>
-      <wb-glance-view-progress-simple title="复习" info="-/-"></wb-glance-view-progress-simple>
-      <wb-glance-view-progress-simple title="生词本" info="-/-"></wb-glance-view-progress-simple>
+      <div class="progress-details">
+        <wb-glance-view-progress-simple title="新学" info="-/-"></wb-glance-view-progress-simple>
+        <wb-glance-view-progress-simple title="复习" info="-/-"></wb-glance-view-progress-simple>
+        <wb-glance-view-progress-simple title="生词本" info="-/-"></wb-glance-view-progress-simple>
+      </div>
+    </div>
+
+    <div class="content-bottom">
+      <wb-glance-view-recent-study></wb-glance-view-recent-study>
     </div>
   </div>
 

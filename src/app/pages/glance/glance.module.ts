@@ -10,6 +10,7 @@ import {
   CollectionSelectorComponent,
   ProgressComponent,
   ProgressSimpleComponent,
+  RecentStudyComponent,
 } from './components';
 
 const routes: Routes = [
@@ -30,6 +31,7 @@ const routes: Routes = [
     CollectionSelectorComponent,
     ProgressComponent,
     ProgressSimpleComponent,
+    RecentStudyComponent,
   ],
 })
 export class GlanceModule {}

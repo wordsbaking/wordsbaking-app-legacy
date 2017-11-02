@@ -1,0 +1,49 @@
+@import '~styles/common.less';
+
+@height: 40px;
+
+:host {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  border-bottom: solid 1px @color-fg-xf;
+  width: 100%;
+  height: @height;
+}
+
+.chart {
+  display: flex;
+  align-items: flex-end;
+
+  > div {
+    position: relative;
+    margin-left: 4px;
+    width: 4px;
+    height: @height;
+
+    div {
+      position: absolute;
+      bottom: 0;
+      width: 100%;
+      min-height: 2px;
+      background-color: @color-theme;
+      transition: @transition-height, @transition-color;
+
+      &.none {
+        background-color: @color-fg-xf;
+      }
+    }
+  }
+}
+
+.description {
+  text-align: right;
+  font-size: @size-text-smaller;
+  line-height: @height / 2;
+  color: @color-text-l;
+
+  .title {
+    font-size: @size-text-normal;
+    color: @color-text;
+  }
+}
