@@ -8,7 +8,11 @@ import {
   OnInit,
 } from '@angular/core';
 
-import {TouchDelegate, TouchIdentifier} from 'app/lib/touch-delegate';
+import {
+  TapDelegateEvent,
+  TouchDelegate,
+  TouchIdentifier,
+} from 'app/lib/touch-delegate';
 
 import {NavigationService} from 'app/core/navigation';
 
@@ -19,8 +23,8 @@ import * as logger from 'logger';
 })
 export class TapLinkDirective implements OnInit, OnDestroy {
   @Input('wbTapLink') url: string;
-  @Input('wbTapStop') stop = true;
-  @Input('wbTapPreventDefault') preventDefault = true;
+  @Input('wbTapLinkStop') stop = true;
+  @Input('wbTapLinkPreventDefault') preventDefault = true;
 
   touchDelegate: TouchDelegate;
 
@@ -31,8 +35,12 @@ export class TapLinkDirective implements OnInit, OnDestroy {
   ) {}
 
   @HostListener('td-tap', ['$event'])
-  onTap() {
+  onTap(event: TapDelegateEvent) {
     this.navigation.navigate([this.url]).catch(logger.error);
+
+    if (this.stop) {
+      event.detail.stopPropagation();
+    }
   }
 
   ngOnInit(): void {

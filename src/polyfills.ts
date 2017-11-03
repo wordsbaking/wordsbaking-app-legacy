@@ -65,3 +65,13 @@ import 'zone.js/dist/zone'; // Included with Angular CLI.
  * Need to import at least one locale-data with intl.
  */
 // import 'intl/locale-data/jsonp/en';
+
+document.addEventListener(
+  'touchmove',
+  event => {
+    if ((event as any).scale !== 1) {
+      event.preventDefault();
+    }
+  },
+  false,
+);
