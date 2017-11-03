@@ -9,6 +9,7 @@ import {
   trigger,
 } from '@angular/animations';
 
+import {Location} from '@angular/common';
 import {ChangeDetectionStrategy, Component, ElementRef} from '@angular/core';
 
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
@@ -97,7 +98,7 @@ export class PageComponent {
 
   element: HTMLElement;
 
-  constructor(ref: ElementRef) {
+  constructor(ref: ElementRef, private location: Location) {
     this.element = ref.nativeElement;
   }
 
@@ -107,5 +108,9 @@ export class PageComponent {
     } else {
       this.headerExtensionExpanded$.next(!this.headerExtensionExpanded$.value);
     }
+  }
+
+  back(): void {
+    this.location.back();
   }
 }
