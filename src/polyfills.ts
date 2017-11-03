@@ -75,3 +75,7 @@ document.addEventListener(
   },
   false,
 );
+
+document.addEventListener('gesturestart', event => {
+  event.preventDefault();
+});
