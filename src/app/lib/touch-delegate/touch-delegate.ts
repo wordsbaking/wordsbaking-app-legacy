@@ -29,7 +29,7 @@ export interface TouchDelegateItem {
 }
 
 export type TouchDelegateListener = (
-  event: TouchDelegateEvent,
+  event: TouchDelegateEventDetail,
 ) => void | boolean;
 
 export type TouchType = 'mouse' | 'touch';
@@ -226,12 +226,17 @@ export class TouchInfo {
   }
 }
 
-export interface TouchDelegateEvent {
+export interface TouchDelegateEventDetail {
   originalEvent: Event;
   target: EventTarget | undefined;
   touch: TouchInfo;
   firstMatch: boolean;
   stopPropagation(stopAll?: boolean): void;
+}
+
+export interface TouchDelegateEvent<T extends TouchDelegateEventDetail>
+  extends CustomEvent {
+  detail: T;
 }
 
 export class TouchDelegate {
@@ -276,7 +281,7 @@ export class TouchDelegate {
     this.insert({
       id: (TouchDelegate.added++).toString(),
       identifier,
-      listener(event: TouchDelegateEvent): void {
+      listener(event: TouchDelegateEventDetail): void {
         let $target = $(event.target!);
         let target: HTMLElement;
 
@@ -293,6 +298,20 @@ export class TouchDelegate {
       },
       priority,
     });
+  }
+
+  bind(identifier: TouchIdentifier, priority = 0) {
+    this.on(
+      identifier,
+      event => {
+        this.$target[0].dispatchEvent(
+          new CustomEvent(`td-${identifier.name}`, {
+            detail: event,
+          }),
+        );
+      },
+      priority,
+    );
   }
 
   destroy() {
@@ -718,7 +737,7 @@ export class TouchDelegate {
 
         if (identified) {
           if (match) {
-            let eventData: TouchDelegateEvent = {
+            let eventData: TouchDelegateEventDetail = {
               originalEvent,
               target: TouchDelegate.triggerTarget,
               touch: info,

@@ -2,8 +2,8 @@ import {
   Directive,
   ElementRef,
   EventEmitter,
+  HostListener,
   Input,
-  NgZone,
   OnDestroy,
   OnInit,
   Output,
@@ -26,22 +26,24 @@ export class TapDirective implements OnInit, OnDestroy {
 
   touchDelegate: TouchDelegate;
 
-  constructor(private ref: ElementRef, private zone: NgZone) {}
+  constructor(private ref: ElementRef) {}
+
+  @HostListener('td-tap', ['$event'])
+  onTap(event: TapDelegateEvent) {
+    this.tapEvent.emit(event);
+
+    if (this.stop) {
+      event.detail.stopPropagation();
+    }
+  }
 
   ngOnInit(): void {
     this.touchDelegate = new TouchDelegate(
       this.ref.nativeElement,
       this.preventDefault,
     );
-    this.touchDelegate.on(TouchIdentifier.tap, event => {
-      this.tapEvent.emit(event);
 
-      if (this.stop) {
-        event.stopPropagation();
-      }
-
-      this.zone.run(() => {});
-    });
+    this.touchDelegate.bind(TouchIdentifier.tap);
   }
 
   ngOnDestroy(): void {

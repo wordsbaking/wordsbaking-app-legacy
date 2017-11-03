@@ -1,6 +1,7 @@
 import {
   Directive,
   ElementRef,
+  HostListener,
   Input,
   NgZone,
   OnDestroy,
@@ -24,23 +25,19 @@ export class TapLinkDirective implements OnInit, OnDestroy {
   touchDelegate: TouchDelegate;
 
   constructor(
-    private ref: ElementRef,
-    private navigation: NavigationService,
-    private zone: NgZone,
+    public ref: ElementRef,
+    public navigation: NavigationService,
+    public zone: NgZone,
   ) {}
+
+  @HostListener('td-tap', ['$event'])
+  onTap() {
+    this.navigation.navigate([this.url]).catch(logger.error);
+  }
 
   ngOnInit(): void {
     this.touchDelegate = new TouchDelegate(this.ref.nativeElement, true);
-    this.touchDelegate.on(TouchIdentifier.tap, event => {
-      if (this.stop) {
-        event.stopPropagation();
-      }
-
-      this.navigation
-        .navigate([this.url])
-        .then(() => this.zone.run(() => {}))
-        .catch(logger.error);
-    });
+    this.touchDelegate.bind(TouchIdentifier.tap);
   }
 
   ngOnDestroy(): void {

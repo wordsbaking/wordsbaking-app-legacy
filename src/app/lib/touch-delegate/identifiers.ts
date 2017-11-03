@@ -1,4 +1,8 @@
-import {TouchDelegateEvent, TouchInfo} from './touch-delegate';
+import {
+  TouchDelegateEvent,
+  TouchDelegateEventDetail,
+  TouchInfo,
+} from './touch-delegate';
 
 export interface TouchIdentifierResult {
   identified: boolean;
@@ -18,41 +22,50 @@ export class TouchIdentifier {
   constructor(public name: string, public identify: TouchIdentifyHandler) {}
 }
 
-export interface TapDelegateEvent extends TouchDelegateEvent {}
+export interface TapDelegateEventDetail extends TouchDelegateEventDetail {}
+export type TapDelegateEvent = TouchDelegateEvent<TapDelegateEventDetail>;
 
 /**
  * delegate event interface for `free` identifier.
  */
-export interface FreeDelegateEvent extends TouchDelegateEvent {
+export interface FreeDelegateEventDetail extends TouchDelegateEventDetail {
   diffX: number;
   diffY: number;
   x: number;
   y: number;
 }
+
+export type FreeDelegateEvent = TouchDelegateEvent<FreeDelegateEventDetail>;
 
 /**
  * delegate event interface for `drag` identifier.
  */
-export interface DragDelegateEvent extends TouchDelegateEvent {
+export interface DragDelegateEventDetail extends TouchDelegateEventDetail {
   diffX: number;
   diffY: number;
   x: number;
   y: number;
 }
 
+export type DragDelegateEvent = TouchDelegateEvent<DragDelegateEventDetail>;
+
 /**
  * delegate event interface for `slide-x` identifier.
  */
-export interface SlideXDelegateEvent extends TouchDelegateEvent {
+export interface SlideXDelegateEventDetail extends TouchDelegateEventDetail {
   diffX: number;
 }
+
+export type SlideXDelegateEvent = TouchDelegateEvent<SlideXDelegateEventDetail>;
 
 /**
  * delegate event interface for `slide-y` identifier.
  */
-export interface SlideYDelegateEvent extends TouchDelegateEvent {
+export interface SlideYDelegateEventDetail extends TouchDelegateEventDetail {
   diffY: number;
 }
+
+export type SlideYDelegateEvent = TouchDelegateEvent<SlideYDelegateEventDetail>;
 
 export namespace TouchIdentifier {
   /**
