@@ -1,0 +1,30 @@
+@import '~styles/common.less';
+
+:host {
+  display: flex;
+  justify-content: space-between;
+  margin: 5px 2px 0;
+  align-items: flex-start;
+
+  > .head {
+    display: flex;
+    flex-direction: column;
+
+    .name {
+      font-size: @size-text-larger;
+      line-height: 30px;
+    }
+
+    .description {
+      font-size: @size-text-smaller;
+      line-height: 24px;
+      color: @color-text-l;
+      margin-left: 1px;
+    }
+  }
+
+  > .extend {
+    flex: none;
+    padding-top: 5px;
+  }
+}

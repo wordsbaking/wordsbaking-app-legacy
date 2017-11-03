@@ -3,7 +3,11 @@ import {NgModule} from '@angular/core';
 
 import {RouterModule, Routes} from '@angular/router';
 
+import {UIModule} from 'app/ui';
+
 import {CoreUIModule} from 'app/core/ui';
+
+import {SettingsGroupComponent, SettingsItemComponent} from './components';
 
 import {SettingsView} from './settings.view';
 
@@ -19,7 +23,12 @@ const routes: Routes = [
 ];
 
 @NgModule({
-  imports: [CommonModule, CoreUIModule, RouterModule.forChild(routes)],
-  declarations: [SettingsView],
+  imports: [
+    CommonModule,
+    UIModule,
+    CoreUIModule,
+    RouterModule.forChild(routes),
+  ],
+  declarations: [SettingsView, SettingsGroupComponent, SettingsItemComponent],
 })
 export class SettingsModule {}

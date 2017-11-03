@@ -1,0 +1,22 @@
+@import '~styles/common.less';
+
+:host {
+  display: flex;
+  flex-direction: column;
+  margin-top: 10px;
+
+  &:first-child {
+    margin-top: 0;
+  }
+
+  &:last-child {
+    margin-bottom: 10px;
+  }
+
+  > .head {
+    .title {
+      font-size: @size-text-smaller;
+      color: @color-text-xxl;
+    }
+  }
+}
