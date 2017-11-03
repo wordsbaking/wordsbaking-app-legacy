@@ -1,0 +1,50 @@
+@import '~styles/common.less';
+
+@switch-width: 40px;
+@switch-height: 20px;
+@switch-button-width: 16px;
+
+:host {
+  position: relative;
+  display: inline-block;
+  width: @switch-width;
+  height: @switch-height;
+  border-radius: 2px;
+  background-color: @color-fg-f;
+  cursor: pointer;
+  overflow: hidden;
+
+  &::after {
+    content: '';
+    display: block;
+    width: @switch-button-width;
+    height: @switch-height;
+    border-radius: 2px;
+    background-color: @color-theme-g-f;
+    transition: @transition-transform, @transition-background-color;
+  }
+}
+
+:host > .checkbox-handle {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  cursor: pointer;
+  overflow: hidden;
+  z-index: 1;
+
+  input {
+    width: 0;
+    left: 0;
+    opacity: 0;
+  }
+}
+
+:host.selected {
+  &::after {
+    transform: translateX(@switch-width - @switch-button-width);
+    background-color: @color-theme;
+  }
+}
