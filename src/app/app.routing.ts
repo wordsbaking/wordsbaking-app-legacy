@@ -12,6 +12,11 @@ const routes: Routes = [
     data: {target: 'glance'},
   },
   {
+    path: 'study',
+    loadChildren: './pages/study/study.module#StudyModule',
+    data: {target: 'study'},
+  },
+  {
     path: 'settings',
     loadChildren: './pages/settings/settings.module#SettingsModule',
     data: {target: 'settings'},

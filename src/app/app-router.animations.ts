@@ -17,9 +17,19 @@ const q = (
 
 export const routerTransition = trigger('routerTransition', [
   transition('* <=> *', [
-    q(':enter', style({position: 'fixed', right: 0, bottom: 0, top: 0, left: 0, zIndex: 0})),
     q(
-      ':leave',
+      'wb-view:enter',
+      style({
+        position: 'fixed',
+        right: 0,
+        bottom: 0,
+        top: 0,
+        left: 0,
+        zIndex: 0,
+      }),
+    ),
+    q(
+      'wb-view:leave',
       style({
         position: 'fixed',
         right: 0,
@@ -29,6 +39,9 @@ export const routerTransition = trigger('routerTransition', [
         zIndex: 1,
       }),
     ),
-    sequence([q(':leave', animateChild()), q(':enter', animateChild())]),
+    sequence([
+      q('wb-view:leave', animateChild()),
+      q('wb-view:enter', animateChild()),
+    ]),
   ]),
 ]);

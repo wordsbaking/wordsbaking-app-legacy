@@ -4,6 +4,7 @@ import {
   animate,
   group,
   query,
+  state,
   style,
   transition,
   trigger,
@@ -79,11 +80,16 @@ export const pageTransitions = [
 ];
 
 const headerExtensionTransitions = trigger('headerExtensionTransitions', [
-  transition(':enter', [
+  state('folded', style({height: 0})),
+  state('expanded', style({height: '*'})),
+  transition(':enter, folded => expanded', [
     style({height: 0}),
     animate('0.2s ease-out', style({height: '*'})),
   ]),
-  transition(':leave', animate('0.2s ease-out', style({height: 0}))),
+  transition('expanded => folded', [
+    style({height: '*'}),
+    animate('0.2s ease-out', style({height: 0})),
+  ]),
 ]);
 
 @Component({
@@ -94,8 +100,8 @@ const headerExtensionTransitions = trigger('headerExtensionTransitions', [
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PageComponent {
+  headerExtensionRendered$ = new BehaviorSubject<boolean>(false);
   headerExtensionExpanded$ = new BehaviorSubject<boolean>(false);
-
   element: HTMLElement;
 
   constructor(ref: ElementRef, private location: Location) {
@@ -103,11 +109,24 @@ export class PageComponent {
   }
 
   toggleHeaderExtension(force?: boolean): void {
+    let rendered = this.headerExtensionRendered$.value;
+    let expanded = this.headerExtensionExpanded$.value;
+
     if (force !== undefined) {
-      this.headerExtensionExpanded$.next(force);
+      if (!rendered) {
+        this.headerExtensionRendered$.next(true);
+      }
+
+      expanded = force;
     } else {
-      this.headerExtensionExpanded$.next(!this.headerExtensionExpanded$.value);
+      if (!rendered) {
+        this.headerExtensionRendered$.next(true);
+      }
+
+      expanded = !expanded;
     }
+
+    this.headerExtensionExpanded$.next(expanded);
   }
 
   back(): void {

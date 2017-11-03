@@ -3,7 +3,9 @@ import {Component, HostBinding} from '@angular/core';
 
 import {pageTransitions} from 'app/core/ui';
 
-const glanceViewTransitions = trigger('glanceViewTransitions', [...pageTransitions]);
+const glanceViewTransitions = trigger('glanceViewTransitions', [
+  ...pageTransitions,
+]);
 
 @Component({
   selector: 'wb-view.glance-view',

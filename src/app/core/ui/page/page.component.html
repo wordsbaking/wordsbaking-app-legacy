@@ -3,8 +3,8 @@
     <ng-content select="wb-page-header"></ng-content>
   </div>
   <div class="header-extension-wrapper"
-    *ngIf="headerExtensionExpanded$ | async"
-    [@headerExtensionTransitions]>
+    *ngIf="headerExtensionRendered$ | async"
+    [@headerExtensionTransitions]="(headerExtensionExpanded$ | async) ? 'expanded' : 'folded'">
     <div class="inner">
       <ng-content select="wb-page-header-extension"></ng-content>
     </div>
