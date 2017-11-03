@@ -30,27 +30,9 @@ export class SwitchComponent {
 
   @Output() checkedChange = new EventEmitter<boolean>();
 
-  @Input()
-  set size(size: SwitchComponentSize) {
-    if (this.checkboxSize === size) {
-      return;
-    }
-
-    this.element.classList.toggle('large', size === 'large');
-    this.element.classList.toggle('normal', size === 'normal');
-    this.element.classList.toggle('small', size === 'small');
-
-    this.checkboxSize = size;
-  }
-
-  get size(): SwitchComponentSize {
-    return this.checkboxSize || 'normal';
-  }
-
   element: HTMLElement;
 
   @HostBinding('class.selected') private checkboxChecked = false;
-  private checkboxSize: SwitchComponentSize;
 
   constructor(ref: ElementRef) {
     this.element = ref.nativeElement;
