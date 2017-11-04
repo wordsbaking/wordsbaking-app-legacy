@@ -1,0 +1,66 @@
+@import '~styles/common.less';
+
+wb-page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  .tagline {
+    margin-right: 20px;
+  }
+
+  .toolbar {
+    display: flex;
+    align-items: center;
+
+    .time {
+      margin-right: 8px;
+    }
+
+    .avatar-wrapper {
+      flex: none;
+      width: 18px;
+      height: 18px;
+      border-radius: 2px;
+      border: solid 1px @color-theme-text;
+      background-color: @color-fg-f;
+      overflow: hidden;
+
+      .avatar {
+        display: block;
+        width: 100%;
+        height: 100%;
+        background-position: center;
+        background-size: cover;
+        border-radius: 2px;
+      }
+    }
+  }
+}
+
+wb-page-header-extension {
+  display: flex;
+  justify-content: flex-end;
+  width: 100%;
+
+  .audio-mode-switch-button {
+    position: relative;
+    margin-right: -5px;
+
+    .status {
+      position: absolute;
+      bottom: 0;
+      right: 0;
+      padding: 0 4px;
+      height: 16px;
+      line-height: 16px;
+      text-align: center;
+      font-size: 8px;
+      font-weight: bold;
+      color: @color-fg;
+      background-color: fade(@color-theme-xd, 80%);
+      border-radius: 1px;
+      overflow: hidden;
+    }
+  }
+}

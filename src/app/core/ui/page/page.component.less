@@ -22,8 +22,8 @@
       background-color: @color-theme;
     }
 
-    > .inner ::ng-deep wb-page-header,
-    > .inner ::ng-deep wb-page-header-extension {
+    ::ng-deep wb-page-header,
+    ::ng-deep wb-page-header-extension {
       padding: 0 12px;
     }
 
@@ -33,10 +33,6 @@
       flex-direction: column;
       justify-content: flex-end;
       overflow: hidden;
-
-      &.folded {
-        height: 0;
-      }
     }
   }
 
