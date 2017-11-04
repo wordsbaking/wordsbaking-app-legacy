@@ -19,7 +19,7 @@ import {
   selector: '[wbTap]',
 })
 export class TapDirective implements OnInit, OnDestroy {
-  @Input('wbTapStop') stop = false;
+  @Input('wbTapStop') stop = true;
   @Input('wbTapPreventDefault') preventDefault = true;
 
   @Output('wbTap') tapEvent = new EventEmitter<TapDelegateEvent>();
