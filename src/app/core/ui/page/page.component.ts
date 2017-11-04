@@ -90,6 +90,10 @@ const headerExtensionTransitions = trigger('headerExtensionTransitions', [
     style({height: '*'}),
     animate('0.2s ease-out', style({height: 0})),
   ]),
+  transition('folded => void', [
+    style({height: 0}),
+    animate(400, style({height: 0})),
+  ]),
 ]);
 
 @Component({
