@@ -113,6 +113,10 @@ export class PageComponent {
     let expanded = this.headerExtensionExpanded$.value;
 
     if (force !== undefined) {
+      if (!force && !expanded) {
+        return;
+      }
+
       if (!rendered) {
         this.headerExtensionRendered$.next(true);
       }
@@ -124,6 +128,10 @@ export class PageComponent {
       }
 
       expanded = !expanded;
+    }
+
+    if (expanded === !!this.headerExtensionExpanded$.value) {
+      return;
     }
 
     this.headerExtensionExpanded$.next(expanded);
