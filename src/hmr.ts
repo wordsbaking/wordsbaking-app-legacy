@@ -9,7 +9,6 @@ export async function hmrBootstrap(module: any, bootstrap: Bootstrap) {
   module.hot.accept();
 
   module.hot.dispose(() => {
-    // tslint:disable-next-line:deprecation
     let appRef: ApplicationRef = ngModule.injector.get(ApplicationRef);
 
     let elements = appRef.components.map(c => c.location.nativeElement);
