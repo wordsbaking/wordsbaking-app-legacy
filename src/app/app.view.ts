@@ -5,9 +5,9 @@ import {routerTransition} from './app-router.animations';
 
 @Component({
   selector: 'wb-root',
-  animations: [routerTransition],
   templateUrl: './app.view.html',
   styleUrls: ['./app.view.less'],
+  animations: [routerTransition],
 })
 export class AppView {
   @ViewChild('outlet', {read: RouterOutlet})

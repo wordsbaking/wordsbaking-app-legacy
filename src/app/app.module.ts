@@ -5,9 +5,11 @@ import {RouterModule} from '@angular/router';
 
 import {CoreNavigationModule} from 'app/core/navigation';
 import {CoreUIModule} from 'app/core/ui';
+
+import {UIModule} from './ui';
+
 import {AppRouting} from './app.routing';
 import {AppView} from './app.view';
-import {UIModule} from './ui/ui.module';
 
 @NgModule({
   imports: [
