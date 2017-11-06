@@ -3,6 +3,7 @@
   "compilerOptions": {
     "target": "es5",
     "lib": ["es2016", "dom"],
+    "types": ["websql"],
     "module": "es2015",
     "moduleResolution": "node",
     "strict": true,
@@ -18,7 +19,6 @@
     "newLine": "LF",
     "baseUrl": ".",
     "rootDir": ".",
-    "typeRoots": ["node_modules/@types"],
     "plugins": [
       {
         "name": "tslint-language-service"
