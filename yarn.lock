@@ -190,6 +190,10 @@
   version "3.2.16"
   resolved "http://registry.npm.taobao.org/@types/jquery/download/@types/jquery-3.2.16.tgz#04419c404a3194350e7d3f339a90e72c88db3111"
 
+"@types/websql@^0.0.27":
+  version "0.0.27"
+  resolved "http://registry.npm.taobao.org/@types/websql/download/@types/websql-0.0.27.tgz#621a666a7f02018e7cbb4abab956a25736c27d71"
+
 abbrev@1:
   version "1.1.1"
   resolved "http://registry.npm.taobao.org/abbrev/download/abbrev-1.1.1.tgz#f8f2c887ad10bf67f634f005b6987fed3179aac8"
@@ -5368,6 +5372,10 @@ verror@1.10.0:
     assert-plus "^1.0.0"
     core-util-is "1.0.2"
     extsprintf "^1.2.0"
+
+villa@0.3.0:
+  version "0.3.0"
+  resolved "http://registry.npm.taobao.org/villa/download/villa-0.3.0.tgz#2651a40c64ca1eeec89f15083e53e38f21cf6d14"
 
 vlq@^0.2.1:
   version "0.2.3"
