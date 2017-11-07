@@ -1,5 +1,12 @@
-import {Component, HostBinding, ViewChild} from '@angular/core';
+import {
+  Component,
+  HostBinding,
+  ViewChild,
+  ViewContainerRef,
+} from '@angular/core';
 import {RouterOutlet} from '@angular/router';
+
+import {ViewContainerService} from 'app/ui/util/view-container.service';
 
 import {routerTransition} from './app-router.animations';
 
@@ -16,5 +23,12 @@ export class AppView {
   @HostBinding('@routerTransition')
   get routerTransitionState(): string {
     return this.outlet.activatedRouteData.target;
+  }
+
+  constructor(
+    viewContainerRef: ViewContainerRef,
+    viewContainerService: ViewContainerService,
+  ) {
+    viewContainerService.viewContainerRef = viewContainerRef;
   }
 }
