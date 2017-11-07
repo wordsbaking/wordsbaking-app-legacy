@@ -10,7 +10,7 @@
     "lint:styles": "stylelint src/**/*.less",
     "lint": "yarn lint:styles && yarn lint:scripts",
     "start": "ng serve --host 0.0.0.0 --hmr -e hmr",
-    "build": "ng build"
+    "build": "ng build -prod"
   },
   "private": true,
   "dependencies": {

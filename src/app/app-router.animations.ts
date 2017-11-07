@@ -9,11 +9,13 @@ import {
   trigger,
 } from '@angular/animations';
 
-const q = (
+export function q(
   selector: string,
   animation: AnimationMetadata | AnimationMetadata[],
   options: AnimationQueryOptions = {optional: true},
-) => query(selector, animation, options);
+) {
+  return query(selector, animation, options);
+}
 
 export const routerTransition = trigger('routerTransition', [
   transition('* <=> *', [

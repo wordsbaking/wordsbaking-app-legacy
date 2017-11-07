@@ -15,11 +15,13 @@ import {ChangeDetectionStrategy, Component, ElementRef} from '@angular/core';
 
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 
-const q = (
+export function q(
   selector: string,
   animation: AnimationMetadata | AnimationMetadata[],
   options: AnimationQueryOptions = {optional: true},
-) => query(selector, animation, options);
+) {
+  return query(selector, animation, options);
+}
 
 export const pageTransitions = [
   transition(':enter', [

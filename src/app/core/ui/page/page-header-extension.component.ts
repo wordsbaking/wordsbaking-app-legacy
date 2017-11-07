@@ -6,4 +6,4 @@ import {Component} from '@angular/core';
   styles: [':host { display: block; }'],
   animations: [],
 })
-export class PageheaderExtensionComponent {}
+export class PageHeaderExtensionComponent {}
