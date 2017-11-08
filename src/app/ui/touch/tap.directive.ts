@@ -20,7 +20,7 @@ import {
 })
 export class TapDirective implements OnInit, OnDestroy {
   @Input('wbTapStop') stop = true;
-  @Input('wbTapPreventDefault') preventDefault = true;
+  @Input('wbTapPreventDefault') preventDefault = false;
 
   @Output('wbTap') tapEvent = new EventEmitter<TapDelegateEvent>();
 
@@ -30,6 +30,11 @@ export class TapDirective implements OnInit, OnDestroy {
 
   @HostListener('td-tap', ['$event'])
   onTap(event: TapDelegateEvent) {
+    // TODO: unreliable
+    if (event.detail.originalEvent.type === 'mouseup') {
+      return;
+    }
+
     this.tapEvent.emit(event);
 
     if (this.stop) {

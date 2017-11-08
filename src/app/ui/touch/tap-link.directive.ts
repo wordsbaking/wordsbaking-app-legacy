@@ -24,7 +24,7 @@ import * as logger from 'logger';
 export class TapLinkDirective implements OnInit, OnDestroy {
   @Input('wbTapLink') url: string;
   @Input('wbTapLinkStop') stop = true;
-  @Input('wbTapLinkPreventDefault') preventDefault = true;
+  @Input('wbTapLinkPreventDefault') preventDefault = false;
 
   touchDelegate: TouchDelegate;
 
@@ -36,6 +36,11 @@ export class TapLinkDirective implements OnInit, OnDestroy {
 
   @HostListener('td-tap', ['$event'])
   onTap(event: TapDelegateEvent) {
+    // TODO: unreliable
+    if (event.detail.originalEvent.type === 'mouseup') {
+      return;
+    }
+
     this.navigation.navigate([this.url]).catch(logger.error);
 
     if (this.stop) {
@@ -44,7 +49,10 @@ export class TapLinkDirective implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    this.touchDelegate = new TouchDelegate(this.ref.nativeElement, true);
+    this.touchDelegate = new TouchDelegate(
+      this.ref.nativeElement,
+      this.preventDefault,
+    );
     this.touchDelegate.bind(TouchIdentifier.tap);
   }
 

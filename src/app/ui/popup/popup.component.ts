@@ -444,16 +444,12 @@ export class PopupComponent implements OnInit, AfterViewChecked {
     let {
       $popup,
       $context,
-      // margin = 5,
+      margin = 5,
       positions = ['center'] as PopupPositionType[],
       popupWidthSize,
       popupHeightSize,
       contextWidth,
       contextHeight,
-      // contextLeft,
-      // contextTop,
-      // contentComponentRef,
-      // currentPositionInfo,
     } = this;
 
     if (
@@ -504,13 +500,13 @@ export class PopupComponent implements OnInit, AfterViewChecked {
     switch (side) {
       case 'left':
       case 'right':
-        left = calculateX(side);
-        top = calculateY(direction as YAxisPosition | undefined);
+        left = calculateX(side) - margin;
+        top = calculateY(direction as YAxisPosition | undefined) - margin;
         break;
       case 'top':
       case 'bottom':
         top = calculateY(side);
-        left = calculateX(direction as XAxisPosition | undefined);
+        left = calculateX(direction as XAxisPosition | undefined) - margin;
         break;
       case 'center':
         left = (contextWidth - popupWidth) / 2;
