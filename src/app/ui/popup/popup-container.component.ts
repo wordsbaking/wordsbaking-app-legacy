@@ -145,7 +145,7 @@ export class PopupContainerComponent implements OnInit, AfterViewChecked {
     }
 
     this.popupTransitionsState = animation || 'fadeIn';
-    console.log(this.popupTransitionsState);
+
     this.$popup.addClass('wb-popup');
   }
 
