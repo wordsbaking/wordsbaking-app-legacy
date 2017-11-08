@@ -1,0 +1,15 @@
+@import '~styles/common.less';
+
+:host {
+  display: block;
+  transition: @transition-background-color;
+  padding: 10px;
+
+  &:active {
+    background-color: @color-fg-f;
+  }
+
+  &.selected {
+    background-color: @color-fg-f;
+  }
+}
