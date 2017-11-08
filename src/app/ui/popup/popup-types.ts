@@ -33,4 +33,12 @@ export interface PopupShowOptions {
   clearOnWindowScroll?: boolean;
   clearOnClick?: boolean;
   clearOnOutsideClick?: boolean;
+  animation?: PopupAnimation;
 }
+
+export interface PopupHandler {
+  result: Promise<void>;
+  clear(): void;
+}
+
+export type PopupAnimation = 'fadeIn' | 'fadeInDown';

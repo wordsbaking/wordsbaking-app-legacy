@@ -11,21 +11,21 @@ import {TouchDelegate, TouchIdentifier} from '../../lib/touch-delegate';
 
 import {ViewContainerService} from '../util';
 
-import {PopupContentType, PopupShowOptions, PopupShowType} from './popup-types';
+import {
+  PopupContentType,
+  PopupHandler,
+  PopupShowOptions,
+  PopupShowType,
+} from './popup-types';
 
 import {PopupBackgroundComponent} from './popup-background.component';
-import {PopupComponent} from './popup.component';
+import {PopupContainerComponent} from './popup-container.component';
 
 interface PopupInfo {
-  ref: ComponentRef<PopupComponent>;
+  ref: ComponentRef<PopupContainerComponent>;
   ticked: boolean;
   options: PopupShowOptions;
   onClear(): void;
-}
-
-export interface PopupHandler {
-  result: Promise<void>;
-  clear(): void;
 }
 
 @Injectable()
@@ -100,7 +100,9 @@ export class PopupService {
       this.backgroundComponentRef = viewContainerRef.createComponent(factory);
     }
 
-    let factory = this.resolver.resolveComponentFactory(PopupComponent);
+    let factory = this.resolver.resolveComponentFactory(
+      PopupContainerComponent,
+    );
     let componentRef = viewContainerRef.createComponent(factory);
 
     componentRef.instance.init({
