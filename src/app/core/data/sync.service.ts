@@ -12,6 +12,8 @@ import * as v from 'villa';
 
 import {APIService} from 'app/core/common';
 import {ConfigService} from 'app/core/config';
+import {DBStorage} from 'app/core/storage';
+
 import {
   AccumulationDataEntryTypeDefinition,
   AccumulationUpdateData,
@@ -20,8 +22,7 @@ import {
   Item,
   UpdateItem,
   ValueDataEntryTypeDefinition,
-} from 'app/core/data';
-import {DBStorage} from 'app/core/storage';
+} from './types';
 
 interface SyncRequest {
   syncAt: number;
