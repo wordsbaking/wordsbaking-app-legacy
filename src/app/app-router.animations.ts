@@ -17,7 +17,7 @@ export function q(
   return query(selector, animation, options);
 }
 
-export const routerTransition = trigger('routerTransition', [
+export const routerTransitions = trigger('routerTransitions', [
   transition('* <=> *', [
     q(
       'wb-view:enter',

@@ -8,20 +8,20 @@ import {RouterOutlet} from '@angular/router';
 
 import {ViewContainerService} from 'app/ui/util/view-container.service';
 
-import {routerTransition} from './app-router.animations';
+import {routerTransitions} from './app-router.animations';
 
 @Component({
   selector: 'wb-root',
   templateUrl: './app.view.html',
   styleUrls: ['./app.view.less'],
-  animations: [routerTransition],
+  animations: [routerTransitions],
 })
 export class AppView {
   @ViewChild('outlet', {read: RouterOutlet})
   outlet: RouterOutlet;
 
-  @HostBinding('@routerTransition')
-  get routerTransitionState(): string {
+  @HostBinding('@routerTransitions')
+  get routerTransitionsState(): string {
     return this.outlet.activatedRouteData.target;
   }
 

@@ -19,3 +19,35 @@
     background-color: transparent;
   }
 }
+
+.selection-list-popup {
+  background-color: @color-fg;
+  width: 100%;
+  padding: 20px 10px;
+
+  wb-selection-list {
+    max-height: 200px;
+    overflow: auto;
+  }
+
+  wb-selection-list-item {
+    flex: none;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    height: 40px;
+  }
+
+  wb-selection-list-item .check {
+    display: none;
+  }
+
+  wb-selection-list-item.selected {
+    background-color: transparent;
+  }
+
+  wb-selection-list-item.selected .check {
+    display: block;
+    color: @color-theme;
+  }
+}

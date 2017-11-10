@@ -21,7 +21,6 @@ import {AppView} from './app.view';
     RouterModule,
     CoreUIModule,
     AppRouting,
-    UIModule,
     UIModule.forRoot(),
     CoreCommonModule.forRoot(),
     CoreConfigModule.forRoot(),
