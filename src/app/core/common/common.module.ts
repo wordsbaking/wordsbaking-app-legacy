@@ -1,17 +1,17 @@
 import {CommonModule} from '@angular/common';
 import {ModuleWithProviders, NgModule} from '@angular/core';
 
-import {SyncService} from './sync.service';
+import {APIService} from './api.service';
 
 @NgModule({
   imports: [CommonModule],
   declarations: [],
 })
-export class CoreDataModule {
+export class CoreCommonModule {
   static forRoot(): ModuleWithProviders {
     return {
-      ngModule: CoreDataModule,
-      providers: [SyncService],
+      ngModule: CoreCommonModule,
+      providers: [APIService],
     };
   }
 }

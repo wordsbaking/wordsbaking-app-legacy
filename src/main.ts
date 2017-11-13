@@ -1,6 +1,7 @@
 import {enableProdMode} from '@angular/core';
 import {platformBrowserDynamic} from '@angular/platform-browser-dynamic';
 
+import 'rxjs/add/observable/combineLatest';
 import 'rxjs/add/observable/concat';
 import 'rxjs/add/observable/defer';
 import 'rxjs/add/observable/from';
@@ -11,6 +12,7 @@ import 'rxjs/add/operator/concat';
 import 'rxjs/add/operator/concatMap';
 import 'rxjs/add/operator/debounceTime';
 import 'rxjs/add/operator/delay';
+import 'rxjs/add/operator/delayWhen';
 import 'rxjs/add/operator/distinctUntilChanged';
 import 'rxjs/add/operator/do';
 import 'rxjs/add/operator/filter';
@@ -22,6 +24,7 @@ import 'rxjs/add/operator/pairwise';
 import 'rxjs/add/operator/publish';
 import 'rxjs/add/operator/publishReplay';
 import 'rxjs/add/operator/repeat';
+import 'rxjs/add/operator/repeatWhen';
 import 'rxjs/add/operator/skip';
 import 'rxjs/add/operator/switch';
 import 'rxjs/add/operator/switchMap';

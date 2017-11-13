@@ -1,4 +1,4 @@
-import * as v from 'villa';
+import {Subject} from 'rxjs/Subject';
 
 const PRIMARY_KEY = 'id';
 const JSON_KEY = '_json';
@@ -17,11 +17,13 @@ export interface DBStorageCreateOptions {
   name?: string;
   tableName?: string;
   /** Defaults to 'integer'. */
-  primaryType?: string;
+  idType?: string;
   indexSchema?: Dict<string>;
 }
 
-export class DBStorage<K extends string | number> {
+export class DBStorage<K extends string | number, T extends DBStorageItem<K>> {
+  readonly change$ = new Subject<void>();
+
   private constructor(
     readonly db: Database,
     readonly columns: string[],
@@ -34,42 +36,53 @@ export class DBStorage<K extends string | number> {
     queries: string | string[],
     argsArray: any[] = [],
   ): Promise<SQLResultSet> {
-    return v.lock(this, async () => {
-      if (typeof queries === 'string') {
-        queries = [queries];
-        argsArray = [argsArray];
-      }
+    if (typeof queries === 'string') {
+      queries = [queries];
+      argsArray = [argsArray];
+    }
 
+    return new Promise<SQLResultSet>((resolve, reject) => {
       let result: SQLResultSet;
+      let changed = false;
 
-      return new Promise<SQLResultSet>((resolve, reject) => {
-        this.db.transaction(
-          transaction => {
-            for (let i = 0; i < queries.length; i++) {
-              let query = queries[i];
-              let args = argsArray[i];
+      this.db.transaction(
+        transaction => {
+          next(transaction, 0);
 
-              if (i < queries.length - 1) {
-                transaction.executeSql(query, args);
-              } else {
-                transaction.executeSql(
-                  query,
-                  args,
-                  (_transaction, resultSet) => {
-                    result = resultSet;
-                  },
-                );
-              }
+          function next(transaction: SQLTransaction, index: number) {
+            if (index >= queries.length) {
+              // The transaction will complete if no other statements to be
+              // executed after something like `setTimeout(..., 0)`.
+              return;
             }
-          },
-          error => reject(error),
-          () => resolve(result),
-        );
-      });
+
+            let query = queries[index];
+            let args = argsArray[index];
+
+            transaction.executeSql(query, args, (transaction, resultSet) => {
+              if (resultSet.rowsAffected) {
+                changed = true;
+              }
+
+              if (index === queries.length - 1) {
+                result = resultSet;
+                return;
+              }
+
+              next(transaction, index + 1);
+            });
+          }
+        },
+        error => reject(error),
+        () => {
+          this.change$.next();
+          resolve(result);
+        },
+      );
     });
   }
 
-  async get<T extends DBStorageItem<K>>(id: K): Promise<T | undefined> {
+  async get(id: K): Promise<T | undefined> {
     let {rows} = await this.exec(
       `select * from "${this.tableName}" where "${PRIMARY_KEY}"=?`,
       [id],
@@ -81,17 +94,17 @@ export class DBStorage<K extends string | number> {
 
     let row = rows.item(0);
 
-    return this.buildItem<T>(row);
+    return this.buildItem(row);
   }
 
-  async getAll<T extends DBStorageItem<K>>(): Promise<T[]> {
+  async getAll(): Promise<T[]> {
     let {rows} = await this.exec(`select * from "${this.tableName}"`);
 
     let items: T[] = [];
 
     for (let i = 0; i < rows.length; i++) {
       let row = rows.item(i);
-      let item = this.buildItem<T>(row);
+      let item = this.buildItem(row);
       items.push(item);
     }
 
@@ -113,9 +126,9 @@ export class DBStorage<K extends string | number> {
     return ids;
   }
 
-  async set(id: K, value: DBStorageItem<K>): Promise<void>;
-  async set(item: DBStorageItem<K>): Promise<void>;
-  async set(id: K | DBStorageItem<K>, item?: DBStorageItem<K>): Promise<void> {
+  async set(id: K, value: T): Promise<void>;
+  async set(item: T): Promise<void>;
+  async set(id: K | T, item?: T): Promise<void> {
     if (typeof id === 'object') {
       item = id;
       id = item[PRIMARY_KEY];
@@ -125,7 +138,7 @@ export class DBStorage<K extends string | number> {
     let extraColumns: string[] = [];
     let extraValues: any[] = [];
 
-    item = {...item} as DBStorageItem<K>;
+    item = {...(item as object)} as T;
 
     delete item[PRIMARY_KEY];
 
@@ -155,7 +168,7 @@ values (
   }
 
   async setMultiple(
-    items: DBStorageItem<K>[],
+    items: T[],
     progress?: SetMultipleProgressHandler,
   ): Promise<void> {
     if (!items.length) {
@@ -182,7 +195,7 @@ select ${[...columns, JSON_KEY]
     let total = items.length;
     let done = 0;
 
-    let itemGroups: DBStorageItem<K>[][] = [];
+    let itemGroups: T[][] = [];
 
     // it's said somewhere that sqlite handles 500 at most every single time
     // though in the sqlite plugin it's set to 250...
@@ -213,7 +226,7 @@ select ${[...columns, JSON_KEY]
       let values: any[] = [];
 
       for (let item of items) {
-        item = {...item} as DBStorageItem<K>;
+        item = {...(item as object)} as T;
 
         for (let column of columns) {
           if (hasOwnProperty.call(item, column)) {
@@ -236,12 +249,12 @@ select ${[...columns, JSON_KEY]
     }
   }
 
-  async insert<T extends DBStorageItem<K>>(item: T): Promise<number> {
+  async insert(item: T): Promise<number> {
     let extraVariables: string[] = [];
     let extraColumns: string[] = [];
     let extraValues: any[] = [];
 
-    item = {...(item as DBStorageItem<K>)} as T;
+    item = {...(item as object)} as T;
 
     let columns = this.columns.concat();
 
@@ -291,7 +304,7 @@ values (
     await this.exec(query);
   }
 
-  private buildItem<T extends DBStorageItem<K>>(row: any): T {
+  private buildItem(row: any): T {
     let item = JSON.parse(row[JSON_KEY] || '{}');
 
     let columns = this.columns;
@@ -311,12 +324,12 @@ values (
     return item;
   }
 
-  static async create<K extends string | number>({
+  static async create<K extends string | number, T extends DBStorageItem<K>>({
     name = 'default',
     tableName = 'data',
-    primaryType = 'integer',
+    idType = 'integer',
     indexSchema = {},
-  }: DBStorageCreateOptions): Promise<DBStorage<K>> {
+  }: DBStorageCreateOptions): Promise<DBStorage<K, T>> {
     let columns = Object.keys(indexSchema);
 
     let db = DBStorage.dbMap.get(name);
@@ -335,7 +348,7 @@ values (
         transaction => {
           let query = `\
 create table if not exists "${tableName}" (
-  "${PRIMARY_KEY}" ${primaryType} primary key,
+  "${PRIMARY_KEY}" ${idType} primary key,
   ${columns.map(column => `"${column}" ${indexSchema[column]},`).join('\n  ')}
   "${JSON_KEY}" text
 )`;
