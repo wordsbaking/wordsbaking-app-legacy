@@ -128,7 +128,7 @@ export class PopupService {
         },
       };
 
-      setTimeout(() => (info.ticked = true));
+      setTimeout(() => (info.ticked = true), 100);
 
       this.popupInfoSet.add(info);
     });

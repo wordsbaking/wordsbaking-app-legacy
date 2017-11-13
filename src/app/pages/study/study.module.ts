@@ -6,6 +6,11 @@ import {UIModule} from 'app/ui';
 
 import {CoreUIModule} from 'app/core/ui';
 
+import {
+  WordDetailComponent,
+  WordItemComponent,
+  WordStackComponent,
+} from './component';
 import {StudyComponent} from './study.view';
 
 const routes: Routes = [
@@ -26,6 +31,11 @@ const routes: Routes = [
     CoreUIModule,
     RouterModule.forChild(routes),
   ],
-  declarations: [StudyComponent],
+  declarations: [
+    StudyComponent,
+    WordStackComponent,
+    WordItemComponent,
+    WordDetailComponent,
+  ],
 })
 export class StudyModule {}

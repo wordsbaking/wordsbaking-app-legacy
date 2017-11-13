@@ -16,7 +16,7 @@ export class SelectionListItemComponent<T> {
   @Input('selected')
   set selectedInput(selected: boolean) {
     if (selected !== this.selected) {
-      this.toggleSelect(selected);
+      this.toggleSelect(!!selected);
     }
   }
 

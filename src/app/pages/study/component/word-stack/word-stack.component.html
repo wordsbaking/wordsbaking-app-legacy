@@ -1,0 +1,5 @@
+<wb-study-view-word-item
+  [@wordItemTransitions]="!!enabledWordItemTransitions"
+  *ngFor="let item of words$ | async; let index=index;" [data]="item"
+  [style.top]="calculateWordItemTopPosition(index)">
+</wb-study-view-word-item>

@@ -1,0 +1,27 @@
+<div class="status-label-wrapper">
+  <!-- <span class="mark-label">标记</span>
+  <span class="forget-label">忘记</span> -->
+</div>
+
+<div class="word-item-inner">
+  <div class="word-head">
+    <div class="info">
+      <span class="term">{{term}}</span>
+      <span class="phonetic-symbols" *ngIf="phonetic">{{phonetic}}</span>
+    </div>
+    <div class="toolbar">
+      <span class="icon audio"></span>
+    </div>
+  </div>
+  <div class="word-brief">
+    <div class="text">{{briefText}}</div>
+    <div class="details-label">
+      <div class="label-inner-wrapper">
+        <div [class]="'extra-number extra-number-' + briefExtra">{{briefExtra}}</div>
+        <div class="details-plus"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<span class="marked-hint">认识的</span>

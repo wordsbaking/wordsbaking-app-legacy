@@ -39,7 +39,7 @@ export class SelectionListComponent<T>
 
   @Input('multiple') multiple = false;
 
-  @Output('change') selectedChangeEvent = new EventEmitter<void>();
+  @Output('change') selectedChangeEvent = new EventEmitter<(T | undefined)[]>();
 
   private selectedChange$ = new Subject<void>();
 
@@ -54,14 +54,16 @@ export class SelectionListComponent<T>
 
     Observable.from(this.selectedChange$)
       .debounceTime(100)
-      .subscribe(() => this.selectedChangeEvent.emit());
+      .subscribe(() => this.selectedChangeEvent.emit(this.values));
   }
 
   get values(): (T | undefined)[] {
     let values: (T | undefined)[] = [];
 
     for (let [, component] of this.listItemComponentMap) {
-      values.push(component.value);
+      if (component.selected) {
+        values.push(component.value);
+      }
     }
 
     return values;

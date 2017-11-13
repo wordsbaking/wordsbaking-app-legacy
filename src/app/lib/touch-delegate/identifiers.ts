@@ -22,6 +22,27 @@ export class TouchIdentifier {
   constructor(public name: string, public identify: TouchIdentifyHandler) {}
 }
 
+export interface TouchStartDelegateEventDetail
+  extends TouchDelegateEventDetail {
+  diffX: number;
+  diffY: number;
+  x: number;
+  y: number;
+}
+export type TouchStartDelegateEvent = TouchDelegateEvent<
+  TouchStartDelegateEventDetail
+>;
+
+export interface TouchEndDelegateEventDetail extends TouchDelegateEventDetail {
+  diffX: number;
+  diffY: number;
+  x: number;
+  y: number;
+}
+export type TouchEndDelegateEvent = TouchDelegateEvent<
+  TouchEndDelegateEventDetail
+>;
+
 export interface TapDelegateEventDetail extends TouchDelegateEventDetail {}
 export type TapDelegateEvent = TouchDelegateEvent<TapDelegateEventDetail>;
 
@@ -66,6 +87,19 @@ export interface SlideYDelegateEventDetail extends TouchDelegateEventDetail {
 }
 
 export type SlideYDelegateEvent = TouchDelegateEvent<SlideYDelegateEventDetail>;
+
+export interface PolylineDelegateEventData {
+  changedAxis: 'x' | 'y';
+  diffX: number;
+  diffY: number;
+}
+export interface PolylineDelegateEventDetail
+  extends TouchDelegateEventDetail,
+    PolylineDelegateEventData {}
+
+export type PolylineDelegateEvent = TouchDelegateEvent<
+  PolylineDelegateEventDetail
+>;
 
 export namespace TouchIdentifier {
   /**
@@ -336,4 +370,53 @@ export namespace TouchIdentifier {
       },
     };
   });
+
+  export const polylineAfterSlideY = new TouchIdentifier(
+    'polyline-after-slide-y',
+    (info: TouchInfo, identified: boolean, data: PolylineDelegateEventData) => {
+      let sequences = info.sequences;
+      let sequence = sequences[0];
+
+      let match = identified;
+
+      if (!identified && sequence.maxRadius > 2) {
+        identified = true;
+
+        if (Math.abs(sequence.slope) > 1 && sequences.length === 1) {
+          match = true;
+        }
+      }
+
+      let lastSlope = Math.abs(sequence.lastSlope);
+
+      if (!data) {
+        data = {
+          changedAxis: 'y',
+          diffX: 0,
+          diffY: 0,
+        };
+      }
+
+      if (lastSlope > 1) {
+        // y
+        data.changedAxis = 'y';
+        data.diffY += sequence.lastDiffY;
+      } else if (lastSlope < 1) {
+        // x
+        data.changedAxis = 'x';
+        data.diffX += sequence.lastDiffX;
+      } else if (data.changedAxis === 'y') {
+        data.diffY += sequence.lastDiffY;
+      } else {
+        data.diffX += sequence.lastDiffX;
+      }
+
+      return {
+        identified,
+        match,
+        end: false,
+        data,
+      };
+    },
+  );
 }

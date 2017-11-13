@@ -1,11 +1,13 @@
-<span class="text">{{selected || '-'}}</span>
-<button class="ghost small dark-text" (wbTap)="showPopup()">{{selected ? '理性' : '选择'}}</button>
+<span class="text">{{selected ? selected.name : '-'}}</span>
+<button class="ghost small dark-text" (wbTap)="showPopup()">{{selected ? '切换' : '选择'}}</button>
 <wb-popup #selectionListPopup>
   <div class="selection-list-popup">
-    <wb-selection-list>
-      <wb-selection-list-item *ngFor="let item of collections$ | async"
+    <wb-selection-list (change)="onSelectionListChange($event)">
+      <wb-selection-list-item
+        *ngFor="let item of collections$ | async; trackBy: trackById "
+        [selected]="selected && selected.id === item.id"
         [value]="item.id">
-        <span class="text">{{item.label}}</span>
+        <span class="text">{{item.name}}</span>
         <span class="icon check"></span>
       </wb-selection-list-item>
     </wb-selection-list>
