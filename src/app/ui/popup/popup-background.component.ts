@@ -1,5 +1,5 @@
 import {animate, style, transition, trigger} from '@angular/animations';
-import {Component, HostBinding} from '@angular/core';
+import {Component, HostBinding, Input} from '@angular/core';
 
 const backgroundTransitions = trigger('backgroundTransitions', [
   transition(':enter', [
@@ -19,5 +19,17 @@ const backgroundTransitions = trigger('backgroundTransitions', [
   animations: [backgroundTransitions],
 })
 export class PopupBackgroundComponent {
+  @Input()
+  set background(color: string) {
+    this.backgroundColor = color;
+  }
+
+  get background(): string {
+    return this.backgroundColor;
+  }
+
   @HostBinding('@backgroundTransitions') state = '';
+
+  @HostBinding('style.backgroundColor')
+  private backgroundColor = 'rgba(0, 0, 0, 0.4)';
 }

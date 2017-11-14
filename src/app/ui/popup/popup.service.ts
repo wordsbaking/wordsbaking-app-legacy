@@ -98,6 +98,10 @@ export class PopupService {
       );
 
       this.backgroundComponentRef = viewContainerRef.createComponent(factory);
+
+      if (typeof background === 'string') {
+        this.backgroundComponentRef.instance.background = background;
+      }
     }
 
     let factory = this.resolver.resolveComponentFactory(

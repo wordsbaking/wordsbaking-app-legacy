@@ -26,7 +26,7 @@ export interface PopupShowOptions {
   positions?: PopupPositionType[];
   width?: PopupSizeType;
   height?: PopupSizeType;
-  background?: boolean;
+  background?: boolean | string;
   transparent?: boolean;
   contentOptions?: any;
   clearOnWindowResize?: boolean;
