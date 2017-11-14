@@ -1,0 +1,113 @@
+@import '~styles/common.less';
+@import '../common/word-card-base';
+
+:host {
+  position: absolute;
+  z-index: 1;
+  border-radius: 2px;
+
+  .word-card;
+}
+
+:host > .inner .head {
+  padding: 0 15px;
+  height: @size-word-item-height;
+  line-height: @size-word-item-height;
+  background-color: @color-theme-f;
+
+  .term {
+    color: @color-theme-g;
+  }
+
+  .phonetic-symbols {
+    color: @color-fg-xf;
+  }
+}
+
+:host.obstinate-word {
+  > .inner .head {
+    background-color: @color-theme;
+
+    .term {
+      color: @color-theme-xxf;
+    }
+
+    .icon.audio {
+      color: @color-theme-xxf;
+    }
+  }
+
+  &.new-word,
+  &.marked-word {
+    > .inner .head {
+      .phonetic-symbols {
+        color: @color-fg;
+      }
+    }
+  }
+}
+
+@details-label-size: 18px;
+
+.brief {
+  position: relative;
+  height: 0;
+  line-height: @size-word-brief-line-height;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background-color: @color-theme-xf;
+  opacity: 0;
+
+  .text {
+    margin: 10px 15px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    color: @color-theme-g-f;
+  }
+
+  .details-label {
+    flex: none;
+    margin: 10px 15px 10px 0;
+    width: @details-label-size;
+    height: @details-label-size;
+    line-height: @details-label-size;
+    border-radius: 2px;
+    text-align: center;
+    color: @color-theme-text;
+    overflow: hidden;
+
+    .label-inner-wrapper {
+      transition: transform linear 0.1s;
+
+      .extra-number {
+        height: @details-label-size;
+        line-height: @details-label-size + 2px;
+        font-size: 12px;
+        background-color: @color-text-xl;
+        overflow: hidden;
+      }
+
+      .details-plus {
+        height: @details-label-size;
+        background-color: @color-theme;
+      }
+
+      .extra-number-0,
+      .details-plus {
+        font-size: 0;
+
+        .icon {
+          font-size: 9px;
+          line-height: @details-label-size;
+        }
+      }
+    }
+  }
+}
+
+:host.slide-y > .inner .brief .details-label .label-inner-wrapper {
+  // transition: none !important;
+}

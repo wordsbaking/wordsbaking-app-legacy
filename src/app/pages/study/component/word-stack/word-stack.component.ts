@@ -10,6 +10,7 @@ import {
   ElementRef,
   HostBinding,
   HostListener,
+  OnDestroy,
   QueryList,
   ViewChildren,
 } from '@angular/core';
@@ -23,6 +24,7 @@ import {WordInfo} from 'app/core/engine';
 import {
   PolylineDelegateEvent,
   SlideXDelegateEvent,
+  TapDelegateEvent,
   TouchDelegate,
   TouchIdentifier,
   TouchStartDelegateEvent,
@@ -30,7 +32,7 @@ import {
 
 import {Easing, animate, momentum} from 'app/lib/animate';
 
-import {WordItemComponent} from '../word-item/word-item.component';
+import {WordCardComponent} from '../word-card/word-card.component';
 
 const simulationData: WordInfo[] = [
   {
@@ -94,7 +96,7 @@ const simulationData: WordInfo[] = [
     ],
     new: true,
     marked: false,
-    obstinate: true,
+    obstinate: false,
     needRemoveConfirm: false,
   },
   {
@@ -122,7 +124,7 @@ const simulationData: WordInfo[] = [
     ],
     new: false,
     marked: true,
-    obstinate: true,
+    obstinate: false,
     needRemoveConfirm: false,
   },
   {
@@ -151,25 +153,49 @@ const simulationData: WordInfo[] = [
     ],
     new: false,
     marked: false,
-    obstinate: false,
+    obstinate: true,
+    needRemoveConfirm: false,
+  },
+  {
+    term: 'server',
+    prons: {
+      us: ["'sɜrvər"],
+    },
+    meanings: [
+      {
+        poss: ['n'],
+        text: '服务员)',
+      },
+    ],
+    briefs: [
+      {
+        poss: ['n'],
+        text: '服务员',
+      },
+    ],
+    sentences: [],
+    new: false,
+    marked: false,
+    obstinate: true,
     needRemoveConfirm: false,
   },
 ];
 
-const WORD_ITEM_HEIGHT = 60;
-const WORD_ITEM_WIDTH = 280;
+const WORD_CARD_HEIGHT = 50;
+const WORD_CARD_SEPARATE = 15;
+const WORD_CARD_WIDTH = 320;
 
 @Component({
   selector: 'wb-study-view-word-stack',
   templateUrl: './word-stack.component.html',
   styleUrls: ['./word-stack.component.less'],
   animations: [
-    trigger('wordItemTransitions', [
+    trigger('wordCardTransitions', [
       transition('void => true', [
-        style({opacity: 0, transform: 'translateX(0)'}),
+        style({opacity: 0, transform: 'scale(0.9)'}),
         angularAnimate(
           '0.2s linear',
-          style({opacity: 1, transform: 'translateX(0)'}),
+          style({opacity: 1, transform: 'scale(1)'}),
         ),
       ]),
       transition('true => void', [
@@ -178,19 +204,21 @@ const WORD_ITEM_WIDTH = 280;
     ]),
   ],
 })
-export class WordStackComponent implements AfterViewInit {
-  @ViewChildren(WordItemComponent)
-  wordItemQueryList: QueryList<WordItemComponent>;
+export class WordStackComponent implements AfterViewInit, OnDestroy {
+  @ViewChildren(WordCardComponent)
+  wordItemQueryList: QueryList<WordCardComponent>;
 
   words$ = new BehaviorSubject<WordInfo[]>([]);
 
   element: HTMLElement;
 
-  enabledWordItemTransitions = false;
+  @HostBinding('@wordCardTransitions') enabledWordCardTransitions = false;
+
+  activeWord$ = new BehaviorSubject<WordInfo | undefined>(undefined);
 
   private touchDelegate: TouchDelegate;
-  private wordItemMap = new Map<HTMLElement, WordItemComponent>();
-  private targetWordItemComponent: WordItemComponent | undefined;
+  private wordItemMap = new Map<HTMLElement, WordCardComponent>();
+  private targetWordCardComponent: WordCardComponent | undefined;
   private locked = false;
   private sliding = false;
   private slidXStartTime = 0;
@@ -202,12 +230,48 @@ export class WordStackComponent implements AfterViewInit {
     this.touchDelegate.bind(TouchIdentifier.touchEnd);
     this.touchDelegate.bind(TouchIdentifier.slideX);
     this.touchDelegate.bind(TouchIdentifier.polylineAfterSlideY);
+    this.touchDelegate.bind(TouchIdentifier.tap);
     this.words$.next(simulationData.slice());
   }
 
-  @HostBinding('style.height')
-  get height(): string {
-    return `${this.words$.value.length * WORD_ITEM_HEIGHT}px`;
+  get size(): number {
+    return this.words$.value.length;
+  }
+
+  get wordListWrapperHeight(): string {
+    let {size} = this;
+
+    return `${size * WORD_CARD_HEIGHT + WORD_CARD_SEPARATE * (size - 1)}px`;
+  }
+
+  @HostListener('td-tap', ['$event'])
+  onTouchTap(event: TapDelegateEvent): void {
+    let $targetElement = $(event.detail.target);
+    let $wordCardElement = $targetElement.closest(
+      'wb-study-view-word-card-detail, wb-study-view-word-card',
+    );
+
+    if (!$wordCardElement.length) {
+      this.activeWord$.next(undefined);
+      return;
+    }
+
+    switch ($wordCardElement[0].nodeName.toLowerCase()) {
+      case 'wb-study-view-word-card-detail':
+        this.activeWord$.next(undefined);
+        break;
+
+      case 'wb-study-view-word-card': {
+        let targetWordCardComponent = this.wordItemMap.get($wordCardElement[0]);
+
+        if (!targetWordCardComponent) {
+          return;
+        }
+
+        this.activeWord$.next(targetWordCardComponent.word);
+        break;
+      }
+    }
   }
 
   @HostListener('td-touch-start', ['$event'])
@@ -217,16 +281,16 @@ export class WordStackComponent implements AfterViewInit {
     }
 
     let $target = $(event.detail.target);
-    let $wordItemElement = $target.closest('wb-study-view-word-item');
+    let $wordItemElement = $target.closest('wb-study-view-word-card');
 
-    this.targetWordItemComponent = this.wordItemMap.get($wordItemElement[0]);
+    this.targetWordCardComponent = this.wordItemMap.get($wordItemElement[0]);
     this.locked = true;
   }
 
   @HostListener('td-touch-end')
   onTouchEnd(): void {
     if (!this.sliding) {
-      this.targetWordItemComponent = undefined;
+      this.targetWordCardComponent = undefined;
       this.locked = false;
       this.slidXStartTime = 0;
     }
@@ -234,91 +298,132 @@ export class WordStackComponent implements AfterViewInit {
 
   @HostListener('td-slide-x', ['$event'])
   async onSlideX(event: SlideXDelegateEvent): Promise<void> {
-    let {diffX} = event.detail;
-
     if (!this.slidXStartTime) {
       this.slidXStartTime = Date.now();
     }
 
-    if (diffX > 0) {
-      this.slideToggleMarked(event).catch(() => undefined);
-    }
+    this.slideToggleMarked(event).catch(() => undefined);
 
     if (event.detail.touch.isEnd) {
       this.locked = false;
       this.sliding = false;
-      this.targetWordItemComponent = undefined;
+      this.targetWordCardComponent = undefined;
       this.slidXStartTime = 0;
     }
   }
 
   @HostListener('td-polyline-after-slide-y', ['$event'])
   onSlideY(event: PolylineDelegateEvent): void {
-    let {targetWordItemComponent} = this;
+    let isEnd = event.detail.touch.isEnd;
+    let {targetWordCardComponent} = this;
 
-    if (!targetWordItemComponent) {
+    if (isEnd) {
+      for (let [, wordCardComponent] of this.wordItemMap) {
+        wordCardComponent.elementStyle.opacity = 1 as any;
+      }
+    }
+
+    if (!targetWordCardComponent) {
       return;
     }
 
     this.sliding = true;
 
-    let {wordBriefElement, wordBriefElementStyle} = targetWordItemComponent;
+    let {
+      briefElement,
+      briefElementStyle,
+      labelInnerWrapperElementStyle,
+      audioIconElementStyle,
+    } = targetWordCardComponent;
+    let {diffY, diffX} = event.detail;
+    let scrollHeight = briefElement.scrollHeight;
+    let triggerShowDetailHeight = 90;
 
-    if (event.detail.touch.isEnd) {
-      if (event.detail.changedAxis === 'x') {
-        this.onSlideX(event as any).catch(() => undefined);
-      }
+    if (isEnd) {
+      this.onSlideX(event as any).catch(() => undefined);
 
-      targetWordItemComponent.setInactive();
-      wordBriefElementStyle.height = 0 as any;
-      wordBriefElementStyle.opacity = 0 as any;
+      targetWordCardComponent.setInactive();
+      briefElementStyle.height = 0 as any;
+      briefElementStyle.opacity = 0 as any;
+      audioIconElementStyle.opacity = 1 as any;
+      targetWordCardComponent.element.classList.remove('slide-y');
+
       this.locked = false;
       this.sliding = false;
-      this.targetWordItemComponent = undefined;
+      this.targetWordCardComponent = undefined;
 
-      for (let [, wordItemComponent] of this.wordItemMap) {
-        wordItemComponent.elementStyle.opacity = 1 as any;
+      if (
+        diffX <= 0 &&
+        (diffY - scrollHeight) / triggerShowDetailHeight > 0.6
+      ) {
+        this.showWordDetail(targetWordCardComponent.word);
       }
+
       return;
     }
 
-    if (event.detail.changedAxis === 'x') {
+    if (diffX > 0) {
+      targetWordCardComponent.element.classList.remove('slide-y');
+      labelInnerWrapperElementStyle.transform = `translateY(0%)`;
       this.onSlideX(event as any).catch(() => undefined);
       return;
     }
 
-    let {diffY} = event.detail;
-    let scrollHeight = wordBriefElement.scrollHeight;
+    targetWordCardComponent.element.classList.add('slide-y');
+
     let height = Math.max(diffY, 0);
     let percentage = height / scrollHeight;
 
-    wordBriefElementStyle.height = `${Math.min(scrollHeight, height)}px`;
+    briefElementStyle.height = `${Math.min(scrollHeight, height)}px`;
 
-    if (!targetWordItemComponent.active && percentage > 0.2) {
-      targetWordItemComponent.setActive();
+    if (!targetWordCardComponent.active && percentage > 0.2) {
+      targetWordCardComponent.setActive();
+    }
+
+    if (percentage > 0.1) {
+      let audioIconOpacity = 1 - Math.min(percentage - 0.1, 0.3) / 0.3;
+      audioIconElementStyle.opacity = audioIconOpacity as any;
+    } else {
+      audioIconElementStyle.opacity = 1 as any;
     }
 
     if (percentage > 0.5) {
-      wordBriefElementStyle.opacity = (Math.min(percentage - 0.5, 0.32) /
-        0.32) as any;
+      let wordBriefOpacity = Math.min(percentage - 0.5, 0.32) / 0.32;
+
+      briefElementStyle.opacity = wordBriefOpacity as any;
     } else {
-      wordBriefElementStyle.opacity = 0 as any;
+      briefElementStyle.opacity = 0 as any;
     }
 
-    if (!event.detail.touch.isEnd) {
-      for (let [, wordItemComponent] of this.wordItemMap) {
-        if (wordItemComponent !== targetWordItemComponent) {
-          wordItemComponent.elementStyle.opacity = Math.max(
+    if (diffX <= 0) {
+      let labelInnerWrapperOffset =
+        Math.min(
+          Math.max(diffY - scrollHeight, 0) / triggerShowDetailHeight,
+          1,
+        ) * -50;
+
+      if (labelInnerWrapperOffset < -30) {
+        labelInnerWrapperOffset = -50;
+      }
+      labelInnerWrapperElementStyle.transform = `translateY(${labelInnerWrapperOffset}%)`;
+    } else {
+      labelInnerWrapperElementStyle.transform = `translateY(0%)`;
+    }
+
+    if (!isEnd) {
+      for (let [, wordCardComponent] of this.wordItemMap) {
+        if (wordCardComponent !== targetWordCardComponent) {
+          wordCardComponent.elementStyle.opacity = Math.max(
             1 - percentage,
-            0.1,
+            0.05,
           ) as any;
         }
       }
     }
   }
 
-  calculateWordItemTopPosition(index: number): string {
-    return `${index * WORD_ITEM_HEIGHT}px`;
+  calculateWordCardTopPosition(index: number): string {
+    return `${index * WORD_CARD_HEIGHT + index * WORD_CARD_SEPARATE}px`;
   }
 
   ngAfterViewInit(): void {
@@ -327,10 +432,12 @@ export class WordStackComponent implements AfterViewInit {
     wordItemQueryList.changes.subscribe(() => this.refreshWordItemMap());
     this.refreshWordItemMap();
 
-    setTimeout(() => (this.enabledWordItemTransitions = true), 100);
+    setTimeout(() => (this.enabledWordCardTransitions = true), 100);
   }
 
-  fetchNextWord(): WordInfo {
+  ngOnDestroy(): void {}
+
+  private fetchNextWord(): WordInfo | undefined {
     return Object.assign(
       {},
       simulationData[Math.floor(Math.random() * simulationData.length)],
@@ -346,16 +453,16 @@ export class WordStackComponent implements AfterViewInit {
   }
 
   private async slideToggleMarked(event: SlideXDelegateEvent): Promise<void> {
-    let {targetWordItemComponent} = this;
+    let {targetWordCardComponent} = this;
 
-    if (!targetWordItemComponent) {
+    if (!targetWordCardComponent) {
       return;
     }
 
     this.sliding = true;
 
     let {diffX} = event.detail;
-    let {innerElementStyle, markedHintElementStyle} = targetWordItemComponent;
+    let {innerElementStyle, markedHintElementStyle} = targetWordCardComponent;
     let offset = Math.max(diffX, 0);
 
     update(offset);
@@ -364,10 +471,10 @@ export class WordStackComponent implements AfterViewInit {
       let momentumInfo = momentum(
         offset,
         0,
-        WORD_ITEM_WIDTH,
+        WORD_CARD_WIDTH,
         Date.now() - this.slidXStartTime,
       );
-      let newOffset = momentumInfo.destination ? 0 : WORD_ITEM_WIDTH;
+      let newOffset = momentumInfo.destination ? 0 : WORD_CARD_WIDTH;
 
       await animate(
         offset,
@@ -384,17 +491,21 @@ export class WordStackComponent implements AfterViewInit {
       let words: WordInfo[] = this.words$.value.slice();
       let newWord = this.fetchNextWord();
 
-      words.splice(words.indexOf(targetWordItemComponent.word), 1, newWord);
+      if (newWord) {
+        words.splice(words.indexOf(targetWordCardComponent.word), 1, newWord);
+      } else {
+        words.splice(words.indexOf(targetWordCardComponent.word), 1);
+      }
 
       this.words$.next(words);
     }
 
     function update(offset: number) {
-      let percentage = offset / WORD_ITEM_WIDTH;
+      let percentage = offset / WORD_CARD_WIDTH;
       innerElementStyle.transform = `translate(${offset}px, 0)`;
       innerElementStyle.opacity = (1 - percentage) as any;
-      if (percentage > 0.2) {
-        let offsetX = Math.min(percentage - 0.2, 0.8) / 0.8 * 0.8 * 100;
+      if (percentage > 0.25) {
+        let offsetX = Math.min(percentage - 0.25, 0.75) / 0.75 * 0.75 * 100;
         markedHintElementStyle.transform = `translateX(${offsetX}%)`;
       } else {
         markedHintElementStyle.transform = 'translateX(0%)';
@@ -411,6 +522,8 @@ export class WordStackComponent implements AfterViewInit {
       }
     }
   }
-}
 
-// help
+  private showWordDetail(word: WordInfo): void {
+    this.activeWord$.next(word);
+  }
+}

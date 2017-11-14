@@ -1,9 +1,19 @@
 @import '~styles/common.less';
 
 :host {
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  transform: translate(-50%, -50%);
-  width: 280px;
+  position: relative;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+}
+
+.word-list-wrapper {
+  position: relative;
+  width: 320px;
+  height: 240px;
+  transform: translateY(-@size-page-header-min-height);
+  overflow: visible;
 }

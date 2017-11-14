@@ -7,8 +7,8 @@ import {UIModule} from 'app/ui';
 import {CoreUIModule} from 'app/core/ui';
 
 import {
-  WordDetailComponent,
-  WordItemComponent,
+  WordCardComponent,
+  WordCardDetailComponent,
   WordStackComponent,
 } from './component';
 import {StudyComponent} from './study.view';
@@ -34,8 +34,8 @@ const routes: Routes = [
   declarations: [
     StudyComponent,
     WordStackComponent,
-    WordItemComponent,
-    WordDetailComponent,
+    WordCardComponent,
+    WordCardDetailComponent,
   ],
 })
 export class StudyModule {}

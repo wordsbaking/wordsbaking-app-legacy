@@ -8,28 +8,25 @@ import {
 
 import {WordInfo} from 'app/core/engine';
 
+import {WordCardBase} from '../common/word-card-base';
+
 @Component({
-  selector: 'wb-study-view-word-item',
-  templateUrl: './word-item.component.html',
-  styleUrls: ['./word-item.component.less'],
+  selector: 'wb-study-view-word-card',
+  templateUrl: './word-card.component.html',
+  styleUrls: ['./word-card.component.less'],
 })
-export class WordItemComponent implements AfterViewInit {
+export class WordCardComponent extends WordCardBase implements AfterViewInit {
   @Input('data') word: WordInfo;
 
-  @Input('expanded') expanded: boolean;
-
-  @HostBinding('class.active') active = false;
-
-  element: HTMLElement;
-  elementStyle: CSSStyleDeclaration;
-  innerElement: HTMLElement;
-  innerElementStyle: CSSStyleDeclaration;
-  wordBriefElement: HTMLElement;
-  wordBriefElementStyle: CSSStyleDeclaration;
+  briefElement: HTMLElement;
+  briefElementStyle: CSSStyleDeclaration;
   markedHintElement: HTMLElement;
   markedHintElementStyle: CSSStyleDeclaration;
+  labelInnerWrapperElement: HTMLElement;
+  labelInnerWrapperElementStyle: CSSStyleDeclaration;
 
   constructor(ref: ElementRef) {
+    super();
     this.element = ref.nativeElement;
   }
 
@@ -75,17 +72,19 @@ export class WordItemComponent implements AfterViewInit {
   }
 
   ngAfterViewInit(): void {
+    this.viewInit();
+
     let {element} = this;
-    this.elementStyle = element.style;
-    this.innerElement = element.querySelector(
-      '.word-item-inner',
-    ) as HTMLElement;
-    this.innerElementStyle = this.innerElement.style;
-    this.wordBriefElement = element.querySelector('.word-brief') as HTMLElement;
-    this.wordBriefElementStyle = this.wordBriefElement.style;
+
+    this.briefElement = element.querySelector('.brief') as HTMLElement;
+    this.briefElementStyle = this.briefElement.style;
     this.markedHintElement = element.querySelector(
       '.marked-hint',
     ) as HTMLElement;
     this.markedHintElementStyle = this.markedHintElement.style;
+    this.labelInnerWrapperElement = element.querySelector(
+      '.label-inner-wrapper',
+    ) as HTMLElement;
+    this.labelInnerWrapperElementStyle = this.labelInnerWrapperElement.style;
   }
 }

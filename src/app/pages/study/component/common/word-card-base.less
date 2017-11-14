@@ -1,0 +1,84 @@
+@import '~styles/common.less';
+
+.word-card {
+  position: absolute;
+  width: 100%;
+  background-color: @color-fg;
+  z-index: 1;
+  transition: opacity linear 0.1s;
+
+  &.active {
+    z-index: 2;
+  }
+
+  &.new-word,
+  &.marked-word {
+    > .inner .head {
+      .phonetic-symbols {
+        color: @color-theme-d;
+      }
+    }
+  }
+
+  &.slide-y {
+    .head .icon.audio {
+      opacity: 0;
+    }
+  }
+
+  > .inner .head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    .term {
+      font-size: @size-word-item-term-size;
+      display: inline-block;
+      color: @color-text-d;
+    }
+
+    .phonetic-symbols {
+      position: relative;
+      display: inline-block;
+      top: -1px;
+      font-size: @size-word-phonetic-symbols-size;
+      font-family: Arial;
+      color: @color-text-xl;
+      margin-left: 5px;
+
+      &::before,
+      &::after {
+        content: '/';
+      }
+    }
+
+    .icon.audio {
+      @size: 20px;
+
+      width: @size;
+      height: @size;
+      font-size: @size;
+      color: @color-theme;
+      transform: translateY(-4px);
+      transition: opacity linear 0.1s;
+    }
+  }
+
+  > .marked-hint {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    color: @color-theme-xl;
+    opacity: 0;
+    z-index: -1;
+    line-height: @size-word-item-height;
+
+    &::after {
+      content: '认识的';
+      display: inline-block;
+      padding: 0 10px;
+      height: 100%;
+    }
+  }
+}

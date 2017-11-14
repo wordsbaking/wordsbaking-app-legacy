@@ -1,0 +1,52 @@
+@import '~styles/common.less';
+@import '../common/word-card-base.less';
+
+:host {
+  position: absolute;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(238, 238, 238, 0.9);
+}
+
+.word-card-detail {
+  padding: 20px 15px;
+  margin-top: -@size-page-header-min-height;
+
+  .word-card;
+}
+
+// .word-card-detail > .inner
+
+.word-card-detail > .inner .meanings {
+  margin-top: 5px;
+
+  .meaning {
+    margin-top: 5px;
+    line-height: 22px;
+
+    &:first-child {
+      margin-top: 0;
+    }
+  }
+}
+
+.word-card-detail > .inner .sentences {
+  margin: 10px -5px 0 -2px;
+  padding: 4px 0 4px 7px;
+  font-size: @size-text-smaller;
+  border-left: solid 3px @color-theme;
+
+  .paragraph {
+    margin-top: 5px;
+    line-height: 20px;
+
+    &:first-child {
+      margin-top: 0;
+    }
+  }
+}
