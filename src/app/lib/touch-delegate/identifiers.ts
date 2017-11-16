@@ -127,7 +127,7 @@ export namespace TouchIdentifier {
    */
   export const touchEnd = new TouchIdentifier('touch-end', info => {
     let sequences = info.sequences;
-    let sequence = sequences[0];
+    let sequence = sequences[sequences.length - 1];
 
     if (sequence.ended) {
       return {
