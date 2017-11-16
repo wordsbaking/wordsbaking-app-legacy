@@ -1,57 +1,67 @@
 @import '~styles/common.less';
-@import '../common/word-card-component-base';
 
 :host {
   position: absolute;
+  border: solid @color-fg-f;
+  border-width: 1px 0;
+  width: 100%;
+  background-color: @color-fg;
   z-index: 1;
-  border-radius: 2px;
+  transition: opacity linear 0.1s;
 
-  .word-card;
-}
-
-:host > .inner .head {
-  padding: 0 15px;
-  height: @size-word-item-height;
-  line-height: @size-word-item-height;
-  background-color: @color-theme-f;
-
-  .term {
-    color: @color-theme-xd;
-  }
-
-  .phonetic-symbols {
-    color: @color-text-xl;
-  }
-}
-
-:host.obstinate-word {
-  > .inner .head {
-    background-color: @color-theme;
-
-    .term {
-      color: @color-theme-xxf;
-    }
-
-    .phonetic-symbols {
-      color: @color-theme-f;
-    }
-
-    .icon.audio {
-      color: @color-theme-xxf;
-    }
+  &.active {
+    z-index: 2;
   }
 
   &.new-word,
   &.marked-word {
-    > .inner .head {
+    .word-head {
       .phonetic-symbols {
-        color: @color-fg;
+        color: @color-text-highlight;
       }
     }
   }
+}
 
-  .brief {
-    background-color: @color-theme-f;
+.head {
+  height: @size-word-item-height;
+  padding: 0 15px;
+  line-height: @size-word-item-height;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  .term {
+    font-size: @size-word-item-term-size;
+    display: inline-block;
+    color: @color-text-d;
+  }
+
+  .phonetic-symbols {
+    position: relative;
+    display: inline-block;
+    top: -1px;
+    font-size: @size-word-phonetic-symbols-size;
+    font-family: Arial;
+    color: @color-text-l;
+    margin-left: 5px;
+
+    &::before,
+    &::after {
+      content: '/';
+    }
+  }
+
+  .icon.audio {
+    @size: 18px;
+
+    width: @size;
+    height: @size;
+    font-size: @size;
+    color: @color-theme;
+    transition: opacity linear 0.1s;
+    transform: translateY(-8px);
   }
 }
 
@@ -65,7 +75,6 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background-color: @color-theme-xf;
   opacity: 0;
 
   .text {
@@ -73,7 +82,6 @@
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    color: @color-theme-g-f;
   }
 
   .details-label {
@@ -88,7 +96,8 @@
     overflow: hidden;
 
     .label-inner-wrapper {
-      transition: transform linear 0.1s;
+      // transition: @transition-transform;
+      // transition-delay: 0.1s;
 
       .extra-number {
         height: @details-label-size;
@@ -116,6 +125,20 @@
   }
 }
 
-:host.slide-y > .inner .brief .details-label .label-inner-wrapper {
-  // transition: none !important;
+:host.slide-y {
+  .head .icon.audio {
+    opacity: 0;
+  }
+}
+
+.marked-hint {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  padding-left: 15px;
+  color: @color-theme-xl;
+  opacity: 0;
+  z-index: -1;
+  line-height: @size-word-item-height;
 }

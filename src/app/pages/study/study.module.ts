@@ -8,8 +8,9 @@ import {CoreUIModule} from 'app/core/ui';
 
 import {
   WordCardComponent,
-  WordCardDetailComponent,
+  WordDetailCardComponent,
   WordStackComponent,
+  WordStackInteractiveDirective,
 } from './component';
 import {StudyComponent} from './study.view';
 
@@ -35,7 +36,8 @@ const routes: Routes = [
     StudyComponent,
     WordStackComponent,
     WordCardComponent,
-    WordCardDetailComponent,
+    WordDetailCardComponent,
+    WordStackInteractiveDirective,
   ],
 })
 export class StudyModule {}

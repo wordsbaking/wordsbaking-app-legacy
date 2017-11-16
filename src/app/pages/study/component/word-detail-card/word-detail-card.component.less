@@ -1,5 +1,5 @@
 @import '~styles/common.less';
-@import '../common/word-card-base.less';
+@import '../common/word-card-component-base.less';
 
 :host {
   position: absolute;
@@ -13,16 +13,14 @@
   background-color: rgba(238, 238, 238, 0.9);
 }
 
-.word-card-detail {
+.word-detail-card {
   padding: 20px 15px;
   margin-top: -@size-page-header-min-height;
 
   .word-card;
 }
 
-// .word-card-detail > .inner
-
-.word-card-detail > .inner .meanings {
+.word-detail-card > .inner .meanings {
   margin-top: 5px;
 
   .meaning {
@@ -35,7 +33,7 @@
   }
 }
 
-.word-card-detail > .inner .sentences {
+.word-detail-card > .inner .sentences {
   margin: 10px -5px 0 -2px;
   padding: 4px 0 4px 7px;
   font-size: @size-text-smaller;

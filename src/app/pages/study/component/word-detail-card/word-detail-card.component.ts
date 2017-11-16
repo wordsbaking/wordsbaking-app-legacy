@@ -20,7 +20,11 @@ import {
 
 import {WordInfo} from 'app/core/engine';
 
-import {WordCardComponentBase} from '../common/word-card-component-base';
+import {
+  CompleteCallback,
+  ProgressCallback,
+  WordCardComponentBase,
+} from '../common/word-card-component-base';
 
 export function q(
   selector: string,
@@ -31,21 +35,21 @@ export function q(
 }
 
 @Component({
-  selector: 'wb-study-view-word-card-detail',
-  templateUrl: './word-card-detail.component.html',
-  styleUrls: ['./word-card-detail.component.less'],
+  selector: 'wb-study-view-word-detail-card',
+  templateUrl: './word-detail-card.component.html',
+  styleUrls: ['./word-detail-card.component.less'],
   animations: [
-    trigger('wordCardDetailTransitions', [
+    trigger('wordDetailCardTransitions', [
       transition(':enter', [
         style({backgroundColor: 'rgba(238, 238, 238, 0)'}),
-        q('.word-card-detail', style({opacity: 0, transform: 'scale(0.95)'})),
+        q('.word-detail-card', style({opacity: 0, transform: 'scale(0.95)'})),
         group([
           animate(
             '0.2s linear',
             style({backgroundColor: 'rgba(238, 238, 238, 0.9)'}),
           ),
           q(
-            '.word-card-detail',
+            '.word-detail-card',
             animate(
               '0.2s 100ms ease-out',
               style({
@@ -58,10 +62,10 @@ export function q(
       ]),
       transition(':leave', [
         style({backgroundColor: 'rgba(238, 238, 238, 0.9)'}),
-        q('.word-card-detail', style({opacity: 1, transform: 'scale(1)'})),
+        q('.word-detail-card', style({opacity: 1, transform: 'scale(1)'})),
         group([
           q(
-            '.word-card-detail',
+            '.word-detail-card',
             animate(
               '0.2s ease-out',
               style({
@@ -79,13 +83,13 @@ export function q(
     ]),
   ],
 })
-export class WordCardDetailComponent extends WordCardComponentBase
+export class WordDetailCardComponent extends WordCardComponentBase
   implements AfterViewInit {
   @Input('data') word: WordInfo;
   @Input('active') activeEvent = new EventEmitter<void>();
   @Input('removing') removingEvent = new EventEmitter<void>();
 
-  @HostBinding('@wordCardDetailTransitions') wordCardDetailTransitions = '';
+  @HostBinding('@wordDetailCardTransitions') wordDetailCardTransitions = '';
 
   constructor(ref: ElementRef) {
     super();
@@ -95,5 +99,16 @@ export class WordCardDetailComponent extends WordCardComponentBase
 
   ngAfterViewInit(): void {
     this.onViewInit();
+  }
+
+  onSlideX(
+    offset: number,
+    startTime: number,
+    isEnd: boolean,
+    progress: ProgressCallback | undefined,
+    complete: CompleteCallback | undefined,
+  ): void {
+    super.onSlideX(offset, startTime, isEnd, progress, complete);
+    // ..
   }
 }

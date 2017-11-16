@@ -6,4 +6,7 @@
   </wb-study-view-word-card>
 </div>
 
-<wb-study-view-word-card-detail *ngIf="activeWord$ | async" [data]="activeWord$ | async"></wb-study-view-word-card-detail>
+<wb-study-view-word-detail-card #wordDetailCard
+  *ngIf="activeWord$ | async"
+  [data]="activeWord$ | async">
+</wb-study-view-word-detail-card>

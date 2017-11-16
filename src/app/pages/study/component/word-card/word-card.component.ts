@@ -2,89 +2,154 @@ import {
   AfterViewInit,
   Component,
   ElementRef,
-  HostBinding,
+  EventEmitter,
   Input,
+  Output,
 } from '@angular/core';
 
 import {WordInfo} from 'app/core/engine';
 
-import {WordCardBase} from '../common/word-card-base';
+import {
+  CompleteCallback,
+  ProgressCallback,
+  WordCardComponentBase,
+} from '../common/word-card-component-base';
+
+const SLIDE_Y_TRIGGER_SHOW_DETAIL_OFFSET = 200;
 
 @Component({
   selector: 'wb-study-view-word-card',
   templateUrl: './word-card.component.html',
   styleUrls: ['./word-card.component.less'],
 })
-export class WordCardComponent extends WordCardBase implements AfterViewInit {
+export class WordCardComponent extends WordCardComponentBase
+  implements AfterViewInit {
   @Input('data') word: WordInfo;
+  @Output('active') activeEvent = new EventEmitter<void>();
+  @Output('removing') removingEvent = new EventEmitter<void>();
 
-  briefElement: HTMLElement;
-  briefElementStyle: CSSStyleDeclaration;
-  markedHintElement: HTMLElement;
-  markedHintElementStyle: CSSStyleDeclaration;
-  labelInnerWrapperElement: HTMLElement;
-  labelInnerWrapperElementStyle: CSSStyleDeclaration;
+  protected briefElement: HTMLElement;
+  protected briefElementStyle: CSSStyleDeclaration;
+  protected labelInnerWrapperElement: HTMLElement;
+  protected labelInnerWrapperElementStyle: CSSStyleDeclaration;
 
   constructor(ref: ElementRef) {
     super();
     this.element = ref.nativeElement;
   }
 
-  @HostBinding('class.new-word')
-  get isNewWord(): boolean {
-    return this.word.new;
-  }
-
-  @HostBinding('class.marked-word')
-  get isMarkedWord(): boolean {
-    return this.word.marked;
-  }
-
-  get term(): string {
-    return this.word.term;
-  }
-
-  get phonetic(): string | undefined {
-    let {prons} = this.word;
-    return prons ? prons.us.join(', ') : undefined;
-  }
-
-  get briefExtra(): number {
-    return this.word.meanings.length - this.word.briefs.length;
-  }
-
-  get briefText(): string {
-    return this.word.briefs
-      .map(brief => {
-        let poss = brief.poss;
-        let posStr = poss && poss.length ? `${poss.join('.&')}. ` : '';
-        return posStr + brief.text;
-      })
-      .join(' ');
-  }
-
-  setActive(): void {
-    this.active = true;
-  }
-
-  setInactive(): void {
-    this.active = false;
-  }
-
   ngAfterViewInit(): void {
-    this.viewInit();
+    this.onViewInit();
 
     let {element} = this;
 
     this.briefElement = element.querySelector('.brief') as HTMLElement;
     this.briefElementStyle = this.briefElement.style;
-    this.markedHintElement = element.querySelector(
-      '.marked-hint',
-    ) as HTMLElement;
-    this.markedHintElementStyle = this.markedHintElement.style;
     this.labelInnerWrapperElement = element.querySelector(
       '.label-inner-wrapper',
     ) as HTMLElement;
     this.labelInnerWrapperElementStyle = this.labelInnerWrapperElement.style;
+    this.audioIconElement = element.querySelector(
+      '.head .icon.audio',
+    ) as HTMLElement;
+    this.audioIconElementStyle = this.audioIconElement.style;
+  }
+
+  onSlideX(
+    offset: number,
+    startTime: number,
+    isEnd: boolean,
+    progress: ProgressCallback | undefined,
+    complete: CompleteCallback | undefined,
+  ): void {
+    let {labelInnerWrapperElementStyle} = this;
+    super.onSlideX(offset, startTime, isEnd, progress, complete);
+
+    labelInnerWrapperElementStyle.transform = `translateY(0%)`;
+
+    if (isEnd) {
+      this.reset();
+    }
+  }
+
+  onSlideY(
+    offset: number,
+    startTime: number,
+    isEnd: boolean,
+    progress: ProgressCallback | undefined,
+    complete: CompleteCallback | undefined,
+  ): void {
+    if (offset >= 0) {
+      this.respondSideYToDown(offset, startTime, isEnd, progress, complete);
+    } else {
+      // TODO respondSideYToUp
+    }
+  }
+
+  private respondSideYToDown(
+    y: number,
+    startTime: number,
+    isEnd: boolean,
+    progress: ProgressCallback | undefined,
+    complete: CompleteCallback | undefined,
+  ): void {
+    let {
+      briefElement,
+      briefElementStyle,
+      audioIconElementStyle,
+      labelInnerWrapperElementStyle,
+    } = this;
+
+    let scrollHeight = briefElement.scrollHeight;
+    let percentage = Math.min(y / scrollHeight, 1);
+    let height = Math.min(y, scrollHeight);
+
+    briefElementStyle.height = `${Math.min(scrollHeight, height)}px`;
+
+    if (percentage > 0.5) {
+      let briefOpacity = Math.min(percentage - 0.5, 0.32) / 0.32;
+      briefElementStyle.opacity = briefOpacity as any;
+    } else {
+      briefElementStyle.opacity = 0 as any;
+    }
+
+    if (percentage > 0.1) {
+      let audioIconOpacity = 1 - Math.min(percentage - 0.1, 0.3) / 0.3;
+      audioIconElementStyle.opacity = audioIconOpacity as any;
+    } else {
+      audioIconElementStyle.opacity = 1 as any;
+    }
+
+    let labelInnerWrapperOffset =
+      Math.min(
+        Math.max(y - scrollHeight, 0) / SLIDE_Y_TRIGGER_SHOW_DETAIL_OFFSET,
+        1,
+      ) * -50;
+
+    if (labelInnerWrapperOffset <= -25) {
+      labelInnerWrapperOffset = -50;
+    }
+
+    labelInnerWrapperElementStyle.transform = `translateY(${labelInnerWrapperOffset}%)`;
+
+    if (progress) {
+      progress(percentage);
+    }
+
+    if (isEnd) {
+      if (labelInnerWrapperOffset <= -25 && complete) {
+        complete();
+      }
+
+      this.reset();
+    }
+  }
+
+  private reset(): void {
+    let {briefElementStyle, audioIconElementStyle} = this;
+
+    briefElementStyle.opacity = 0 as any;
+    briefElementStyle.height = '0px';
+    audioIconElementStyle.opacity = 1 as any;
   }
 }
