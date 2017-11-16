@@ -7,6 +7,7 @@ import {
   SlideXDelegateEvent,
   TapDelegateEvent,
   TouchDelegate,
+  TouchEndDelegateEvent,
   TouchIdentifier,
   TouchStartDelegateEvent,
 } from 'app/lib/touch-delegate';
@@ -74,6 +75,10 @@ export class WordStackInteractiveDirective implements OnDestroy {
 
   @HostListener('td-touch-start', ['$event'])
   onTouchStart(event: TouchStartDelegateEvent): void {
+    if (event.detail.touch.sequences.length > 1) {
+      return;
+    }
+
     let {wordStack} = this;
 
     if (!wordStack.enabledWordCardTransitions) {
@@ -86,8 +91,18 @@ export class WordStackInteractiveDirective implements OnDestroy {
 
     let $target = $(event.detail.target);
     let $wordCardElement = $target.closest(
-      'wb-study-view-word-card, wb-study-view-word-detail-card',
+      'wb-study-view-word-card, wb-study-view-word-detail-card .inner',
     );
+
+    if ($wordCardElement.length === 0) {
+      return;
+    }
+
+    if ($wordCardElement.hasClass('inner')) {
+      $wordCardElement = $wordCardElement.closest(
+        'wb-study-view-word-detail-card',
+      );
+    }
 
     if (
       wordStack.wordDetailCardComponent &&
@@ -108,22 +123,37 @@ export class WordStackInteractiveDirective implements OnDestroy {
 
     this.locked = true;
     this.sliding = true;
+    this.slideXStartTime = 0;
+    this.slideYStartTime = 0;
   }
 
   @HostListener('td-touch-end', ['$event'])
-  onTouchEnd(): void {
+  onTouchEnd(event: TouchEndDelegateEvent): void {
     if (this.targetWordCardComponent) {
       this.targetWordCardComponent.active = false;
     }
 
-    this.free();
+    if (event.detail.touch.sequences.length > 1) {
+      if (this.slideXStartTime) {
+        this.onSlideX(event);
+      } else if (this.slideYStartTime) {
+        this.onPolylineAfterSlideY((event as any) as PolylineDelegateEvent);
+      }
+
+      this.reset();
+    }
   }
 
   @HostListener('td-slide-x', ['$event'])
   onSlideX(event: SlideXDelegateEvent): void {
-    let {targetWordCardComponent, wordStack, slideXStartTime} = this;
     let touchData = event.detail;
     let isEnd = touchData.touch.isEnd;
+
+    if (touchData.touch.sequences.length > 1 && !isEnd) {
+      return;
+    }
+
+    let {targetWordCardComponent, wordStack, slideXStartTime} = this;
 
     if (!targetWordCardComponent || (!this.sliding && !isEnd)) {
       return;
@@ -131,11 +161,8 @@ export class WordStackInteractiveDirective implements OnDestroy {
 
     if (!this.slideXStartTime) {
       this.slideXStartTime = slideXStartTime = Date.now();
+      this.slideYStartTime = 0;
       targetWordCardComponent.element.classList.add('slide-x');
-    }
-
-    if (!targetWordCardComponent) {
-      return;
     }
 
     targetWordCardComponent.onSlideX(
@@ -146,25 +173,30 @@ export class WordStackInteractiveDirective implements OnDestroy {
       () => {
         targetWordCardComponent!.removed = true;
         wordStack.remove(targetWordCardComponent!.word);
-        wordStack.stuff();
 
         if (targetWordCardComponent instanceof WordDetailCardComponent) {
           wordStack.hideWordDetail();
+          setTimeout(() => wordStack.stuff(), 240);
+        } else {
+          wordStack.stuff();
         }
       },
     );
 
     if (isEnd) {
-      targetWordCardComponent.element.classList.remove('slide-x');
-      this.free();
+      this.reset();
     }
   }
 
   @HostListener('td-polyline-after-slide-y', ['$event'])
   onPolylineAfterSlideY(event: PolylineDelegateEvent): void {
+    let touchData = event.detail;
+
+    if (touchData.touch.sequences.length > 1) {
+      return;
+    }
     let {targetWordCardComponent, wordStack, slideYStartTime} = this;
     let {wordCardComponents} = wordStack;
-    let touchData = event.detail;
     let isEnd = touchData.touch.isEnd;
 
     if (!targetWordCardComponent || (!this.sliding && !isEnd)) {
@@ -175,21 +207,18 @@ export class WordStackInteractiveDirective implements OnDestroy {
       return;
     }
 
-    if (!slideYStartTime) {
-      this.slideYStartTime = slideYStartTime = Date.now();
-      targetWordCardComponent.element.classList.add('slide-y');
-    }
-
-    if (!targetWordCardComponent) {
-      return;
-    }
-
     let {diffY, diffX} = touchData;
 
     if (diffX > SLIDE_Y_CHANGE_TO_SLIDE_X_OFFSET) {
       event.detail.diffX -= SLIDE_Y_CHANGE_TO_SLIDE_X_OFFSET;
       this.onSlideX(event);
     } else {
+      if (!slideYStartTime) {
+        this.slideYStartTime = slideYStartTime = Date.now();
+        this.slideXStartTime = 0;
+        targetWordCardComponent.element.classList.add('slide-y');
+      }
+
       targetWordCardComponent.onSlideY(
         diffY,
         slideYStartTime,
@@ -214,10 +243,11 @@ export class WordStackInteractiveDirective implements OnDestroy {
     }
 
     if (isEnd) {
-      targetWordCardComponent.element.classList.remove('slide-y');
       for (let wordCardComponent of wordCardComponents) {
         wordCardComponent.element.style.opacity = 1 as any;
       }
+
+      this.reset();
     }
   }
 
@@ -225,10 +255,18 @@ export class WordStackInteractiveDirective implements OnDestroy {
     this.touchDelegate.destroy();
   }
 
-  private free() {
-    this.locked = false;
-    this.sliding = false;
-    // this.targetWordCardComponent = undefined;
+  private reset(): void {
+    let {targetWordCardComponent} = this;
+
+    if (targetWordCardComponent) {
+      targetWordCardComponent.element.classList.remove('slide-y');
+      targetWordCardComponent.element.classList.remove('slide-x');
+    }
+
+    this.targetWordCardComponent = undefined;
     this.slideXStartTime = 0;
+    this.slideYStartTime = 0;
+    this.sliding = false;
+    this.locked = false;
   }
 }

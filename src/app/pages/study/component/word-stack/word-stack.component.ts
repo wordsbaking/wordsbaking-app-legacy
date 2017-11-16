@@ -38,12 +38,9 @@ import {simulationData} from './simulation-data';
       transition('void => true', [
         style({opacity: 0, transform: 'scale(0.9)'}),
         angularAnimate(
-          '0.2s linear',
+          '0.2s ease-out',
           style({opacity: 1, transform: 'scale(1)'}),
         ),
-      ]),
-      transition('true => void', [
-        angularAnimate('0.2s ease-out', style({opacity: 0})),
       ]),
     ]),
   ],

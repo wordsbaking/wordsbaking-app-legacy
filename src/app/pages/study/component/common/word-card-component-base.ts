@@ -134,11 +134,7 @@ export abstract class WordCardComponentBase {
     progress: ProgressCallback | undefined,
     complete: CompleteCallback | undefined,
   ): void {
-    if (offset > 0) {
-      this.onSlideXToRight(offset, startTime, isEnd, progress, complete);
-    } else {
-      // TODO: onSlideXToLeft
-    }
+    this.onSlideXToRight(offset, startTime, isEnd, progress, complete);
   }
 
   onSlideY(

@@ -1,9 +1,12 @@
 <div class="word-list-wrapper" [style.height]="wordListWrapperHeight">
-  <wb-study-view-word-card
-    [@wordCardTransitions]="!!enabledWordCardTransitions"
-    *ngFor="let card of words$ | async; let index=index;" [data]="card"
-    [style.top]="calculateWordCardTopPosition(index)">
-  </wb-study-view-word-card>
+  <ng-container *ngFor="let card of words$ | async; let index=index;" >
+    <wb-study-view-word-card
+      *ngIf="card"
+      [@wordCardTransitions]="!!enabledWordCardTransitions"
+      [data]="card"
+      [style.top]="calculateWordCardTopPosition(index)">
+    </wb-study-view-word-card>
+  </ng-container>
 </div>
 
 <wb-study-view-word-detail-card #wordDetailCard

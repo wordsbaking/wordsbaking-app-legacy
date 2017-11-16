@@ -79,10 +79,16 @@ export class WordCardComponent extends WordCardComponentBase
     progress: ProgressCallback | undefined,
     complete: CompleteCallback | undefined,
   ): void {
-    if (offset >= 0) {
-      this.respondSideYToDown(offset, startTime, isEnd, progress, complete);
-    } else {
-      // TODO respondSideYToUp
+    this.respondSideYToDown(
+      Math.max(offset, 0),
+      startTime,
+      isEnd,
+      progress,
+      complete,
+    );
+
+    if (isEnd) {
+      this.reset();
     }
   }
 
@@ -140,8 +146,6 @@ export class WordCardComponent extends WordCardComponentBase
       if (labelInnerWrapperOffset <= -25 && complete) {
         complete();
       }
-
-      this.reset();
     }
   }
 

@@ -42,7 +42,7 @@ export function q(
     trigger('wordDetailCardTransitions', [
       transition(':enter', [
         style({backgroundColor: 'rgba(238, 238, 238, 0)'}),
-        q('.word-detail-card', style({opacity: 0, transform: 'scale(0.95)'})),
+        q('.word-detail-card', style({opacity: 0, transform: 'scale(0.8)'})),
         group([
           animate(
             '0.2s linear',
@@ -51,7 +51,7 @@ export function q(
           q(
             '.word-detail-card',
             animate(
-              '0.2s 100ms ease-out',
+              '0.4s 100ms cubic-bezier(0.175, 0.885, 0.32, 1.275)',
               style({
                 opacity: 1,
                 transform: 'scale(1)',
@@ -75,7 +75,7 @@ export function q(
             ),
           ),
           animate(
-            '0.2s 100ms linear',
+            '0.2s 140ms linear',
             style({backgroundColor: 'rgba(238, 238, 238, 0)'}),
           ),
         ]),

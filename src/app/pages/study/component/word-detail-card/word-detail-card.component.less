@@ -14,10 +14,17 @@
 }
 
 .word-detail-card {
+  .word-card;
+
   padding: 20px 15px;
   margin-top: -@size-page-header-min-height;
+  overflow: hidden;
+}
 
-  .word-card;
+.word-detail-card > .inner {
+  max-height: 500px;
+  overflow-x: hidden;
+  overflow-y: auto;
 }
 
 .word-detail-card > .inner .meanings {
