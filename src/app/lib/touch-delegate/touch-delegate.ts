@@ -440,6 +440,10 @@ export class TouchDelegate {
           let oe = e.originalEvent as TouchEvent;
           let touches = oe.changedTouches;
 
+          if (touches.length < 2) {
+            TouchDelegate.touchInfo.activeSequenceMap.clear();
+          }
+
           // tslint:disable-next-line:prefer-for-of
           for (let i = 0; i < touches.length; i++) {
             let touch = touches[i];
