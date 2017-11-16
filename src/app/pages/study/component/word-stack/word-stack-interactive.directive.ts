@@ -12,6 +12,7 @@ import {
   TouchStartDelegateEvent,
 } from 'app/lib/touch-delegate';
 
+import {Subscription} from 'rxjs/Subscription';
 import {WordCardComponentBase} from '../common/word-card-component-base';
 import {WordCardComponent} from '../word-card/word-card.component';
 import {WordDetailCardComponent} from '../word-detail-card/word-detail-card.component';
@@ -29,6 +30,9 @@ export class WordStackInteractiveDirective implements OnDestroy {
   private sliding = false;
   private slideXStartTime = 0;
   private slideYStartTime = 0;
+  private preventTapEvent = false;
+
+  private subscriptions: Subscription[] = [];
 
   constructor(@Host() public wordStack: WordStackComponent) {
     this.touchDelegate = new TouchDelegate(wordStack.element, true);
@@ -37,10 +41,25 @@ export class WordStackInteractiveDirective implements OnDestroy {
     this.touchDelegate.bind(TouchIdentifier.slideX);
     this.touchDelegate.bind(TouchIdentifier.polylineAfterSlideY);
     this.touchDelegate.bind(TouchIdentifier.tap);
+
+    this.subscriptions.push(
+      wordStack.activeWord$.subscribe(word => {
+        if (word) {
+          this.preventTapEvent = true;
+          setTimeout(() => (this.preventTapEvent = false), 500);
+        } else {
+          this.preventTapEvent = false;
+        }
+      }),
+    );
   }
 
   @HostListener('td-tap', ['$event'])
   onTap(event: TapDelegateEvent): void {
+    if (this.preventTapEvent) {
+      return;
+    }
+
     let {wordStack} = this;
 
     let $targetElement = $(event.detail.target);
@@ -141,6 +160,8 @@ export class WordStackInteractiveDirective implements OnDestroy {
       }
 
       this.reset();
+    } else if (!this.slideXStartTime && !this.slideYStartTime) {
+      this.reset();
     }
   }
 
@@ -191,19 +212,21 @@ export class WordStackInteractiveDirective implements OnDestroy {
   @HostListener('td-polyline-after-slide-y', ['$event'])
   onPolylineAfterSlideY(event: PolylineDelegateEvent): void {
     let touchData = event.detail;
+    let isEnd = touchData.touch.isEnd;
 
-    if (touchData.touch.sequences.length > 1) {
+    if (touchData.touch.sequences.length > 1 && !isEnd) {
       return;
     }
+
     let {targetWordCardComponent, wordStack, slideYStartTime} = this;
     let {wordCardComponents} = wordStack;
-    let isEnd = touchData.touch.isEnd;
 
     if (!targetWordCardComponent || (!this.sliding && !isEnd)) {
       return;
     }
 
     if (!(targetWordCardComponent instanceof WordCardComponent)) {
+      this.reset();
       return;
     }
 
@@ -253,6 +276,10 @@ export class WordStackInteractiveDirective implements OnDestroy {
 
   ngOnDestroy(): void {
     this.touchDelegate.destroy();
+
+    for (let subscription of this.subscriptions) {
+      subscription.unsubscribe();
+    }
   }
 
   private reset(): void {

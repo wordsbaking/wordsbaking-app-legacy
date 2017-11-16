@@ -209,7 +209,7 @@ export abstract class WordCardComponentBase {
   private respondSideXToRight(x: number): void {
     let {innerElementStyle} = this;
     let percentage = x / WORD_CARD_WIDTH;
-    innerElementStyle.transform = `translate(${x}px, 0)`;
+    innerElementStyle.transform = `translate3d(${x}px, 0, 0)`;
     innerElementStyle.opacity = (1 - percentage) as any;
   }
 }

@@ -36,9 +36,9 @@ import {simulationData} from './simulation-data';
   animations: [
     trigger('wordCardTransitions', [
       transition('void => true', [
-        style({opacity: 0, transform: 'scale(0.9)'}),
+        style({opacity: 0, transform: 'scale(0.8)'}),
         angularAnimate(
-          '0.2s ease-out',
+          '0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)',
           style({opacity: 1, transform: 'scale(1)'}),
         ),
       ]),
@@ -65,7 +65,8 @@ export class WordStackComponent {
 
     // simulate
     setTimeout(
-      () => this.words$.next(simulationData.map(data => ({...data}))),
+      () =>
+        this.words$.next(simulationData.slice(0, 4).map(data => ({...data}))),
       1000,
     );
   }
