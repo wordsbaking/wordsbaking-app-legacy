@@ -25,16 +25,16 @@ button {
     padding: 0 10px;
   }
 
-  &.secondary {
-    background-color: @color-theme-g;
-  }
-
-  &.secondary:active {
-    background-color: @color-theme-g-f;
-  }
-
   &.icon {
     padding: 0 12px;
+  }
+}
+
+button.secondary {
+  background-color: @color-theme-g;
+
+  &:active {
+    background-color: @color-theme-g-f;
   }
 }
 
@@ -51,4 +51,8 @@ button.ghost {
   &.dark-text {
     color: @color-text-l;
   }
+}
+
+button.danger {
+  background-color: mix(@color-alert-bg, #fff, 95%);
 }
