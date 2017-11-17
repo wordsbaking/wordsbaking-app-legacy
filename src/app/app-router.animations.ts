@@ -1,25 +1,16 @@
 import {
-  AnimationMetadata,
-  AnimationQueryOptions,
   animateChild,
-  query,
   sequence,
   style,
   transition,
   trigger,
 } from '@angular/animations';
 
-export function q(
-  selector: string,
-  animation: AnimationMetadata | AnimationMetadata[],
-  options: AnimationQueryOptions = {optional: true},
-) {
-  return query(selector, animation, options);
-}
+import {AnimationTool} from 'app/util';
 
 export const routerTransitions = trigger('routerTransitions', [
   transition('* <=> *', [
-    q(
+    AnimationTool.query(
       'wb-view:enter',
       style({
         position: 'fixed',
@@ -30,7 +21,7 @@ export const routerTransitions = trigger('routerTransitions', [
         zIndex: 0,
       }),
     ),
-    q(
+    AnimationTool.query(
       'wb-view:leave',
       style({
         position: 'fixed',
@@ -42,8 +33,8 @@ export const routerTransitions = trigger('routerTransitions', [
       }),
     ),
     sequence([
-      q('wb-view:leave', animateChild()),
-      q('wb-view:enter', animateChild()),
+      AnimationTool.query('wb-view:leave', animateChild()),
+      AnimationTool.query('wb-view:enter', animateChild()),
     ]),
   ]),
 ]);

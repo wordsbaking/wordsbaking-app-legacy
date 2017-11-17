@@ -1,46 +1,47 @@
 import {
-  AnimationMetadata,
-  AnimationQueryOptions,
   animate,
   group,
-  query,
   state,
   style,
   transition,
   trigger,
 } from '@angular/animations';
 
-export function q(
-  selector: string,
-  animation: AnimationMetadata | AnimationMetadata[],
-  options: AnimationQueryOptions = {optional: true},
-) {
-  return query(selector, animation, options);
-}
+import {AnimationTool} from 'app/util';
 
 export const pageTransitions = [
   transition(':enter', [
-    q('.page-header', style({transform: 'translateY(-100%)'})),
-    q('.page-header > .inner', style({transform: 'translateY(-100%)'})),
-    q('.page-content', style({opacity: '0'})),
-    q('.page-footer', style({transform: 'translateY(100%)'})),
+    AnimationTool.query(
+      '.page-header',
+      style({transform: 'translateY(-100%)'}),
+    ),
+    AnimationTool.query(
+      '.page-header > .inner',
+      style({transform: 'translateY(-100%)'}),
+    ),
+    AnimationTool.query('.page-content', style({opacity: '0'})),
+    AnimationTool.query('.page-footer', style({transform: 'translateY(100%)'})),
     group(
       [
-        q(
+        AnimationTool.query(
           '.page-header',
           animate('0.2s ease-out', style({transform: 'translateY(0)'})),
         ),
-        q(
+        AnimationTool.query(
           '.page-header > .inner',
           animate('0.2s ease-out', style({transform: 'translateY(0)'})),
           {
             delay: 200,
           },
         ),
-        q('.page-content', animate('0.2s linear', style({opacity: '1'})), {
-          delay: 200,
-        }),
-        q(
+        AnimationTool.query(
+          '.page-content',
+          animate('0.2s linear', style({opacity: '1'})),
+          {
+            delay: 200,
+          },
+        ),
+        AnimationTool.query(
           '.page-footer',
           animate('0.2s ease-out', style({transform: 'translateY(0)'})),
           {
@@ -56,19 +57,22 @@ export const pageTransitions = [
   ]),
   transition(':leave', [
     group([
-      q(
+      AnimationTool.query(
         '.page-header > .inner',
         animate('0.2s ease-out', style({transform: 'translateY(-100%)'})),
       ),
-      q(
+      AnimationTool.query(
         '.page-header',
         animate('0.2s ease-out', style({transform: 'translateY(-100%)'})),
         {
           delay: 200,
         },
       ),
-      q('.page-content', animate('0.2s linear', style({opacity: '0'}))),
-      q(
+      AnimationTool.query(
+        '.page-content',
+        animate('0.2s linear', style({opacity: '0'})),
+      ),
+      AnimationTool.query(
         '.page-footer',
         animate('0.2s ease-out', style({transform: 'translateY(100%)'})),
       ),
