@@ -180,7 +180,7 @@ export class WordStackInteractiveDirective implements OnDestroy {
       return;
     }
 
-    if (!this.slideXStartTime) {
+    if (!slideXStartTime) {
       this.slideXStartTime = slideXStartTime = Date.now();
       this.slideYStartTime = 0;
       targetWordCardComponent.element.classList.add('slide-x');

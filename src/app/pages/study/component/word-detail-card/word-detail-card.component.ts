@@ -1,15 +1,4 @@
 import {
-  AnimationMetadata,
-  AnimationQueryOptions,
-  animate,
-  group,
-  query,
-  style,
-  transition,
-  trigger,
-} from '@angular/animations';
-
-import {
   AfterViewInit,
   Component,
   ElementRef,
@@ -26,62 +15,13 @@ import {
   WordCardComponentBase,
 } from '../common/word-card-component-base';
 
-export function q(
-  selector: string,
-  animation: AnimationMetadata | AnimationMetadata[],
-  options: AnimationQueryOptions = {optional: true},
-) {
-  return query(selector, animation, options);
-}
+import {wordDetailCardTransitions} from './word-detail-card.animations';
 
 @Component({
   selector: 'wb-study-view-word-detail-card',
   templateUrl: './word-detail-card.component.html',
   styleUrls: ['./word-detail-card.component.less'],
-  animations: [
-    trigger('wordDetailCardTransitions', [
-      transition(':enter', [
-        style({backgroundColor: 'rgba(238, 238, 238, 0)'}),
-        q('.word-detail-card', style({opacity: 0, transform: 'scale(0.8)'})),
-        group([
-          animate(
-            '0.2s linear',
-            style({backgroundColor: 'rgba(238, 238, 238, 0.9)'}),
-          ),
-          q(
-            '.word-detail-card',
-            animate(
-              '0.4s 100ms cubic-bezier(0.175, 0.885, 0.32, 1.275)',
-              style({
-                opacity: 1,
-                transform: 'scale(1)',
-              }),
-            ),
-          ),
-        ]),
-      ]),
-      transition(':leave', [
-        style({backgroundColor: 'rgba(238, 238, 238, 0.9)'}),
-        q('.word-detail-card', style({opacity: 1, transform: 'scale(1)'})),
-        group([
-          q(
-            '.word-detail-card',
-            animate(
-              '0.2s ease-out',
-              style({
-                opacity: 0,
-                transform: 'scale(0.9)',
-              }),
-            ),
-          ),
-          animate(
-            '0.2s 140ms linear',
-            style({backgroundColor: 'rgba(238, 238, 238, 0)'}),
-          ),
-        ]),
-      ]),
-    ]),
-  ],
+  animations: [wordDetailCardTransitions],
 })
 export class WordDetailCardComponent extends WordCardComponentBase
   implements AfterViewInit {
@@ -89,7 +29,7 @@ export class WordDetailCardComponent extends WordCardComponentBase
   @Input('active') activeEvent = new EventEmitter<void>();
   @Input('removing') removingEvent = new EventEmitter<void>();
 
-  @HostBinding('@wordDetailCardTransitions') wordDetailCardTransitions = '';
+  @HostBinding('@wordDetailCardTransitions') wordDetailCardTransitions = true;
 
   constructor(ref: ElementRef) {
     super();
