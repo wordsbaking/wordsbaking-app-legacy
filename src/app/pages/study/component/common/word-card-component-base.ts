@@ -17,6 +17,8 @@ export const WORD_CARD_WIDTH = 320;
 export const WORD_CARD_HEIGHT = 54;
 export const WORD_CARD_SEPARATE = 15;
 
+function noop() {}
+
 export abstract class WordCardComponentBase {
   abstract word: WordInfo;
   abstract activeEvent: EventEmitter<void>;
@@ -27,14 +29,18 @@ export abstract class WordCardComponentBase {
   protected elementStyle: CSSStyleDeclaration;
   protected innerElement: HTMLElement;
   protected innerElementStyle: CSSStyleDeclaration;
+  protected contentElement: HTMLElement;
+  protected contentElementStyle: CSSStyleDeclaration;
   protected audioIconElement: HTMLElement;
   protected audioIconElementStyle: CSSStyleDeclaration;
+  protected removalConfirmButtonsElement: HTMLElement;
+  protected removalConfirmButtonsElementStyle: CSSStyleDeclaration;
+
+  protected expandedRemovalConfirmButtons = false;
+  protected animating = false;
 
   private state: WordCardState = WordCardState.inactive;
-
-  constructor() {
-    this.respondSideXToRight = this.respondSideXToRight.bind(this);
-  }
+  private latestSlideXOffset = 0;
 
   @HostBinding('class.active')
   get active(): boolean {
@@ -48,6 +54,19 @@ export abstract class WordCardComponentBase {
 
     if (state) {
       this.activeEvent.emit();
+    } else {
+      if (this.expandedRemovalConfirmButtons) {
+        this.expandedRemovalConfirmButtons = false;
+        this.animating = true;
+
+        animate(1, 0, 200, Easing.circular, this.respondSideXToLeft.bind(this))
+          .then(() => {
+            this.animating = false;
+            this.removalConfirmButtonsElementStyle.opacity = 0 as any;
+            this.latestSlideXOffset = 0;
+          })
+          .catch(noop);
+      }
     }
 
     this.state = state ? WordCardState.active : WordCardState.inactive;
@@ -123,18 +142,34 @@ export abstract class WordCardComponentBase {
     this.elementStyle = element.style;
     this.innerElement = element.querySelector('.inner') as HTMLElement;
     this.innerElementStyle = this.innerElement.style;
+    this.contentElement = element.querySelector('.content') as HTMLElement;
+    this.contentElementStyle = this.contentElement.style;
     this.audioIconElement = element.querySelector('.icon.audio') as HTMLElement;
     this.audioIconElementStyle = this.audioIconElement.style;
+    this.removalConfirmButtonsElement = element.querySelector(
+      '.removal-confirm-buttons',
+    ) as HTMLElement;
+    this.removalConfirmButtonsElementStyle = this.removalConfirmButtonsElement.style;
   }
 
   onSlideX(
-    offset: number,
+    diffX: number,
     startTime: number,
     isEnd: boolean,
     progress: ProgressCallback | undefined,
     complete: CompleteCallback | undefined,
   ): void {
-    this.onSlideXToRight(offset, startTime, isEnd, progress, complete);
+    if (this.animating) {
+      return;
+    }
+
+    let fixedDiffX = diffX + this.latestSlideXOffset;
+
+    if (fixedDiffX >= 0) {
+      this.onSlideXToRight(fixedDiffX, startTime, isEnd, progress, complete);
+    } else {
+      this.onSlideXToLeft(fixedDiffX, startTime, isEnd, progress, complete);
+    }
   }
 
   onSlideY(
@@ -143,73 +178,123 @@ export abstract class WordCardComponentBase {
     isEnd: boolean,
     progress: ProgressCallback | undefined,
     complete: CompleteCallback | undefined,
-  ): void {}
+  ): void {
+    if (this.animating) {
+      return;
+    }
+  }
 
-  private onSlideXToRight(
-    offset: number,
+  private onSlideXToLeft(
+    diffX: number,
     startTime: number,
     isEnd: boolean,
     progress: ProgressCallback | undefined,
     complete: CompleteCallback | undefined,
   ): void {
-    let x = Math.max(offset, 0);
-    let percentage = x / WORD_CARD_WIDTH;
+    let maxWidth = this.removalConfirmButtonsElement.offsetWidth;
+    let maxOffset = -maxWidth;
+    let offset = Math.min(diffX, 0);
+    let x = Math.max(offset, maxOffset);
+    let percentage = Math.abs(x) / maxWidth;
 
-    this.respondSideXToRight(x);
+    this.contentElementStyle.opacity = 1 as any;
+    this.removalConfirmButtonsElementStyle.opacity = 1 as any;
+
+    this.respondSideXToLeft(percentage);
 
     if (progress) {
       progress(percentage);
     }
 
-    if (isEnd && x > 0) {
+    if (isEnd) {
+      this.latestSlideXOffset = Math.max(offset, maxOffset);
+
+      this.expandedRemovalConfirmButtons = percentage >= 0.5;
+
+      if (percentage < 1) {
+        this.latestSlideXOffset = percentage < 0.5 ? 0 : maxOffset;
+        this.animating = true;
+
+        animate(
+          percentage,
+          percentage < 0.5 ? 0 : 1,
+          200,
+          Easing.circular,
+          this.respondSideXToLeft.bind(this),
+        )
+          .then(() => {
+            this.animating = false;
+            if (percentage < 0.5) {
+              this.removalConfirmButtonsElementStyle.opacity = 0 as any;
+            }
+          })
+          .catch(noop);
+      }
+    }
+  }
+
+  private onSlideXToRight(
+    diffX: number,
+    startTime: number,
+    isEnd: boolean,
+    progress: ProgressCallback | undefined,
+    complete: CompleteCallback | undefined,
+  ): void {
+    let offset = Math.max(diffX, 0);
+    let percentage = offset / WORD_CARD_WIDTH;
+
+    this.respondSideXToRight(offset);
+
+    this.expandedRemovalConfirmButtons = false;
+    this.removalConfirmButtonsElementStyle.opacity = 0 as any;
+
+    if (progress) {
+      progress(percentage);
+    }
+
+    if (isEnd) {
+      this.latestSlideXOffset = 0;
+    }
+
+    if (isEnd && offset > 0) {
       let momentumInfo = momentum(
-        x,
+        offset,
         0,
         WORD_CARD_WIDTH,
         Date.now() - startTime,
       );
+
       let newX = momentumInfo.destination ? 0 : WORD_CARD_WIDTH;
 
+      this.animating = true;
+
       animate(
-        x,
+        offset,
         newX,
         Math.min(momentumInfo.duration, 200),
         Easing.circular,
-        this.respondSideXToRight,
+        this.respondSideXToRight.bind(this),
       )
         .then(() => {
+          this.animating = false;
           if (complete && newX === WORD_CARD_WIDTH) {
             complete();
           }
         })
-        .catch(() => undefined);
+        .catch(noop);
     }
-
-    // function update(x: number) {
-
-    //   // if (percentage > 0.25) {
-    //   //   let offsetX = Math.min(percentage - 0.25, 0.75) / 0.75 * 0.75 * 100;
-    //   //   markedHintElementStyle.transform = `translateX(${offsetX}%)`;
-    //   // } else {
-    //   //   markedHintElementStyle.transform = 'translateX(0%)';
-    //   // }
-
-    //   // if (percentage > 0.8) {
-    //   //   markedHintElementStyle.opacity = (1 -
-    //   //     Math.min(percentage - 0.8, 0.2) / 0.2) as any;
-    //   // } else if (percentage > 0.1) {
-    //   //   markedHintElementStyle.opacity = (Math.min(percentage - 0.1, 0.32) /
-    //   //     0.32) as any;
-    //   // } else {
-    //   //   markedHintElementStyle.opacity = 0 as any;
-    //   // }
-    // }
   }
 
   private respondSideXToRight(x: number): void {
-    let {innerElementStyle} = this;
     let percentage = x / WORD_CARD_WIDTH;
-    innerElementStyle.transform = `translate3d(${x}px, 0, 0)`;
-    innerElementStyle.opacity = (1 - percentage) as any;
+    this.contentElementStyle.transform = `translate3d(${x}px, 0, 0)`;
+    this.contentElementStyle.opacity = (1 - percentage) as any;
+  }
+
+  private respondSideXToLeft(percentage: number): void {
+    let maxOffset = -this.removalConfirmButtonsElement.offsetWidth;
+
+    this.contentElementStyle.transform = `translate3d(${maxOffset *
+      percentage}px, 0, 0)`;
   }
 }

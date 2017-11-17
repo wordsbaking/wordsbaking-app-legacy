@@ -56,16 +56,16 @@ export class WordCardComponent extends WordCardComponentBase
   }
 
   onSlideX(
-    offset: number,
+    diffX: number,
     startTime: number,
     isEnd: boolean,
     progress: ProgressCallback | undefined,
     complete: CompleteCallback | undefined,
   ): void {
     let {labelInnerWrapperElementStyle} = this;
-    super.onSlideX(offset, startTime, isEnd, progress, complete);
+    super.onSlideX(diffX, startTime, isEnd, progress, complete);
 
-    labelInnerWrapperElementStyle.transform = `translateY(0%)`;
+    labelInnerWrapperElementStyle.transform = `translate3d(0, 0, 0)`;
 
     if (isEnd) {
       this.reset();
@@ -73,14 +73,14 @@ export class WordCardComponent extends WordCardComponentBase
   }
 
   onSlideY(
-    offset: number,
+    diffY: number,
     startTime: number,
     isEnd: boolean,
     progress: ProgressCallback | undefined,
     complete: CompleteCallback | undefined,
   ): void {
     this.respondSideYToDown(
-      Math.max(offset, 0),
+      Math.max(diffY, 0),
       startTime,
       isEnd,
       progress,
@@ -93,7 +93,7 @@ export class WordCardComponent extends WordCardComponentBase
   }
 
   private respondSideYToDown(
-    y: number,
+    offset: number,
     startTime: number,
     isEnd: boolean,
     progress: ProgressCallback | undefined,
@@ -107,8 +107,8 @@ export class WordCardComponent extends WordCardComponentBase
     } = this;
 
     let scrollHeight = briefElement.scrollHeight;
-    let percentage = Math.min(y / scrollHeight, 1);
-    let height = Math.min(y, scrollHeight);
+    let percentage = Math.min(offset / scrollHeight, 1);
+    let height = Math.min(offset, scrollHeight);
 
     briefElementStyle.height = `${Math.min(scrollHeight, height)}px`;
 
@@ -128,7 +128,7 @@ export class WordCardComponent extends WordCardComponentBase
 
     let labelInnerWrapperOffset =
       Math.min(
-        Math.max(y - scrollHeight, 0) / SLIDE_Y_TRIGGER_SHOW_DETAIL_OFFSET,
+        Math.max(offset - scrollHeight, 0) / SLIDE_Y_TRIGGER_SHOW_DETAIL_OFFSET,
         1,
       ) * -50;
 
@@ -136,7 +136,7 @@ export class WordCardComponent extends WordCardComponentBase
       labelInnerWrapperOffset = -50;
     }
 
-    labelInnerWrapperElementStyle.transform = `translateY(${labelInnerWrapperOffset}%)`;
+    labelInnerWrapperElementStyle.transform = `translate3d(0, ${labelInnerWrapperOffset}%, 0)`;
 
     if (progress) {
       progress(percentage);

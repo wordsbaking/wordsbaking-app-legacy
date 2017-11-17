@@ -1,22 +1,27 @@
 <div class="inner">
-  <div class="head">
-    <div class="info">
-      <span class="term">{{term}}</span>
-      <span class="phonetic-symbols" *ngIf="phonetic">{{phonetic}}</span>
+  <div class="content">
+    <div class="head">
+      <div class="info">
+        <span class="term">{{term}}</span>
+        <span class="phonetic-symbols" *ngIf="phonetic">{{phonetic}}</span>
+      </div>
+      <div class="toolbar">
+        <span class="icon audio"></span>
+      </div>
     </div>
-    <div class="toolbar">
-      <span class="icon audio"></span>
-    </div>
-  </div>
-  <div class="brief">
-    <div class="text">{{briefText}}</div>
-    <div class="details-label">
-      <div class="label-inner-wrapper">
-        <div [class]="'extra-number extra-number-' + briefExtra">{{briefExtra}}<span class="icon plus" *ngIf="!briefExtra"></span></div>
-        <div class="details-plus"><span class="icon plus"></span></div>
+
+    <div class="brief">
+      <div class="text">{{briefText}}</div>
+      <div class="details-label">
+        <div class="label-inner-wrapper">
+          <div [class]="'extra-number extra-number-' + briefExtra">{{briefExtra}}<span class="icon plus" *ngIf="!briefExtra"></span></div>
+          <div class="details-plus"><span class="icon plus"></span></div>
+        </div>
       </div>
     </div>
   </div>
-</div>
 
-<span class="marked-hint"></span>
+  <div class="removal-confirm-buttons">
+    <button class="danger">太简单了</button>
+  </div>
+</div>

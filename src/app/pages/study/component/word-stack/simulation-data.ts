@@ -35,7 +35,7 @@ export const simulationData: WordInfo[] = [
     new: true,
     marked: true,
     obstinate: true,
-    needRemoveConfirm: false,
+    needRemoveConfirm: true,
   },
   {
     term: 'Sweden',

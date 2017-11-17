@@ -123,23 +123,33 @@ export class WordStackInteractiveDirective implements OnDestroy {
       );
     }
 
+    let targetWordCardComponent: WordCardComponentBase | undefined;
+
     if (
       wordStack.wordDetailCardComponent &&
       $wordCardElement[0] === wordStack.wordDetailCardComponent.element
     ) {
-      this.targetWordCardComponent = wordStack.wordDetailCardComponent;
+      targetWordCardComponent = wordStack.wordDetailCardComponent;
     } else {
-      this.targetWordCardComponent = wordStack.getWordCardComponentByElement(
+      targetWordCardComponent = wordStack.getWordCardComponentByElement(
         $wordCardElement[0],
       );
     }
 
-    if (!this.targetWordCardComponent) {
+    if (
+      this.targetWordCardComponent &&
+      targetWordCardComponent !== this.targetWordCardComponent
+    ) {
+      this.targetWordCardComponent.active = false;
+    }
+
+    if (!targetWordCardComponent) {
       return;
     }
 
-    this.targetWordCardComponent.active = true;
+    targetWordCardComponent.active = true;
 
+    this.targetWordCardComponent = targetWordCardComponent;
     this.locked = true;
     this.sliding = true;
     this.slideXStartTime = 0;
@@ -148,10 +158,6 @@ export class WordStackInteractiveDirective implements OnDestroy {
 
   @HostListener('td-touch-end', ['$event'])
   onTouchEnd(event: TouchEndDelegateEvent): void {
-    if (this.targetWordCardComponent) {
-      this.targetWordCardComponent.active = false;
-    }
-
     if (event.detail.touch.sequences.length > 1) {
       if (this.slideXStartTime) {
         this.onSlideX(event);
@@ -192,6 +198,10 @@ export class WordStackInteractiveDirective implements OnDestroy {
       isEnd,
       undefined,
       () => {
+        if (touchData.diffX <= 0) {
+          return;
+        }
+
         targetWordCardComponent!.removed = true;
         wordStack.remove(targetWordCardComponent!.word);
 
@@ -290,7 +300,6 @@ export class WordStackInteractiveDirective implements OnDestroy {
       targetWordCardComponent.element.classList.remove('slide-x');
     }
 
-    this.targetWordCardComponent = undefined;
     this.slideXStartTime = 0;
     this.slideYStartTime = 0;
     this.sliding = false;

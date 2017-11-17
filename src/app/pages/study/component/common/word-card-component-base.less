@@ -3,7 +3,6 @@
 .word-card {
   position: absolute;
   width: 100%;
-  background-color: @color-fg;
   z-index: 1;
   transition: opacity linear 0.1s;
 
@@ -20,10 +19,9 @@
     }
   }
 
-  &.slide-y {
-    .head .icon.audio {
-      opacity: 0;
-    }
+  > .inner,
+  > .inner .content {
+    position: relative;
   }
 
   > .inner .head {
@@ -64,21 +62,12 @@
     }
   }
 
-  > .marked-hint {
+  > .inner .removal-confirm-buttons {
     position: absolute;
     top: 0;
-    left: 0;
-    width: 100%;
-    color: @color-theme-xl;
+    right: 0;
+    display: flex;
+    align-items: center;
     opacity: 0;
-    z-index: -1;
-    line-height: @size-word-item-height;
-
-    &::after {
-      content: '认识的';
-      display: inline-block;
-      padding: 0 10px;
-      height: 100%;
-    }
   }
 }

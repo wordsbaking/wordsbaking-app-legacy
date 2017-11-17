@@ -9,11 +9,7 @@ import {
 
 import {WordInfo} from 'app/core/engine';
 
-import {
-  CompleteCallback,
-  ProgressCallback,
-  WordCardComponentBase,
-} from '../common/word-card-component-base';
+import {WordCardComponentBase} from '../common/word-card-component-base';
 
 import {wordDetailCardTransitions} from './word-detail-card.animations';
 
@@ -39,16 +35,5 @@ export class WordDetailCardComponent extends WordCardComponentBase
 
   ngAfterViewInit(): void {
     this.onViewInit();
-  }
-
-  onSlideX(
-    offset: number,
-    startTime: number,
-    isEnd: boolean,
-    progress: ProgressCallback | undefined,
-    complete: CompleteCallback | undefined,
-  ): void {
-    super.onSlideX(offset, startTime, isEnd, progress, complete);
-    // ..
   }
 }

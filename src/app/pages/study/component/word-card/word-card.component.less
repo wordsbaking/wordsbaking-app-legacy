@@ -10,6 +10,7 @@
 }
 
 :host > .inner .head {
+  position: relative;
   padding: 0 15px;
   height: @size-word-item-height;
   line-height: @size-word-item-height;
@@ -118,4 +119,22 @@
 
 :host.slide-y > .inner .brief .details-label .label-inner-wrapper {
   // transition: none !important;
+}
+
+.removal-confirm-buttons {
+  z-index: -1;
+
+  button {
+    padding: 0 15px;
+    height: @size-word-item-height;
+    line-height: @size-word-item-height;
+  }
+
+  button:not(:last-child) {
+    border-radius: 0;
+  }
+
+  button:last-child {
+    border-radius: 0 2px 2px 0;
+  }
 }
