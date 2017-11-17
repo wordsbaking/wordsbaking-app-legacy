@@ -69,12 +69,21 @@ export class WordStackInteractiveDirective implements OnDestroy {
 
     if (!$wordCardElement.length) {
       wordStack.hideWordDetail();
+
+      if (this.targetWordCardComponent) {
+        this.targetWordCardComponent.active = false;
+      }
       return;
     }
 
     switch ($wordCardElement[0].nodeName.toLowerCase()) {
       case 'wb-study-view-word-detail-card':
         wordStack.hideWordDetail();
+        if (this.targetWordCardComponent) {
+          this.targetWordCardComponent.active = false;
+        }
+
+        this.targetWordCardComponent = undefined;
         break;
 
       case 'wb-study-view-word-card': {
@@ -82,11 +91,22 @@ export class WordStackInteractiveDirective implements OnDestroy {
           $wordCardElement[0],
         );
 
-        if (!targetWordCardComponent) {
+        let expandedRemovalConfirmButtons =
+          targetWordCardComponent &&
+          targetWordCardComponent.expandedRemovalConfirmButtons;
+
+        if (this.targetWordCardComponent) {
+          this.targetWordCardComponent.active = false;
+        }
+
+        if (!targetWordCardComponent || expandedRemovalConfirmButtons) {
           return;
         }
 
         wordStack.showWordDetail(targetWordCardComponent.word);
+
+        targetWordCardComponent.active = true;
+        this.targetWordCardComponent = targetWordCardComponent;
         break;
       }
     }
@@ -109,11 +129,23 @@ export class WordStackInteractiveDirective implements OnDestroy {
     }
 
     let $target = $(event.detail.target);
+
+    console.log(event.detail.originalEvent.target);
+
+    if ($target.closest('.prevent-slide').length) {
+      return;
+    }
+
     let $wordCardElement = $target.closest(
       'wb-study-view-word-card, wb-study-view-word-detail-card .inner',
     );
 
     if ($wordCardElement.length === 0) {
+      if (this.targetWordCardComponent) {
+        this.targetWordCardComponent.active = false;
+      }
+
+      this.targetWordCardComponent = undefined;
       return;
     }
 
@@ -138,7 +170,7 @@ export class WordStackInteractiveDirective implements OnDestroy {
 
     if (
       this.targetWordCardComponent &&
-      targetWordCardComponent !== this.targetWordCardComponent
+      this.targetWordCardComponent !== targetWordCardComponent
     ) {
       this.targetWordCardComponent.active = false;
     }

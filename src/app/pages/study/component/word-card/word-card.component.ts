@@ -79,6 +79,8 @@ export class WordCardComponent extends WordCardComponentBase
     progress: ProgressCallback | undefined,
     complete: CompleteCallback | undefined,
   ): void {
+    super.onSlideY(diffY, startTime, isEnd, progress, complete);
+
     this.respondSideYToDown(
       Math.max(diffY, 0),
       startTime,

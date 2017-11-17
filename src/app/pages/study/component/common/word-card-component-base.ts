@@ -25,6 +25,8 @@ export abstract class WordCardComponentBase {
   abstract removingEvent: EventEmitter<void>;
 
   element: HTMLElement;
+  expandedRemovalConfirmButtons = false;
+  animating = false;
 
   protected elementStyle: CSSStyleDeclaration;
   protected innerElement: HTMLElement;
@@ -35,9 +37,6 @@ export abstract class WordCardComponentBase {
   protected audioIconElementStyle: CSSStyleDeclaration;
   protected removalConfirmButtonsElement: HTMLElement;
   protected removalConfirmButtonsElementStyle: CSSStyleDeclaration;
-
-  protected expandedRemovalConfirmButtons = false;
-  protected animating = false;
 
   private state: WordCardState = WordCardState.inactive;
   private latestSlideXOffset = 0;
@@ -56,16 +55,7 @@ export abstract class WordCardComponentBase {
       this.activeEvent.emit();
     } else {
       if (this.expandedRemovalConfirmButtons) {
-        this.expandedRemovalConfirmButtons = false;
-        this.animating = true;
-
-        animate(1, 0, 200, Easing.circular, this.respondSideXToLeft.bind(this))
-          .then(() => {
-            this.animating = false;
-            this.removalConfirmButtonsElementStyle.opacity = 0 as any;
-            this.latestSlideXOffset = 0;
-          })
-          .catch(noop);
+        this.foldRemovalConfirmButtons();
       }
     }
 
@@ -152,6 +142,21 @@ export abstract class WordCardComponentBase {
     this.removalConfirmButtonsElementStyle = this.removalConfirmButtonsElement.style;
   }
 
+  foldRemovalConfirmButtons(): void {
+    if (this.expandedRemovalConfirmButtons) {
+      this.expandedRemovalConfirmButtons = false;
+      this.animating = true;
+
+      animate(1, 0, 200, Easing.circular, this.respondSideXToLeft.bind(this))
+        .then(() => {
+          this.animating = false;
+          this.removalConfirmButtonsElementStyle.opacity = 0 as any;
+          this.latestSlideXOffset = 0;
+        })
+        .catch(noop);
+    }
+  }
+
   onSlideX(
     diffX: number,
     startTime: number,
@@ -182,6 +187,10 @@ export abstract class WordCardComponentBase {
     if (this.animating) {
       return;
     }
+
+    if (this.expandedRemovalConfirmButtons) {
+      this.foldRemovalConfirmButtons();
+    }
   }
 
   private onSlideXToLeft(
@@ -207,28 +216,32 @@ export abstract class WordCardComponentBase {
     }
 
     if (isEnd) {
-      this.latestSlideXOffset = Math.max(offset, maxOffset);
-
-      this.expandedRemovalConfirmButtons = percentage >= 0.5;
-
       if (percentage < 1) {
-        this.latestSlideXOffset = percentage < 0.5 ? 0 : maxOffset;
+        let expanded =
+          percentage >= 0.5 &&
+          (!this.latestSlideXOffset || offset <= this.latestSlideXOffset);
+
+        this.latestSlideXOffset = expanded ? maxOffset : 0;
         this.animating = true;
+        this.expandedRemovalConfirmButtons = expanded;
 
         animate(
           percentage,
-          percentage < 0.5 ? 0 : 1,
+          expanded ? 1 : 0,
           200,
           Easing.circular,
           this.respondSideXToLeft.bind(this),
         )
           .then(() => {
             this.animating = false;
-            if (percentage < 0.5) {
+            if (!expanded) {
               this.removalConfirmButtonsElementStyle.opacity = 0 as any;
             }
           })
           .catch(noop);
+      } else {
+        this.latestSlideXOffset = maxOffset;
+        this.expandedRemovalConfirmButtons = true;
       }
     }
   }
@@ -250,10 +263,6 @@ export abstract class WordCardComponentBase {
 
     if (progress) {
       progress(percentage);
-    }
-
-    if (isEnd) {
-      this.latestSlideXOffset = 0;
     }
 
     if (isEnd && offset > 0) {
@@ -282,6 +291,10 @@ export abstract class WordCardComponentBase {
           }
         })
         .catch(noop);
+    }
+
+    if (isEnd) {
+      this.latestSlideXOffset = 0;
     }
   }
 
