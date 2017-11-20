@@ -11,7 +11,7 @@ import {
   WordDetailCardComponent,
   WordStackComponent,
   WordStackInteractiveDirective,
-} from './component';
+} from './components';
 import {StudyComponent} from './study.view';
 
 const routes: Routes = [
