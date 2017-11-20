@@ -126,6 +126,10 @@ export abstract class WordCardComponentBase {
     return sentences && sentences[0];
   }
 
+  remove(): Promise<void> {
+    return Promise.resolve(undefined);
+  }
+
   onViewInit() {
     let {element} = this;
 

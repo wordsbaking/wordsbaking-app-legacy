@@ -1,18 +1,19 @@
 import {Directive, Host, HostListener, OnDestroy} from '@angular/core';
 
+import {Subscription} from 'rxjs/Subscription';
+
 import * as $ from 'jquery';
 
 import {
   PolylineDelegateEvent,
+  PressDelegateEvent,
   SlideXDelegateEvent,
-  TapDelegateEvent,
   TouchDelegate,
   TouchEndDelegateEvent,
   TouchIdentifier,
   TouchStartDelegateEvent,
 } from 'app/lib/touch-delegate';
 
-import {Subscription} from 'rxjs/Subscription';
 import {WordCardComponentBase} from '../common/word-card-component-base';
 import {WordCardComponent} from '../word-card/word-card.component';
 import {WordDetailCardComponent} from '../word-detail-card/word-detail-card.component';
@@ -35,12 +36,12 @@ export class WordStackInteractiveDirective implements OnDestroy {
   private subscriptions: Subscription[] = [];
 
   constructor(@Host() public wordStack: WordStackComponent) {
-    this.touchDelegate = new TouchDelegate(wordStack.element, true);
+    this.touchDelegate = new TouchDelegate(wordStack.element, false);
     this.touchDelegate.bind(TouchIdentifier.touchStart);
     this.touchDelegate.bind(TouchIdentifier.touchEnd);
     this.touchDelegate.bind(TouchIdentifier.slideX);
     this.touchDelegate.bind(TouchIdentifier.polylineAfterSlideY);
-    this.touchDelegate.bind(TouchIdentifier.tap);
+    this.touchDelegate.bind(TouchIdentifier.press);
 
     this.subscriptions.push(
       wordStack.activeWord$.subscribe(word => {
@@ -54,61 +55,42 @@ export class WordStackInteractiveDirective implements OnDestroy {
     );
   }
 
-  @HostListener('td-tap', ['$event'])
-  onTap(event: TapDelegateEvent): void {
+  @HostListener('td-press', ['$event'])
+  onTap(event: PressDelegateEvent): void {
+    // TODO: unreliable
+    if (event.detail.originalEvent.type === 'mouseup') {
+      return;
+    }
+
     if (this.preventTapEvent) {
       return;
     }
 
-    let {wordStack} = this;
-
     let $targetElement = $(event.detail.target);
-    let $wordCardElement = $targetElement.closest(
-      'wb-study-view-word-detail-card, wb-study-view-word-card',
-    );
+    let targetWordCardComponent = this.resolveWordCardComponent(event.detail
+      .target as HTMLElement);
 
-    if (!$wordCardElement.length) {
-      wordStack.hideWordDetail();
-
-      if (this.targetWordCardComponent) {
-        this.targetWordCardComponent.active = false;
+    if ($targetElement.closest('.J-trigger-remove').length) {
+      if (
+        targetWordCardComponent &&
+        targetWordCardComponent instanceof WordCardComponent
+      ) {
+        this.triggerRemoveWordCardComponent(targetWordCardComponent);
+        return;
       }
+    }
+
+    if (!targetWordCardComponent) {
+      this.triggerHideWordDetail();
       return;
     }
 
-    switch ($wordCardElement[0].nodeName.toLowerCase()) {
-      case 'wb-study-view-word-detail-card':
-        wordStack.hideWordDetail();
-        if (this.targetWordCardComponent) {
-          this.targetWordCardComponent.active = false;
-        }
-
-        this.targetWordCardComponent = undefined;
-        break;
-
-      case 'wb-study-view-word-card': {
-        let targetWordCardComponent = wordStack.getWordCardComponentByElement(
-          $wordCardElement[0],
-        );
-
-        let expandedRemovalConfirmButtons =
-          targetWordCardComponent &&
-          targetWordCardComponent.expandedRemovalConfirmButtons;
-
-        if (this.targetWordCardComponent) {
-          this.targetWordCardComponent.active = false;
-        }
-
-        if (!targetWordCardComponent || expandedRemovalConfirmButtons) {
-          return;
-        }
-
-        wordStack.showWordDetail(targetWordCardComponent.word);
-
-        targetWordCardComponent.active = true;
-        this.targetWordCardComponent = targetWordCardComponent;
-        break;
-      }
+    if (
+      targetWordCardComponent &&
+      targetWordCardComponent instanceof WordCardComponent
+    ) {
+      this.triggerShowWordDetail(targetWordCardComponent);
+      return;
     }
   }
 
@@ -129,8 +111,6 @@ export class WordStackInteractiveDirective implements OnDestroy {
     }
 
     let $target = $(event.detail.target);
-
-    console.log(event.detail.originalEvent.target);
 
     if ($target.closest('.prevent-slide').length) {
       return;
@@ -208,6 +188,9 @@ export class WordStackInteractiveDirective implements OnDestroy {
     let touchData = event.detail;
     let isEnd = touchData.touch.isEnd;
 
+    event.preventDefault();
+    event.detail.originalEvent.preventDefault();
+
     if (touchData.touch.sequences.length > 1 && !isEnd) {
       return;
     }
@@ -255,6 +238,9 @@ export class WordStackInteractiveDirective implements OnDestroy {
   onPolylineAfterSlideY(event: PolylineDelegateEvent): void {
     let touchData = event.detail;
     let isEnd = touchData.touch.isEnd;
+
+    event.preventDefault();
+    event.detail.originalEvent.preventDefault();
 
     if (touchData.touch.sequences.length > 1 && !isEnd) {
       return;
@@ -322,6 +308,62 @@ export class WordStackInteractiveDirective implements OnDestroy {
     for (let subscription of this.subscriptions) {
       subscription.unsubscribe();
     }
+  }
+
+  private triggerRemoveWordCardComponent(
+    targetWordCardComponent: WordCardComponent,
+  ): void {
+    targetWordCardComponent
+      .remove()
+      .then(() => {
+        this.wordStack.remove(targetWordCardComponent.word);
+        this.wordStack.stuff();
+      })
+      .catch(() => undefined);
+  }
+
+  private triggerShowWordDetail(
+    targetWordCardComponent: WordCardComponent,
+  ): void {
+    let expandedRemovalConfirmButtons =
+      targetWordCardComponent.expandedRemovalConfirmButtons;
+
+    if (this.targetWordCardComponent) {
+      this.targetWordCardComponent.active = false;
+    }
+
+    if (expandedRemovalConfirmButtons) {
+      return;
+    }
+
+    this.wordStack.showWordDetail(targetWordCardComponent.word);
+
+    targetWordCardComponent.active = true;
+    this.targetWordCardComponent = targetWordCardComponent;
+  }
+
+  private triggerHideWordDetail(): void {
+    this.wordStack.hideWordDetail();
+
+    if (this.targetWordCardComponent) {
+      this.targetWordCardComponent.active = false;
+    }
+
+    this.targetWordCardComponent = undefined;
+  }
+
+  private resolveWordCardComponent(
+    target: HTMLElement,
+  ): WordCardComponentBase | undefined {
+    let $wordCardElement = $(target).closest(
+      'wb-study-view-word-card, wb-study-view-word-detail-card',
+    );
+
+    if ($wordCardElement.length === 0) {
+      return undefined;
+    }
+
+    return this.wordStack.getWordCardComponentByElement($wordCardElement[0]);
   }
 
   private reset(): void {

@@ -9,9 +9,12 @@ import {
 
 import {WordInfo} from 'app/core/engine';
 
+import {Easing, animate} from 'app/lib/animate';
+
 import {
   CompleteCallback,
   ProgressCallback,
+  WORD_CARD_WIDTH,
   WordCardComponentBase,
 } from '../common/word-card-component-base';
 
@@ -36,6 +39,29 @@ export class WordCardComponent extends WordCardComponentBase
   constructor(ref: ElementRef) {
     super();
     this.element = ref.nativeElement;
+  }
+
+  async remove(): Promise<void> {
+    let {innerElement} = this;
+
+    if (this.removed) {
+      return;
+    }
+
+    this.animating = true;
+    this.removed = true;
+
+    try {
+      await animate(0, 1, 200, Easing.circular, percentage => {
+        innerElement.style.transform = `translate3d(-${percentage *
+          WORD_CARD_WIDTH}px, 0, 0)`;
+        innerElement.style.opacity = (1 - percentage) as any;
+      });
+    } catch (e) {
+      this.removed = false;
+    }
+
+    this.animating = false;
   }
 
   ngAfterViewInit(): void {
