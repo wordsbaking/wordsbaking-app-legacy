@@ -46,6 +46,13 @@ export type TouchEndDelegateEvent = TouchDelegateEvent<
 export interface TapDelegateEventDetail extends TouchDelegateEventDetail {}
 export type TapDelegateEvent = TouchDelegateEvent<TapDelegateEventDetail>;
 
+export interface PressDelegateEventDetail extends TouchDelegateEventDetail {}
+export type PressDelegateEvent = TouchDelegateEvent<TapDelegateEventDetail>;
+
+export interface HoldTapDelegateEventDetail extends TouchDelegateEventDetail {}
+export type HoldTapDelegateEvent = TouchDelegateEvent<
+  HoldTapDelegateEventDetail
+>;
 /**
  * delegate event interface for `free` identifier.
  */
@@ -158,6 +165,29 @@ export namespace TouchIdentifier {
       sequence.timeLasting > 500 ||
       sequence.maxRadius > 5
     ) {
+      return {
+        identified: true,
+        match: false,
+        end: true,
+      };
+    }
+
+    if (sequence.ended) {
+      return {
+        identified: true,
+        match: true,
+        end: true,
+      };
+    }
+
+    return undefined;
+  });
+
+  export const press = new TouchIdentifier('press', info => {
+    let sequences = info.sequences;
+    let sequence = sequences[0];
+
+    if (sequences.length > 1 || sequence.maxRadius > 5) {
       return {
         identified: true,
         match: false,
