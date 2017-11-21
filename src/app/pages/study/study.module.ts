@@ -7,6 +7,7 @@ import {UIModule} from 'app/ui';
 import {CoreUIModule} from 'app/core/ui';
 
 import {
+  NotificationCardComponent,
   WordCardComponent,
   WordDetailCardComponent,
   WordStackComponent,
@@ -38,6 +39,7 @@ const routes: Routes = [
     WordCardComponent,
     WordDetailCardComponent,
     WordStackInteractiveDirective,
+    NotificationCardComponent,
   ],
 })
 export class StudyModule {}

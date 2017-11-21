@@ -1,0 +1,42 @@
+@import '~styles/common.less';
+
+:host {
+  @height: @size-page-header-min-height;
+  @offset-y: 8px;
+
+  position: absolute;
+  left: 15px;
+  right: 15px;
+  bottom: 15px;
+  padding: @offset-y 30px @offset-y 12px;
+  border-radius: 2px;
+  background-color: @color-theme-g;
+  transition: @transition-opacity;
+
+  .text {
+    color: @color-fg;
+
+    p {
+      margin: 8px 0;
+    }
+
+    p:first-child {
+      margin: 0;
+    }
+  }
+
+  .status-dot {
+    @size: 6px;
+
+    position: absolute;
+    top: (@height - @size) / 2;
+    right: (@height - @size) / 2;
+    width: @size;
+    height: @size;
+    border-radius: @size /2;
+
+    &.green {
+      background-color: #a4c400;
+    }
+  }
+}

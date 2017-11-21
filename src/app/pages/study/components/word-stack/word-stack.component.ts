@@ -17,10 +17,17 @@ import {
   WordCardComponentBase,
 } from '../common/word-card-component-base';
 
+import {
+  Notification,
+  NotificationStatus,
+} from '../notification-card/notification-card.component';
 import {WordCardComponent} from '../word-card/word-card.component';
 import {WordDetailCardComponent} from '../word-detail-card/word-detail-card.component';
 
-import {wordCardTransitions} from './word-stack.animations';
+import {
+  notificationCardTransitions,
+  wordCardTransitions,
+} from './word-stack.animations';
 
 import {simulationData} from './simulation-data';
 
@@ -28,7 +35,7 @@ import {simulationData} from './simulation-data';
   selector: 'wb-study-view-word-stack',
   templateUrl: './word-stack.component.html',
   styleUrls: ['./word-stack.component.less'],
-  animations: [wordCardTransitions],
+  animations: [notificationCardTransitions, wordCardTransitions],
 })
 export class WordStackComponent {
   @ViewChild(WordDetailCardComponent)
@@ -36,14 +43,19 @@ export class WordStackComponent {
 
   words$ = new BehaviorSubject<(WordInfo | undefined)[]>([]);
 
+  notification$ = new BehaviorSubject<Notification | undefined>(undefined);
+
   element: HTMLElement;
 
-  @HostBinding('@wordCardTransitions') enabledWordCardTransitions = false;
+  enabledWordCardTransitions = false;
+  enabledNotificationCardTransitions = true;
 
   activeWord$ = new BehaviorSubject<WordInfo | undefined>(undefined);
 
   @ViewChildren(WordCardComponent)
   private wordCardComponentQueryList: QueryList<WordCardComponent>;
+
+  private notificationTimerHandle: number;
 
   constructor(ref: ElementRef) {
     this.element = ref.nativeElement;
@@ -54,6 +66,10 @@ export class WordStackComponent {
         this.words$.next(simulationData.slice(0, 4).map(data => ({...data}))),
       1000,
     );
+
+    setTimeout(() => {
+      this.showNotification('hello, world');
+    }, 3000);
   }
 
   get size(): number {
@@ -232,6 +248,29 @@ export class WordStackComponent {
     }
 
     this.activeWord$.next(undefined);
+  }
+
+  showNotification(
+    message: string,
+    duration = 3000,
+    status = NotificationStatus.info,
+  ): void {
+    clearTimeout(this.notificationTimerHandle);
+
+    this.notification$.next({
+      message,
+      status,
+    });
+
+    this.notificationTimerHandle = setTimeout(
+      () => this.hideNotification(),
+      duration,
+    );
+  }
+
+  hideNotification(): void {
+    clearTimeout(this.notificationTimerHandle);
+    this.notification$.next(undefined);
   }
 
   private fetchWord(): WordInfo | undefined {
