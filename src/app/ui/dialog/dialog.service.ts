@@ -28,12 +28,12 @@ export class DialogService {
     private resolve: ComponentFactoryResolver,
   ) {}
 
-  confirm(content: string, options: PopupShowOptions = {}): Promise<void> {
+  confirm(content: string, options: PopupShowOptions = {}): Promise<boolean> {
     let confirmComponentFactory = this.resolve.resolveComponentFactory(
       ConfirmComponent,
     );
 
-    return new Promise<void>((resolve, reject) => {
+    return new Promise<boolean>((resolve, reject) => {
       let contentOptions: ConfirmComponentInitOptions = {
         ...options.contentOptions,
         okCallback: () => {
@@ -41,7 +41,7 @@ export class DialogService {
             options.contentOptions.okCallback();
           }
 
-          resolve();
+          resolve(true);
         },
       };
 
@@ -49,8 +49,8 @@ export class DialogService {
         ...options,
         contentOptions,
       })
-        .then(reject)
-        .catch(reject);
+        .then(() => resolve(false))
+        .catch(() => reject);
     });
   }
 
