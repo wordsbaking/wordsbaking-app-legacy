@@ -1,7 +1,6 @@
 import {
   Component,
   ElementRef,
-  HostBinding,
   QueryList,
   ViewChild,
   ViewChildren,
