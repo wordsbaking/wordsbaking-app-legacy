@@ -1,6 +1,7 @@
 import {CommonModule} from '@angular/common';
 import {ModuleWithProviders, NgModule} from '@angular/core';
 
+import {DialogModule} from './dialog';
 import {PopupModule} from './popup';
 import {SelectionListItemComponent} from './selection-list-item/selection-list-item.component';
 import {SelectionListComponent} from './selection-list/selection-list.component';
@@ -9,7 +10,7 @@ import {TouchModule} from './touch/touch.module';
 import {ViewContainerService} from './util/view-container.service';
 
 @NgModule({
-  imports: [CommonModule, TouchModule, PopupModule],
+  imports: [CommonModule, TouchModule, PopupModule, DialogModule],
   declarations: [
     SwitchComponent,
     SelectionListComponent,
@@ -19,6 +20,7 @@ import {ViewContainerService} from './util/view-container.service';
     TouchModule,
     SwitchComponent,
     PopupModule,
+    DialogModule,
     SelectionListComponent,
     SelectionListItemComponent,
   ],
@@ -27,7 +29,11 @@ export class UIModule {
   static forRoot(): ModuleWithProviders {
     return {
       ngModule: UIModule,
-      providers: [ViewContainerService, ...PopupModule.forRoot().providers],
+      providers: [
+        ViewContainerService,
+        ...PopupModule.forRoot().providers,
+        ...DialogModule.forRoot().providers,
+      ],
     };
   }
 }
