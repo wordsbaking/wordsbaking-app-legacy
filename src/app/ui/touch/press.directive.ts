@@ -30,6 +30,10 @@ export class PressDirective implements OnInit, OnDestroy {
 
   @HostListener('td-press', ['$event'])
   onTap(event: PressDelegateEvent) {
+    if (this.ref.nativeElement.disabled) {
+      return;
+    }
+
     // TODO: unreliable
     if (event.detail.originalEvent.type === 'mouseup') {
       return;
