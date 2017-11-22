@@ -6,7 +6,7 @@ import {
 } from '@angular/core';
 import {RouterOutlet} from '@angular/router';
 
-import {ViewContainerService} from 'app/ui/util/view-container.service';
+import {ViewContainerService} from 'app/ui';
 
 import {routerTransitions} from './app-router.animations';
 
