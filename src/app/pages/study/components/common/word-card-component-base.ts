@@ -1,6 +1,7 @@
 import {EventEmitter, HostBinding} from '@angular/core';
 
-import {Sentence, WordInfo} from 'app/core/engine';
+import {WordDataSentence} from 'app/core/data';
+import {WordInfo} from 'app/core/engine';
 
 import {Easing, animate, momentum} from 'app/lib/animate';
 
@@ -121,7 +122,7 @@ export abstract class WordCardComponentBase {
     });
   }
 
-  get sentence(): Sentence | undefined {
+  get sentence(): WordDataSentence | undefined {
     let {sentences} = this.word;
     return sentences && sentences[0];
   }

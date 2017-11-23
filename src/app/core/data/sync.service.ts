@@ -12,11 +12,13 @@ import * as v from 'villa';
 
 import {APIService} from 'app/core/common';
 import {ConfigService} from 'app/core/config';
+import {StudyRecordData} from 'app/core/engine';
 import {DBStorage} from 'app/core/storage';
 
 import {
   AccumulationDataEntryTypeDefinition,
   AccumulationUpdateData,
+  CollectionData,
   DataEntryType,
   DataEntryTypeManager,
   Item,
@@ -89,8 +91,8 @@ export class SyncService implements CategoryHost {
   readonly user: Category;
   readonly settings: Category;
   readonly statistics: Category;
-  readonly records: Category;
-  readonly collections: Category;
+  readonly records: Category<StudyRecordData>;
+  readonly collections: Category<CollectionData>;
 
   readonly categoryNames: CategoryName[];
 
@@ -142,7 +144,7 @@ export class SyncService implements CategoryHost {
       return;
     }
 
-    let item: Item = {
+    let item: Item<any> = {
       id,
       data: undefined,
     };
@@ -366,19 +368,19 @@ export class SyncService implements CategoryHost {
   }
 }
 
-export class Category {
-  readonly itemMap$ = new ReplaySubject<Map<string, Item>>();
+export class Category<T = any> {
+  readonly itemMap$ = new ReplaySubject<Map<string, Item<T>>>();
   readonly syncPendingItemMap$ = new ReplaySubject<Map<string, UpdateItem>>();
 
   private pendingMergeItemIDSet: Set<string>;
 
-  private itemMap: Map<string, Item>;
+  private itemMap: Map<string, Item<T>>;
   private syncPendingItemMap: Map<string, UpdateItem>;
 
-  private dataStorage$: Observable<DBStorage<string, Item>>;
+  private dataStorage$: Observable<DBStorage<string, Item<T>>>;
   private syncPendingStorage$: Observable<DBStorage<string, UpdateItem>>;
 
-  private writeItemScheduler = new v.BatchScheduler<Item>(
+  private writeItemScheduler = new v.BatchScheduler<Item<T | undefined>>(
     this.writeItemBatchHandler.bind(this),
   );
 
@@ -387,13 +389,13 @@ export class Category {
   constructor(
     readonly name: string,
     readonly typeManager: DataEntryTypeManager,
-    // readonly dataStorage: DBStorage<string, Item>,
+    // readonly dataStorage: DBStorage<string, Item<T>>,
     // readonly syncPendingStorage: DBStorage<string, UpdateItem>,
     readonly passive = false,
     private mergeLimit = 100,
   ) {
     this.dataStorage$ = Observable.defer(async () => {
-      let storage = await DBStorage.create<string, Item>({
+      let storage = await DBStorage.create<string, Item<T>>({
         name: 'default',
         tableName: `${name}-data`,
         idType: 'text',
@@ -403,12 +405,11 @@ export class Category {
 
       let [mergedEntry] = _.remove(items, item => !item.id);
 
-      let itemMap = (this.itemMap = new Map<string, Item>(
+      let itemMap = (this.itemMap = new Map<string, Item<T>>(
         mergedEntry
-          ? (mergedEntry.data as Item[]).map<[string, Item]>(item => [
-              item.id,
-              item,
-            ])
+          ? ((mergedEntry.data as any) as Item<T>[]).map<
+              [string, Item<T>]
+            >(item => [item.id, item])
           : [],
       ));
 
@@ -455,14 +456,14 @@ export class Category {
       .refCount();
   }
 
-  async setItem(item: Item): Promise<void> {
+  async setItem(item: Item<T>): Promise<void> {
     this.itemMap.set(item.id, item);
     this.itemMap$.next(this.itemMap);
 
     await this.writeItemScheduler.schedule(item);
   }
 
-  async removeItem(id: string | Item): Promise<void> {
+  async removeItem(id: string | Item<T>): Promise<void> {
     if (typeof id === 'object') {
       id = id.id;
     }
@@ -549,7 +550,7 @@ export class Category {
       .toPromise();
   }
 
-  private async writeItemBatchHandler(items: Item[]): Promise<void> {
+  private async writeItemBatchHandler(items: Item<T>[]): Promise<void> {
     items = _.uniqBy(items.reverse(), 'id').reverse();
 
     let pendingMergeSet = this.pendingMergeItemIDSet;
@@ -582,7 +583,7 @@ export class Category {
 
       await storage.set({
         id: '',
-        data: Array.from(this.itemMap.values()),
+        data: Array.from(this.itemMap.values()) as any,
       });
 
       await storage.removeWhere("id != ''");

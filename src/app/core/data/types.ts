@@ -10,10 +10,17 @@ export interface UpdateItem {
   removed?: true;
 }
 
-export interface Item extends DBStorageItem<string> {
-  data: any;
+export interface Item<T> extends DBStorageItem<string> {
+  data: T;
   removed?: true;
 }
+
+export interface CollectionData {
+  name: string;
+  terms: string[];
+}
+
+export interface RecordData {}
 
 export abstract class DataEntryTypeDefinition {
   constructor(readonly name: DataEntryType) {}
