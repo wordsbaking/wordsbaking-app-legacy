@@ -40,12 +40,12 @@ export class LoadingService {
   ) {}
 
   wait(
-    task: Promise<any>,
+    process: Promise<any>,
     hint: string,
     options?: LoadingShowOptions,
   ): LoadingHandler;
   wait(
-    task: Promise<any>,
+    process: Promise<any>,
     hint: string,
     container: ViewContainerRef,
     options?: LoadingShowOptions,

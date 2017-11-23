@@ -63,7 +63,7 @@ export class WordStackComponent {
     setTimeout(
       () =>
         this.words$.next(simulationData.slice(0, 4).map(data => ({...data}))),
-      1000,
+      1200,
     );
 
     setTimeout(() => {
