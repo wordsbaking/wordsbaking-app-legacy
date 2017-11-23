@@ -3,7 +3,7 @@ import {Injectable} from '@angular/core';
 import {Observable} from 'rxjs/Observable';
 
 import {StudyOrder, StudyScope} from 'app/core/engine';
-import {DBStorage, DBStorageItem} from 'app/core/storage';
+import {DBStorage} from 'app/core/storage';
 
 // @Injectable()
 // export class SettingsService {
@@ -35,9 +35,9 @@ export interface ExposedSettings {
 
 export type SettingsItemName = keyof SettingsItemExtension;
 
-export interface SettingsItem
-  extends DBStorageItem<string>,
-    SettingsItemExtension {}
+export interface SettingsItem extends SettingsItemExtension {
+  id: string;
+}
 
 @Injectable()
 export class SettingsService {
@@ -45,7 +45,7 @@ export class SettingsService {
     DBStorage.create<string, SettingsItem>({
       name: 'default',
       tableName: 'settings',
-      idType: 'text',
+      primaryKeyType: 'text',
     }),
   );
 

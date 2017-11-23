@@ -11,7 +11,7 @@ import * as v from 'villa';
 
 import {
   CollectionData,
-  Item,
+  SyncItem,
   SyncService,
   WordDataDownloadProgressHandler,
   WordDataItem,
@@ -435,8 +435,8 @@ export class EngineService implements OnDestroy {
       newWordsPriority,
       studyOrder,
     }: ExposedSettings,
-    recordItemMap: Map<string, Item<StudyRecordData>>,
-    collectionItemMap: Map<string, Item<CollectionData>>,
+    recordItemMap: Map<string, SyncItem<StudyRecordData>>,
+    collectionItemMap: Map<string, SyncItem<CollectionData>>,
   ): void {
     // let [
     //   recordItemMap,

@@ -6,7 +6,7 @@ import * as _ from 'lodash';
 import * as v from 'villa';
 
 import {APIService} from 'app/core/common';
-import {DBStorage, DBStorageItem} from 'app/core/storage';
+import {DBStorage} from 'app/core/storage';
 
 const WORDS_DATA_DOWNLOAD_LIMIT = 200;
 
@@ -29,9 +29,9 @@ export interface WordDataSentence {
 
 export type PronunciationType = 'us' | 'gb';
 
-export interface WordDataItem extends DBStorageItem<string> {
+export interface WordDataItem {
   term: string;
-  prons?: {[pronunciation in PronunciationType]: string[]};
+  prons?: {[pronunciation in PronunciationType]?: string[]};
   briefs: WordDataMeaning[];
   meanings: WordDataMeaning[];
   sentences?: WordDataSentence[];
@@ -61,10 +61,11 @@ export class WordDataService {
       let storage = await DBStorage.create<string, WordDataItem>({
         name: 'default',
         tableName: 'words-data',
-        idType: 'text',
+        primaryKey: 'term',
+        primaryKeyType: 'text',
       });
 
-      let terms = await storage.getIDs();
+      let terms = await storage.getPrimaryKeys();
 
       this.inStorageIDSet = new Set(terms);
 
@@ -112,7 +113,7 @@ export class WordDataService {
   async save(item: WordDataItem): Promise<void> {
     return this.storage$
       .switchMap(storage => storage.set(item))
-      .do(() => this.inStorageIDSet.add(item.id))
+      .do(() => this.inStorageIDSet.add(item.term))
       .toPromise();
   }
 
@@ -121,21 +122,21 @@ export class WordDataService {
 
     let items = await v.map(terms, term => storage.get(term));
 
-    let idToIndex = new Map<string, number>();
+    let termToIndex = new Map<string, number>();
 
     for (let [index, item] of items.entries()) {
       if (!item) {
-        idToIndex.set(terms[index], index);
+        termToIndex.set(terms[index], index);
       }
     }
 
-    if (idToIndex.size) {
-      let pendingIDs = Array.from(idToIndex.keys());
+    if (termToIndex.size) {
+      let pendingIDs = Array.from(termToIndex.keys());
 
       let fetchedItems = await this.download(pendingIDs, () => {});
 
       for (let item of fetchedItems) {
-        let index = idToIndex.get(item.id)!;
+        let index = termToIndex.get(item.term)!;
         items[index] = item;
       }
     }
@@ -178,8 +179,8 @@ export class WordDataService {
 
     let inStorageTermSet = this.inStorageIDSet;
 
-    for (let {id} of fetchedItems) {
-      inStorageTermSet.add(id);
+    for (let {term} of fetchedItems) {
+      inStorageTermSet.add(term);
     }
 
     return fetchedItems;

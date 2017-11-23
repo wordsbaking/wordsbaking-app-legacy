@@ -96,7 +96,8 @@ export abstract class WordCardComponentBase {
 
   get phonetic(): string | undefined {
     let {prons} = this.word;
-    return prons ? prons.us.join(', ') : undefined;
+    let usProns = prons && prons.us;
+    return usProns ? usProns.join(', ') : undefined;
   }
 
   get briefExtra(): number {

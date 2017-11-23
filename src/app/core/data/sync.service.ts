@@ -21,7 +21,7 @@ import {
   CollectionData,
   DataEntryType,
   DataEntryTypeManager,
-  Item,
+  SyncItem,
   UpdateItem,
   ValueDataEntryTypeDefinition,
 } from './types';
@@ -144,7 +144,7 @@ export class SyncService implements CategoryHost {
       return;
     }
 
-    let item: Item<any> = {
+    let item: SyncItem<any> = {
       id,
       data: undefined,
     };
@@ -369,18 +369,18 @@ export class SyncService implements CategoryHost {
 }
 
 export class Category<T = any> {
-  readonly itemMap$ = new ReplaySubject<Map<string, Item<T>>>();
+  readonly itemMap$ = new ReplaySubject<Map<string, SyncItem<T>>>();
   readonly syncPendingItemMap$ = new ReplaySubject<Map<string, UpdateItem>>();
 
   private pendingMergeItemIDSet: Set<string>;
 
-  private itemMap: Map<string, Item<T>>;
+  private itemMap: Map<string, SyncItem<T>>;
   private syncPendingItemMap: Map<string, UpdateItem>;
 
-  private dataStorage$: Observable<DBStorage<string, Item<T>>>;
+  private dataStorage$: Observable<DBStorage<string, SyncItem<T>>>;
   private syncPendingStorage$: Observable<DBStorage<string, UpdateItem>>;
 
-  private writeItemScheduler = new v.BatchScheduler<Item<T | undefined>>(
+  private writeItemScheduler = new v.BatchScheduler<SyncItem<T | undefined>>(
     this.writeItemBatchHandler.bind(this),
   );
 
@@ -395,20 +395,20 @@ export class Category<T = any> {
     private mergeLimit = 100,
   ) {
     this.dataStorage$ = Observable.defer(async () => {
-      let storage = await DBStorage.create<string, Item<T>>({
+      let storage = await DBStorage.create<string, SyncItem<T>>({
         name: 'default',
         tableName: `${name}-data`,
-        idType: 'text',
+        primaryKeyType: 'text',
       });
 
       let items = await storage.getAll();
 
       let [mergedEntry] = _.remove(items, item => !item.id);
 
-      let itemMap = (this.itemMap = new Map<string, Item<T>>(
+      let itemMap = (this.itemMap = new Map<string, SyncItem<T>>(
         mergedEntry
-          ? ((mergedEntry.data as any) as Item<T>[]).map<
-              [string, Item<T>]
+          ? ((mergedEntry.data as any) as SyncItem<T>[]).map<
+              [string, SyncItem<T>]
             >(item => [item.id, item])
           : [],
       ));
@@ -438,7 +438,7 @@ export class Category<T = any> {
       let storage = await DBStorage.create<string, UpdateItem>({
         name: 'default',
         tableName: `${name}-sync-pending`,
-        idType: 'text',
+        primaryKeyType: 'text',
         indexSchema: {updateAt: 'integer'},
       });
 
@@ -456,14 +456,14 @@ export class Category<T = any> {
       .refCount();
   }
 
-  async setItem(item: Item<T>): Promise<void> {
+  async setItem(item: SyncItem<T>): Promise<void> {
     this.itemMap.set(item.id, item);
     this.itemMap$.next(this.itemMap);
 
     await this.writeItemScheduler.schedule(item);
   }
 
-  async removeItem(id: string | Item<T>): Promise<void> {
+  async removeItem(id: string | SyncItem<T>): Promise<void> {
     if (typeof id === 'object') {
       id = id.id;
     }
@@ -550,7 +550,7 @@ export class Category<T = any> {
       .toPromise();
   }
 
-  private async writeItemBatchHandler(items: Item<T>[]): Promise<void> {
+  private async writeItemBatchHandler(items: SyncItem<T>[]): Promise<void> {
     items = _.uniqBy(items.reverse(), 'id').reverse();
 
     let pendingMergeSet = this.pendingMergeItemIDSet;
