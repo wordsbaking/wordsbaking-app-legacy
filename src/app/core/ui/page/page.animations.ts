@@ -7,41 +7,44 @@ import {
   trigger,
 } from '@angular/animations';
 
-import {AnimationTool} from 'app/util';
+import {animationElementQuery} from 'app/util';
 
 export const pageTransitions = [
   transition(':enter', [
-    AnimationTool.query(
+    animationElementQuery(
       '.page-header',
       style({transform: 'translateY(-100%)'}),
     ),
-    AnimationTool.query(
+    animationElementQuery(
       '.page-header > .inner',
       style({transform: 'translateY(-100%)'}),
     ),
-    AnimationTool.query('.page-content', style({opacity: '0'})),
-    AnimationTool.query('.page-footer', style({transform: 'translateY(100%)'})),
+    animationElementQuery('.page-content', style({opacity: '0'})),
+    animationElementQuery(
+      '.page-footer',
+      style({transform: 'translateY(100%)'}),
+    ),
     group(
       [
-        AnimationTool.query(
+        animationElementQuery(
           '.page-header',
           animate('0.2s ease-out', style({transform: 'translateY(0)'})),
         ),
-        AnimationTool.query(
+        animationElementQuery(
           '.page-header > .inner',
           animate('0.2s ease-out', style({transform: 'translateY(0)'})),
           {
             delay: 200,
           },
         ),
-        AnimationTool.query(
+        animationElementQuery(
           '.page-content',
           animate('0.2s linear', style({opacity: '1'})),
           {
             delay: 200,
           },
         ),
-        AnimationTool.query(
+        animationElementQuery(
           '.page-footer',
           animate('0.2s ease-out', style({transform: 'translateY(0)'})),
           {
@@ -57,22 +60,22 @@ export const pageTransitions = [
   ]),
   transition(':leave', [
     group([
-      AnimationTool.query(
+      animationElementQuery(
         '.page-header > .inner',
         animate('0.2s ease-out', style({transform: 'translateY(-100%)'})),
       ),
-      AnimationTool.query(
+      animationElementQuery(
         '.page-header',
         animate('0.2s ease-out', style({transform: 'translateY(-100%)'})),
         {
           delay: 200,
         },
       ),
-      AnimationTool.query(
+      animationElementQuery(
         '.page-content',
         animate('0.2s linear', style({opacity: '0'})),
       ),
-      AnimationTool.query(
+      animationElementQuery(
         '.page-footer',
         animate('0.2s ease-out', style({transform: 'translateY(100%)'})),
       ),
