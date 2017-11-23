@@ -8,7 +8,7 @@ const backgroundTransitions = trigger('backgroundTransitions', [
   ]),
   transition(':leave', [
     style({opacity: 1}),
-    animate('0.2s 140ms ease-out', style({opacity: 0})),
+    animate('0.1s 120ms linear', style({opacity: 0})),
   ]),
 ]);
 
@@ -31,5 +31,5 @@ export class PopupBackgroundComponent {
   @HostBinding('@backgroundTransitions') state = '';
 
   @HostBinding('style.backgroundColor')
-  private backgroundColor = 'rgba(0, 0, 0, 0.4)';
+  private backgroundColor = 'rgba(0, 0, 0, 0.2)';
 }

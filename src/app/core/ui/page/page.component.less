@@ -10,6 +10,7 @@
 
   > .page-header,
   > .page-footer {
+    will-change: transform;
     position: relative;
     flex: none;
   }
@@ -19,6 +20,7 @@
     overflow: hidden;
 
     > .inner {
+      will-change: transform;
       background-color: @color-theme;
     }
 
@@ -40,6 +42,7 @@
     flex: 1;
     background-color: @color-fg;
     overflow: hidden;
+    will-change: opacity;
 
     .inner {
       height: 100%;

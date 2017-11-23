@@ -4,9 +4,15 @@ import {
   ViewChild,
   ViewContainerRef,
 } from '@angular/core';
-import {RouterOutlet} from '@angular/router';
+import {
+  NavigationEnd,
+  NavigationStart,
+  RouteConfigLoadStart,
+  Router,
+  RouterOutlet,
+} from '@angular/router';
 
-import {ViewContainerService} from 'app/ui/util/view-container.service';
+import {LoadingHandler, LoadingService, ViewContainerService} from 'app/ui';
 
 import {routerTransitions} from './app-router.animations';
 
@@ -28,7 +34,38 @@ export class AppView {
   constructor(
     viewContainerRef: ViewContainerRef,
     viewContainerService: ViewContainerService,
+    private router: Router,
+    private loadingService: LoadingService,
   ) {
     viewContainerService.viewContainerRef = viewContainerRef;
+
+    this.mountPageLoadingHint();
+  }
+
+  private mountPageLoadingHint(): void {
+    let navigationUrl: string | undefined;
+    let navigationLoadingHandler: LoadingHandler | undefined;
+    let navigationLoadingTimerHandle: number;
+
+    this.router.events.subscribe(event => {
+      if (event instanceof NavigationStart) {
+        navigationUrl = event.url;
+      } else if (event instanceof RouteConfigLoadStart) {
+        clearTimeout(navigationLoadingTimerHandle);
+        navigationLoadingTimerHandle = setTimeout(() => {
+          navigationLoadingHandler = this.loadingService.show('页面加载中...');
+        }, 100);
+      } else if (
+        event instanceof NavigationEnd &&
+        navigationUrl === event.url
+      ) {
+        clearTimeout(navigationLoadingTimerHandle);
+
+        if (navigationLoadingHandler) {
+          navigationLoadingHandler.clear();
+          navigationLoadingHandler = undefined;
+        }
+      }
+    });
   }
 }

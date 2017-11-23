@@ -2,7 +2,6 @@ import {
   ComponentFactoryResolver,
   ComponentRef,
   Injectable,
-  NgZone,
 } from '@angular/core';
 
 import * as $ from 'jquery';
@@ -38,7 +37,6 @@ export class PopupService {
   constructor(
     private resolver: ComponentFactoryResolver,
     private viewContainerService: ViewContainerService,
-    private zone: NgZone,
   ) {
     this.mountPopupAutomaticCleaner();
   }
@@ -74,6 +72,12 @@ export class PopupService {
       arg3 || (!(arg2 instanceof HTMLElement) && arg2) || {};
 
     return this.show('location', content, context, options);
+  }
+
+  clearAll(): void {
+    for (let info of this.popupInfoSet) {
+      this.clear(info);
+    }
   }
 
   private show(
@@ -158,7 +162,6 @@ export class PopupService {
     }
 
     info.onClear();
-    this.zone.run(() => {});
   }
 
   private mountPopupAutomaticCleaner() {

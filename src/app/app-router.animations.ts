@@ -6,11 +6,11 @@ import {
   trigger,
 } from '@angular/animations';
 
-import {AnimationTool} from 'app/util';
+import {animationElementQuery} from 'app/util';
 
 export const routerTransitions = trigger('routerTransitions', [
   transition('* <=> *', [
-    AnimationTool.query(
+    animationElementQuery(
       'wb-view:enter',
       style({
         position: 'fixed',
@@ -21,7 +21,7 @@ export const routerTransitions = trigger('routerTransitions', [
         zIndex: 0,
       }),
     ),
-    AnimationTool.query(
+    animationElementQuery(
       'wb-view:leave',
       style({
         position: 'fixed',
@@ -33,8 +33,8 @@ export const routerTransitions = trigger('routerTransitions', [
       }),
     ),
     sequence([
-      AnimationTool.query('wb-view:leave', animateChild()),
-      AnimationTool.query('wb-view:enter', animateChild()),
+      animationElementQuery('wb-view:leave', animateChild()),
+      animationElementQuery('wb-view:enter', animateChild()),
     ]),
   ]),
 ]);

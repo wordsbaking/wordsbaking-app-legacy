@@ -1,0 +1,25 @@
+@import '~styles/common.less';
+
+:host {
+  display: block;
+  width: 100%;
+  background-color: @color-fg;
+  padding: 15px;
+}
+
+.content {
+  word-break: break-all;
+  white-space: normal;
+  word-wrap: break-word;
+  padding-bottom: 10px;
+  font-size: 18px;
+}
+
+.buttons {
+  display: flex;
+  justify-content: flex-end;
+
+  button:not(:first-child) {
+    margin-left: 10px;
+  }
+}

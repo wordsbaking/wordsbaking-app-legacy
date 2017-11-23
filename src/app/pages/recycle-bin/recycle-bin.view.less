@@ -1,0 +1,40 @@
+@import '~styles/common.less';
+
+wb-page-header {
+  display: flex;
+  justify-content: space-between;
+
+  .toolbar {
+    flex: none;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    justify-content: flex-end;
+    padding-bottom: 4px;
+
+    .icon.more {
+      margin-bottom: -2px;
+      font-size: @size-text-normal;
+    }
+  }
+}
+
+wb-page-header-extension {
+  display: flex;
+  justify-content: flex-end;
+  width: 100%;
+
+  button:last-child {
+    margin-right: -5px;
+  }
+}
+
+wb-recycle-bin-view-word-stack:not(:first-child) {
+  margin-top: 15px;
+}
+
+.empty-tip {
+  margin-top: 10px;
+  text-align: center;
+  color: @color-text-l;
+}

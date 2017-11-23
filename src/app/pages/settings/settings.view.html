@@ -2,7 +2,7 @@
   <wb-page-header>
     <button class="back-button" (wbTap)="page.back()">
       <span class="icon back"></span>
-      <span class="title">词焙测试</span>
+      <span class="title">词焙设置</span>
     </button>
   </wb-page-header>
 
@@ -31,7 +31,10 @@
       <wb-settings-view-settings-item title="学习顺序" description="随机排序">
       </wb-settings-view-settings-item>
 
-      <wb-settings-view-settings-item title="回收站" description="管理已删除的单词">
+      <wb-settings-view-settings-item
+        title="回收站"
+        description="管理已删除的单词"
+        wbTapLink="/recycle-bin">
       </wb-settings-view-settings-item>
     </wb-settings-view-settings-group>
 

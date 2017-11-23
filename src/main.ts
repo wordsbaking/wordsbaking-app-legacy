@@ -52,5 +52,5 @@ if (environment.hmr && module['hot']) {
 }
 
 function bootstrap() {
-  return platformBrowserDynamic().bootstrapModule(AppModule);
+  return platformBrowserDynamic().bootstrapModule(AppModule, []);
 }

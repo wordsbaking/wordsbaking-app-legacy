@@ -32,11 +32,17 @@ const routes: Routes = [
     data: {target: 'sign-up'},
   },
   {
+    path: 'recycle-bin',
+    loadChildren: './pages/recycle-bin/recycle-bin.module#RecycleBinModule',
+    data: {target: 'recycle-bin'},
+  },
+  {
     path: '**',
     redirectTo: 'glance',
   },
 ];
 
 export const AppRouting = RouterModule.forRoot(routes, {
+  useHash: true,
   enableTracing: false,
 });

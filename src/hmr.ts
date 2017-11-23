@@ -1,5 +1,7 @@
-import {ApplicationRef, NgModuleRef} from '@angular/core';
+import {ApplicationRef, NgModuleRef, NgZone} from '@angular/core';
 import {createNewHosts} from '@angularclass/hmr';
+
+import {LoadingService, PopupService} from 'app/ui';
 
 type Bootstrap = () => Promise<NgModuleRef<any>>;
 
@@ -9,10 +11,20 @@ export async function hmrBootstrap(module: any, bootstrap: Bootstrap) {
   module.hot.accept();
 
   module.hot.dispose(() => {
+    let zone: NgZone = ngModule.injector.get(NgZone);
     let appRef: ApplicationRef = ngModule.injector.get(ApplicationRef);
 
     let elements = appRef.components.map(c => c.location.nativeElement);
     let makeVisible = createNewHosts(elements);
+
+    let loadingService: LoadingService = ngModule.injector.get(LoadingService);
+    loadingService.clearAll();
+
+    let popupService: PopupService = ngModule.injector.get(PopupService);
+
+    popupService.clearAll();
+
+    zone.run(() => undefined);
 
     ngModule.destroy();
     makeVisible();

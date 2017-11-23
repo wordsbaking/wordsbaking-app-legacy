@@ -36,6 +36,10 @@ export class TapLinkDirective implements OnInit, OnDestroy {
 
   @HostListener('td-tap', ['$event'])
   onTap(event: TapDelegateEvent) {
+    if (this.ref.nativeElement.disabled) {
+      return;
+    }
+
     // TODO: unreliable
     if (event.detail.originalEvent.type === 'mouseup') {
       return;

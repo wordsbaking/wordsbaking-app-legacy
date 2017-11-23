@@ -5,6 +5,7 @@
   position: absolute;
   z-index: 1;
   border-radius: 2px;
+  will-change: transform, opacity;
 
   .word-card;
 }
@@ -68,6 +69,7 @@
   justify-content: space-between;
   background-color: @color-theme-xf;
   opacity: 0;
+  will-change: height, opacity;
 
   .text {
     margin: 10px 15px;
@@ -89,6 +91,7 @@
     overflow: hidden;
 
     .label-inner-wrapper {
+      will-change: transform;
       transition: transform linear 0.1s;
 
       .extra-number {

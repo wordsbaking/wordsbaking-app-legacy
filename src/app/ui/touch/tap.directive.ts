@@ -35,6 +35,10 @@ export class TapDirective implements OnInit, OnDestroy {
       return;
     }
 
+    if (this.ref.nativeElement.disabled) {
+      return;
+    }
+
     this.tapEvent.emit(event);
 
     if (this.stop) {

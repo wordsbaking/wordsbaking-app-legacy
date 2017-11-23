@@ -1,0 +1,40 @@
+@import '~styles/common.less';
+
+:host {
+  display: block;
+}
+
+.head {
+  padding-bottom: 5px;
+
+  .title {
+    display: block;
+    color: @color-text-xl;
+    font-size: @size-text-smaller;
+  }
+}
+
+.list-wrapper {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+
+  button {
+    margin-top: 1%;
+    flex-basis: 49.5%;
+    background: @color-fg-f;
+    padding: 0 15px;
+    line-height: 40px;
+    height: 40px;
+    font-size: @size-text-larger;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    color: @color-text-l;
+    text-align: left;
+  }
+
+  button:active {
+    background-color: @color-fg-xf;
+  }
+}

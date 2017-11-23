@@ -21,7 +21,12 @@
 
   > .inner,
   > .inner .content {
+    will-change: transform;
     position: relative;
+  }
+
+  > .inner {
+    will-change: transform, opacity;
   }
 
   > .inner .content {

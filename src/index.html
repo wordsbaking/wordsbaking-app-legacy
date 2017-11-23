@@ -10,7 +10,7 @@
 
   <title>Wordsbaking</title>
 
-  <base href="/">
+  <base href="./">
   <link rel="icon" type="image/x-icon" href="favicon.ico">
   <style>
   </style>
@@ -18,6 +18,9 @@
 
 <body oncontextmenu="return false">
   <wb-root></wb-root>
+  <script src="cordova.js" defer async></script>
+  <script>
+    document.addEventListener('deviceready', function() { document.body.classList.add(cordova.platformId); }, false);
+  </script>
 </body>
-
 </html>
