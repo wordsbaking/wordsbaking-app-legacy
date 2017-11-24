@@ -1,6 +1,6 @@
 <wb-page #page>
   <wb-page-header>
-    <button class="back-button" (wbTap)="page.back()">
+    <button class="back-button" (wbPress)="page.back()">
       <span class="icon back"></span>
       <span class="title">词焙设置</span>
     </button>
@@ -34,7 +34,7 @@
       <wb-settings-view-settings-item
         title="回收站"
         description="管理已删除的单词"
-        wbTapLink="/recycle-bin">
+        wbPressLink="/recycle-bin">
       </wb-settings-view-settings-item>
     </wb-settings-view-settings-group>
 

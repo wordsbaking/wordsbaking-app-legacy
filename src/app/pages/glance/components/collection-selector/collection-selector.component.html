@@ -1,5 +1,5 @@
 <span class="text">{{selected ? selected.name : '-'}}</span>
-<button class="ghost small dark-text" (wbTap)="showPopup()">{{selected ? '切换' : '选择'}}</button>
+<button class="ghost small dark-text" (wbPress)="showPopup()">{{selected ? '切换' : '选择'}}</button>
 <wb-popup #selectionListPopup>
   <div class="selection-list-popup">
     <wb-selection-list (change)="onSelectionListChange($event)">

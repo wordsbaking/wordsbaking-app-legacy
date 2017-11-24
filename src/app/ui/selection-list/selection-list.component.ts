@@ -18,7 +18,7 @@ import {Observable} from 'rxjs/Observable';
 import {Subject} from 'rxjs/Subject';
 
 import {
-  TapDelegateEvent,
+  PressDelegateEvent,
   TouchDelegate,
   TouchIdentifier,
 } from 'app/lib/touch-delegate';
@@ -69,8 +69,8 @@ export class SelectionListComponent<T>
     return values;
   }
 
-  @HostListener('td-tap', ['$event'])
-  onTap(event: TapDelegateEvent): void {
+  @HostListener('td-press', ['$event'])
+  onTap(event: PressDelegateEvent): void {
     let {originalEvent} = event.detail;
 
     // TODO: unreliable
@@ -98,7 +98,7 @@ export class SelectionListComponent<T>
 
   ngOnInit(): void {
     this.touchDelegate = new TouchDelegate(this.element);
-    this.touchDelegate.bind(TouchIdentifier.tap);
+    this.touchDelegate.bind(TouchIdentifier.press);
   }
 
   ngAfterViewInit(): void {

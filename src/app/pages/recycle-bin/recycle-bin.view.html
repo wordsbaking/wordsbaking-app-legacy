@@ -1,6 +1,6 @@
-<wb-page #page (wbTap)="page.toggleHeaderExtension(false)" [wbTapStop]="false">
-  <wb-page-header (wbTap)="page.toggleHeaderExtension()">
-    <button class="back-button" (wbTap)="page.back()">
+<wb-page #page (wbPress)="page.toggleHeaderExtension(false)" [wbPressStop]="false">
+  <wb-page-header (wbPress)="page.toggleHeaderExtension()">
+    <button class="back-button" (wbPress)="page.back()">
       <span class="icon back"></span>
       <span class="title">回收站</span>
     </button>
@@ -11,7 +11,7 @@
   </wb-page-header>
 
   <wb-page-header-extension>
-    <button class="ghost" [disabled]="isEmpty" (wbTap)="recoveryAll()">恢复全部</button>
+    <button class="ghost" [disabled]="isEmpty" (wbPress)="recoveryAll()">恢复全部</button>
   </wb-page-header-extension>
 
   <wb-page-content (wbPress)="onContentAreaPressed($event)">

@@ -1,10 +1,10 @@
-<wb-page #page (wbTap)="page.toggleHeaderExtension(false)"  [wbTapStop]="false">
+<wb-page #page (wbPress)="page.toggleHeaderExtension(false)"  [wbPressStop]="false">
   <wb-page-header>
-    <button class="back-button" (wbTap)="page.back()">
+    <button class="back-button" (wbPress)="page.back()">
       <span class="icon back"></span>
       <span class="title tagline">时光在飞逝，生命知多少.</span>
     </button>
-    <div class="toolbar" (wbTap)="page.toggleHeaderExtension()">
+    <div class="toolbar" (wbPress)="page.toggleHeaderExtension()">
       <span class="time">00:00</span>
       <div class="avatar-wrapper">
         <span class="avatar" [style.backgroundImage]="'url(https://picsum.photos/128/128)'"></span>
@@ -13,7 +13,7 @@
   </wb-page-header>
 
   <wb-page-header-extension>
-    <button class="ghost audio-mode-switch-button" (wbTap)="switchAudioMode()">
+    <button class="ghost audio-mode-switch-button" (wbPress)="switchAudioMode()">
       <span class="text">发音</span>
       <span class="status">off</span>
     </button>
