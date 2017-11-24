@@ -2,7 +2,7 @@ import {Injectable} from '@angular/core';
 
 import {Observable} from 'rxjs/Observable';
 
-import {DBStorage, DBStorageItem} from 'app/core/storage';
+import {DBStorage} from 'app/core/storage';
 
 const CONFIG_KEY = 'default';
 
@@ -12,9 +12,9 @@ export interface ConfigItemExtension {
 
 export type ConfigItemName = keyof ConfigItemExtension;
 
-export interface ConfigItem
-  extends DBStorageItem<string>,
-    ConfigItemExtension {}
+export interface ConfigItem extends ConfigItemExtension {
+  id: string;
+}
 
 @Injectable()
 export class ConfigService {
@@ -22,7 +22,7 @@ export class ConfigService {
     DBStorage.create<string, ConfigItem>({
       name: 'default',
       tableName: 'config',
-      idType: 'text',
+      primaryKeyType: 'text',
     }),
   );
 

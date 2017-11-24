@@ -1,5 +1,3 @@
-import {DBStorageItem} from 'app/core/storage';
-
 export type DataEntryType = 'value' | 'accumulation';
 
 export interface UpdateItem {
@@ -10,10 +8,18 @@ export interface UpdateItem {
   removed?: true;
 }
 
-export interface Item extends DBStorageItem<string> {
-  data: any;
+export interface SyncItem<T> {
+  id: string;
+  data: T;
   removed?: true;
 }
+
+export interface CollectionData {
+  name: string;
+  terms: string[];
+}
+
+export interface RecordData {}
 
 export abstract class DataEntryTypeDefinition {
   constructor(readonly name: DataEntryType) {}

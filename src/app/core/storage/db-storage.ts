@@ -1,6 +1,5 @@
 import {Subject} from 'rxjs/Subject';
 
-const PRIMARY_KEY = 'id';
 const JSON_KEY = '_json';
 const MAX_VARIABLES_NUMBER = 999;
 const MAX_BATCH_SIZE = 250;
@@ -9,25 +8,23 @@ const hasOwnProperty = Object.prototype.hasOwnProperty;
 
 export type SetMultipleProgressHandler = (done: number, total: number) => void;
 
-export interface DBStorageItem<K extends string | number> {
-  id: K;
-}
-
 export interface DBStorageCreateOptions {
   name?: string;
   tableName?: string;
+  primaryKey?: string;
   /** Defaults to 'integer'. */
-  idType?: string;
+  primaryKeyType?: string;
   indexSchema?: Dict<string>;
 }
 
-export class DBStorage<K extends string | number, T extends DBStorageItem<K>> {
+export class DBStorage<K extends string | number, T extends object> {
   readonly change$ = new Subject<void>();
 
   private constructor(
     readonly db: Database,
-    readonly columns: string[],
     readonly tableName: string,
+    readonly primaryKey: string,
+    readonly columns: string[],
   ) {}
 
   async exec(queries: string[], argsArray?: any[][]): Promise<SQLResultSet>;
@@ -84,7 +81,7 @@ export class DBStorage<K extends string | number, T extends DBStorageItem<K>> {
 
   async get(id: K): Promise<T | undefined> {
     let {rows} = await this.exec(
-      `select * from "${this.tableName}" where "${PRIMARY_KEY}"=?`,
+      `select * from "${this.tableName}" where "${this.primaryKey}"=?`,
       [id],
     );
 
@@ -111,16 +108,16 @@ export class DBStorage<K extends string | number, T extends DBStorageItem<K>> {
     return items;
   }
 
-  async getIDs(): Promise<K[]> {
+  async getPrimaryKeys(): Promise<K[]> {
     let {rows} = await this.exec(
-      `select "${PRIMARY_KEY}" from "${this.tableName}"`,
+      `select "${this.primaryKey}" from "${this.tableName}"`,
     );
 
     let ids: K[] = [];
 
     for (let i = 0; i < rows.length; i++) {
       let item = rows.item(i);
-      ids.push(item[PRIMARY_KEY]);
+      ids.push(item[this.primaryKey]);
     }
 
     return ids;
@@ -131,7 +128,7 @@ export class DBStorage<K extends string | number, T extends DBStorageItem<K>> {
   async set(id: K | T, item?: T): Promise<void> {
     if (typeof id === 'object') {
       item = id;
-      id = item[PRIMARY_KEY];
+      id = (item as any)[this.primaryKey];
     }
 
     let extraVariables: string[] = [];
@@ -140,7 +137,7 @@ export class DBStorage<K extends string | number, T extends DBStorageItem<K>> {
 
     item = {...(item as object)} as T;
 
-    delete item[PRIMARY_KEY];
+    delete (item as any)[this.primaryKey];
 
     let columns = this.columns;
 
@@ -158,7 +155,7 @@ export class DBStorage<K extends string | number, T extends DBStorageItem<K>> {
 
     let query = `\
 insert or replace into "${this.tableName}" (
-  "${PRIMARY_KEY}", ${extraColumns.join('\n  ')} "${JSON_KEY}"
+  "${this.primaryKey}", ${extraColumns.join('\n  ')} "${JSON_KEY}"
 )
 values (
   ?, ${extraVariables.join('\n  ')} ?
@@ -177,7 +174,7 @@ values (
 
     items = [...items];
 
-    let columns = [PRIMARY_KEY, ...this.columns];
+    let columns = [this.primaryKey, ...this.columns];
 
     let unionVariables: string[] = [];
 
@@ -258,8 +255,8 @@ select ${[...columns, JSON_KEY]
 
     let columns = this.columns.concat();
 
-    if (item[PRIMARY_KEY] !== null) {
-      columns.push(PRIMARY_KEY);
+    if ((item as any)[this.primaryKey] !== null) {
+      columns.push(this.primaryKey);
     }
 
     for (let column of columns) {
@@ -290,7 +287,8 @@ values (
   }
 
   async remove(id: K): Promise<void> {
-    let query = `delete from "${this.tableName}" where "${PRIMARY_KEY}" = ?`;
+    let query = `delete from "${this.tableName}" where "${this
+      .primaryKey}" = ?`;
     await this.exec(query, [id]);
   }
 
@@ -314,7 +312,7 @@ values (
     }
 
     if (item instanceof Object) {
-      item[PRIMARY_KEY] = row[PRIMARY_KEY];
+      item[this.primaryKey] = row[this.primaryKey];
 
       for (let column of columns) {
         item[column] = row[column];
@@ -324,10 +322,11 @@ values (
     return item;
   }
 
-  static async create<K extends string | number, T extends DBStorageItem<K>>({
+  static async create<K extends string | number, T extends object>({
     name = 'default',
     tableName = 'data',
-    idType = 'integer',
+    primaryKey = 'id',
+    primaryKeyType = 'integer',
     indexSchema = {},
   }: DBStorageCreateOptions): Promise<DBStorage<K, T>> {
     let columns = Object.keys(indexSchema);
@@ -348,7 +347,7 @@ values (
         transaction => {
           let query = `\
 create table if not exists "${tableName}" (
-  "${PRIMARY_KEY}" ${idType} primary key,
+  "${primaryKey}" ${primaryKeyType} primary key,
   ${columns.map(column => `"${column}" ${indexSchema[column]},`).join('\n  ')}
   "${JSON_KEY}" text
 )`;
@@ -360,7 +359,7 @@ create table if not exists "${tableName}" (
       );
     });
 
-    return new DBStorage(db, columns, tableName);
+    return new DBStorage(db, tableName, primaryKey, columns);
   }
 
   private static dbMap = new Map<string, Database>();
