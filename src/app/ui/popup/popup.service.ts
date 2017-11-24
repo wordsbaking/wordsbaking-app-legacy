@@ -2,6 +2,7 @@ import {
   ComponentFactoryResolver,
   ComponentRef,
   Injectable,
+  NgZone,
 } from '@angular/core';
 
 import * as $ from 'jquery';
@@ -37,6 +38,7 @@ export class PopupService {
   constructor(
     private resolver: ComponentFactoryResolver,
     private viewContainerService: ViewContainerService,
+    private zone: NgZone,
   ) {
     this.mountPopupAutomaticCleaner();
   }
@@ -200,7 +202,11 @@ export class PopupService {
   private listenDocumentClick(): void {
     let touchDelegate = new TouchDelegate(document);
 
-    touchDelegate.on(TouchIdentifier.tap, event => {
+    touchDelegate.on(TouchIdentifier.tap, (event): void => {
+      if (event.originalEvent.type === 'mouseup') {
+        return;
+      }
+
       let $target = $(event.originalEvent.target);
 
       for (let popupInfo of this.popupInfoSet) {
@@ -216,6 +222,8 @@ export class PopupService {
           this.clear(popupInfo);
         }
       }
+
+      this.zone.run(() => undefined);
     });
   }
 
