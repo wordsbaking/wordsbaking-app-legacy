@@ -1,10 +1,12 @@
-import {Component, Input, ViewChild} from '@angular/core';
+import {Component, Input} from '@angular/core';
 
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 
-import {PopupComponent} from 'app/ui';
+import * as logger from 'logger';
 
 import {CollectionInfo} from 'app/core/engine';
+
+import {SelectionListPopup, SelectionListPopupService} from 'app/core/ui';
 
 @Component({
   selector: 'wb-glance-view-collection-selector',
@@ -16,9 +18,7 @@ export class CollectionSelectorComponent {
 
   collections$ = new BehaviorSubject<CollectionInfo[]>([]);
 
-  @ViewChild('selectionListPopup') private popup: PopupComponent;
-
-  constructor() {
+  constructor(private selectionListPopupService: SelectionListPopupService) {
     this.collections$.next([
       {
         id: '1',
@@ -52,16 +52,25 @@ export class CollectionSelectorComponent {
   }
 
   showPopup(): void {
-    this.popup.showAsLocation({
-      width: 'match-parent',
-      background: true,
-      positions: ['bottom'],
-      animation: 'fadeInDown',
-      clearOnOutsideClick: true,
-    });
+    this.selectionListPopupService
+      .show(
+        this.collections$.value.map<
+          SelectionListPopup.ListItem<string>
+        >(item => ({
+          text: item.name,
+          value: item.id,
+          selected: this.selected && this.selected.id === item.id,
+        })),
+      )
+      .then(values => this.onSelectionListChange(values))
+      .catch(logger.error);
   }
 
-  onSelectionListChange(values: string[]) {
+  onSelectionListChange(values: string[] | undefined) {
+    if (!values) {
+      return;
+    }
+
     let selectedId = values[0];
 
     if (!selectedId) {
@@ -73,11 +82,5 @@ export class CollectionSelectorComponent {
         this.selected = item;
       }
     }
-
-    this.popup.clear();
-  }
-
-  trackById(_index: number, item: CollectionInfo): string {
-    return item.id;
   }
 }
