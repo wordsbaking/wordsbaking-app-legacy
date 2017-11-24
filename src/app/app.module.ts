@@ -7,6 +7,7 @@ import {CoreCommonModule} from 'app/core/common';
 import {CoreConfigModule} from 'app/core/config';
 import {CoreDataModule} from 'app/core/data';
 import {CoreNavigationModule} from 'app/core/navigation';
+import {CoreSettingsModule} from 'app/core/settings';
 import {CoreUIModule} from 'app/core/ui';
 
 import {UIModule} from './ui';
@@ -22,6 +23,7 @@ import {AppView} from './app.view';
     CoreUIModule,
     AppRouting,
     UIModule.forRoot(),
+    CoreSettingsModule.forRoot(),
     CoreCommonModule.forRoot(),
     CoreConfigModule.forRoot(),
     CoreDataModule.forRoot(),
