@@ -8,7 +8,7 @@ const backgroundTransitions = trigger('backgroundTransitions', [
   ]),
   transition(':leave', [
     style({opacity: 1}),
-    animate('0.1s 120ms linear', style({opacity: 0})),
+    animate('0.2s 120ms linear', style({opacity: 0})),
   ]),
 ]);
 
