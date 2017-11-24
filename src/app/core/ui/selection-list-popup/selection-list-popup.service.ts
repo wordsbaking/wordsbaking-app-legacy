@@ -36,8 +36,8 @@ export class SelectionListPopupService {
     return new Promise<T[] | undefined>((resolve, reject) => {
       let contentOptions: SelectionListPopupInitOptions<T> = {
         items,
-        onSelected: () => {
-          resolve();
+        onSelected: values => {
+          resolve(values);
           popupHandler.clear();
         },
       };
