@@ -1,0 +1,9 @@
+<wb-selection-list [multiple]="multiple" (change)="onSelectionListChange($event)">
+  <wb-selection-list-item
+    *ngFor="let item of items"
+    [selected]="item.selected"
+    [value]="item.value">
+    <span class="text">{{item.text}}</span>
+    <span class="icon check"></span>
+  </wb-selection-list-item>
+</wb-selection-list>
