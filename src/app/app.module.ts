@@ -30,6 +30,5 @@ import {AppView} from './app.view';
   ],
   declarations: [AppView],
   bootstrap: [AppView],
-  providers: [{provide: LocationStrategy, useClass: HashLocationStrategy}],
 })
 export class AppModule {}
