@@ -9,10 +9,12 @@ import {CoreDataModule} from 'app/core/data';
 import {CoreNavigationModule} from 'app/core/navigation';
 import {CoreUIModule} from 'app/core/ui';
 
-import {UIModule} from './ui';
+import {UIModule} from 'app/ui';
 
-import {AppRouting} from './app.routing';
-import {AppView} from './app.view';
+import {AppRouting} from 'app/app.routing';
+import {AppView} from 'app/app.view';
+
+import {SplashScreenView} from 'app/pages/splash-screen/splash-screen.view';
 
 @NgModule({
   imports: [
@@ -27,7 +29,7 @@ import {AppView} from './app.view';
     CoreDataModule.forRoot(),
     CoreNavigationModule.forRoot(),
   ],
-  declarations: [AppView],
+  declarations: [AppView, SplashScreenView],
   bootstrap: [AppView],
 })
 export class AppModule {}

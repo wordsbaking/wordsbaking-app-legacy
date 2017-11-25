@@ -1,10 +1,12 @@
 import {RouterModule, Routes} from '@angular/router';
 
+import {SplashScreenView} from 'app/pages/splash-screen/splash-screen.view';
+
 const routes: Routes = [
   {
     path: '',
     pathMatch: 'full',
-    redirectTo: 'glance',
+    component: SplashScreenView,
   },
   {
     path: 'glance',
