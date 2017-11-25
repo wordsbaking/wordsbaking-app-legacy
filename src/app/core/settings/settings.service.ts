@@ -3,7 +3,7 @@ import {Injectable} from '@angular/core';
 import {Observable} from 'rxjs/Observable';
 
 import {PronunciationType} from 'app/core/data';
-import {StudyOrder, StudyScope} from 'app/core/engine';
+import {SentenceTtsSpeed, StudyOrder, StudyScope} from 'app/core/engine';
 import {DBStorage} from 'app/core/storage';
 
 // @Injectable()
@@ -24,6 +24,7 @@ export interface SettingsItemExtension {
   dailyStudyPlan?: number;
   newWordsPriority?: number;
   studyOrder?: StudyOrder;
+  sentenceTtsSpeed?: SentenceTtsSpeed;
   pronunciation?: PronunciationType;
 }
 
@@ -33,6 +34,7 @@ export interface ExposedSettings {
   dailyStudyPlan: number;
   newWordsPriority: number;
   studyOrder: StudyOrder;
+  sentenceTtsSpeed: SentenceTtsSpeed;
   pronunciation?: PronunciationType;
 }
 
@@ -65,6 +67,7 @@ export class SettingsService {
         newWordsPriority = 0,
         studyOrder = StudyOrder.random,
         pronunciation = 'us',
+        sentenceTtsSpeed = SentenceTtsSpeed.default,
       } =
         (await storage.get(SETTINGS_KEY)) || ({} as SettingsItem);
 
@@ -75,6 +78,7 @@ export class SettingsService {
         newWordsPriority,
         studyOrder,
         pronunciation,
+        sentenceTtsSpeed,
       };
     })
     .repeatWhen(() => this.storage$.map(storage => storage.change$))
@@ -101,6 +105,18 @@ export class SettingsService {
 
   readonly newWordsPriority$ = this.settings$
     .map(settings => settings.newWordsPriority)
+    .distinctUntilChanged()
+    .publishReplay(1)
+    .refCount();
+
+  readonly studyOrder$ = this.settings$
+    .map(settings => settings.studyOrder)
+    .distinctUntilChanged()
+    .publishReplay(1)
+    .refCount();
+
+  readonly sentenceTtsSpeed$ = this.settings$
+    .map(settings => settings.sentenceTtsSpeed)
     .distinctUntilChanged()
     .publishReplay(1)
     .refCount();
