@@ -100,6 +100,12 @@ export const enum StudyOrder {
   letterDescending,
 }
 
+export const enum SentenceTtsSpeed {
+  default = 1,
+  slower = 0.85,
+  verySlow = 0.7,
+}
+
 interface StudyRecord {
   id: string;
   data: StudyRecordData;

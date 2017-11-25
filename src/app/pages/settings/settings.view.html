@@ -8,7 +8,11 @@
 
   <wb-page-content>
     <wb-settings-view-settings-group title="账号信息">
-      <wb-settings-view-settings-item title="账号" description="maolion.j@gmail.com">
+      <wb-settings-view-settings-item class="user-profile-entry"
+        title="账号"
+        description="maolion.j@gmail.com">
+        <span class="avatar" [style.backgroundImage]="'url(https://picsum.photos/128/128)'"></span>
+        <button class="small">管理</button>
       </wb-settings-view-settings-item>
 
       <wb-settings-view-settings-item title="最后同步" description="2017年11月2日 20:10">
@@ -16,19 +20,35 @@
     </wb-settings-view-settings-group>
 
     <wb-settings-view-settings-group title="基本设置">
-      <wb-settings-view-settings-item title="单词发音" description="美音">
+      <wb-settings-view-settings-item
+        title="单词发音"
+        description="{{pronunciationDescription$ | async}}"
+        (wbPress)="selectPronunciation()">
       </wb-settings-view-settings-item>
 
-      <wb-settings-view-settings-item title="学习范围" description="已选词库，生词本和其他学过的单词">
+      <wb-settings-view-settings-item
+        title="学习范围"
+        description="{{studyScopesDescription$ | async}}"
+        (wbPress)="selectStudyScopes()">
       </wb-settings-view-settings-item>
 
-      <wb-settings-view-settings-item title="学习计划" description="每天学习20个新单词">
+      <wb-settings-view-settings-item
+        title="学习计划"
+        description="每天学习20个新单词"
+        description="{{dailyStudyPlansDescription$ | async}}"
+        (wbPress)="selectDailyStudyPlan()">
       </wb-settings-view-settings-item>
 
-      <wb-settings-view-settings-item title="学习优先级" description="新词优先">
+      <wb-settings-view-settings-item
+        title="学习优先级"
+        description="{{newWordsPriorityDescription$ | async}}"
+        (wbPress)="selectNewWordsPriority()">
       </wb-settings-view-settings-item>
 
-      <wb-settings-view-settings-item title="学习顺序" description="随机排序">
+      <wb-settings-view-settings-item
+        title="学习顺序"
+        description="{{studyOrderDescription$ | async}}"
+        (wbPress)="selectStudyOrder()">
       </wb-settings-view-settings-item>
 
       <wb-settings-view-settings-item
@@ -47,7 +67,10 @@
         <wb-switch></wb-switch>
       </wb-settings-view-settings-item>
 
-      <wb-settings-view-settings-item title="例句朗读速度" description="默认">
+      <wb-settings-view-settings-item
+        title="例句朗读速度"
+        description="{{sentenceTtsSpeedDescription$ | async}}"
+        (wbPress)="selectSentenceTtsSpeed()">
       </wb-settings-view-settings-item>
 
       <wb-settings-view-settings-item title="固定词条位置" description="开启">

@@ -164,6 +164,8 @@ export class PopupService {
     }
 
     info.onClear();
+
+    this.zone.run(() => undefined);
   }
 
   private mountPopupAutomaticCleaner() {
@@ -222,8 +224,6 @@ export class PopupService {
           this.clear(popupInfo);
         }
       }
-
-      this.zone.run(() => undefined);
     });
   }
 

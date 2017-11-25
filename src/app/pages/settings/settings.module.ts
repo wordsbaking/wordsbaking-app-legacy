@@ -5,6 +5,7 @@ import {RouterModule, Routes} from '@angular/router';
 
 import {UIModule} from 'app/ui';
 
+import {CoreSettingsModule} from 'app/core/settings';
 import {CoreUIModule} from 'app/core/ui';
 
 import {SettingsGroupComponent, SettingsItemComponent} from './components';
@@ -27,6 +28,7 @@ const routes: Routes = [
     CommonModule,
     UIModule,
     CoreUIModule,
+    CoreSettingsModule,
     RouterModule.forChild(routes),
   ],
   declarations: [SettingsView, SettingsGroupComponent, SettingsItemComponent],
