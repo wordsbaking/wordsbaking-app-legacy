@@ -1,6 +1,6 @@
 // tslint:disable:no-null-keyword
 
-import {Injectable} from '@angular/core';
+import {Injectable, OnDestroy} from '@angular/core';
 
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import {Observable} from 'rxjs/Observable';
@@ -19,6 +19,7 @@ import {
 import {StudyRecordData} from 'app/core/engine';
 import {DBStorage} from 'app/core/storage';
 
+import {Subscription} from 'rxjs/Subscription';
 import {
   AccumulationDataEntryTypeDefinition,
   AccumulationUpdateData,
@@ -81,7 +82,7 @@ export type CategoryName =
 export type CategoryHost = {[key in CategoryName]: Category};
 
 @Injectable()
-export class SyncService implements CategoryHost {
+export class SyncService implements CategoryHost, OnDestroy {
   /**
    * This is different from `syncAt`, while `syncAt` is time of server, it is
    * of client.
@@ -101,6 +102,8 @@ export class SyncService implements CategoryHost {
   readonly syncPending$: Observable<number>;
 
   private typeManager = new DataEntryTypeManager();
+
+  private subscription = new Subscription();
 
   constructor(
     readonly apiService: APIService,
@@ -126,9 +129,19 @@ export class SyncService implements CategoryHost {
       categoryDict,
     ) as CategoryName[]);
 
+    for (let name of categoryNames) {
+      for (let subscription of categoryDict[name].subscribe()) {
+        this.subscription.add(subscription);
+      }
+    }
+
     this.syncPending$ = Observable.combineLatest(
       ...categoryNames.map(name => categoryDict[name].syncPendingItemMap$),
     ).map(maps => maps.reduce((total, map) => total + map.size, 0));
+  }
+
+  ngOnDestroy(): void {
+    this.subscription.unsubscribe();
   }
 
   async addPassive<T, K extends keyof T>(
@@ -390,8 +403,8 @@ export class SyncService implements CategoryHost {
 }
 
 export class Category<T = Dict<any>, K extends keyof T = keyof T, V = T[K]> {
-  readonly itemMap$ = new ReplaySubject<Map<string, SyncItem<V>>>();
-  readonly syncPendingItemMap$ = new ReplaySubject<Map<string, UpdateItem>>();
+  readonly itemMap$ = new ReplaySubject<Map<string, SyncItem<V>>>(1);
+  readonly syncPendingItemMap$ = new ReplaySubject<Map<string, UpdateItem>>(1);
 
   private pendingMergeItemIDSet: Set<string>;
 
@@ -475,6 +488,13 @@ export class Category<T = Dict<any>, K extends keyof T = keyof T, V = T[K]> {
     })
       .publishReplay(1)
       .refCount();
+  }
+
+  subscribe(): Subscription[] {
+    return [
+      this.dataStorage$.subscribe(),
+      this.syncPendingStorage$.subscribe(),
+    ];
   }
 
   async setItem(item: SyncItem<V>): Promise<void> {

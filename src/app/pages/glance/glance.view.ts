@@ -3,6 +3,7 @@ import {Component, HostBinding} from '@angular/core';
 
 import {EngineService} from 'app/core/engine';
 import {pageTransitions} from 'app/core/ui';
+import {UserService} from 'app/core/user';
 
 const glanceViewTransitions = trigger('glanceViewTransitions', [
   ...pageTransitions,
@@ -17,5 +18,12 @@ const glanceViewTransitions = trigger('glanceViewTransitions', [
 export class GlanceView {
   @HostBinding('@glanceViewTransitions') glanceViewTransitions = 'active';
 
-  constructor(private engineService: EngineService) {}
+  todayStudyTimeInMinutes$ = this.userService.todayStudyTime$
+    .map(time => Math.round(time / 60 / 1000).toString())
+    .startWith('-');
+
+  constructor(
+    private engineService: EngineService,
+    private userService: UserService,
+  ) {}
 }
