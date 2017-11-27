@@ -1,7 +1,10 @@
 import {CommonModule} from '@angular/common';
 import {ModuleWithProviders, NgModule} from '@angular/core';
 
-import {ConfigService} from 'app/core/config/config.service';
+import {AuthConfigService} from './auth-config.service';
+import {SettingsConfigService} from './settings-config.service';
+import {SyncConfigService} from './sync-config.service';
+import {UserConfigService} from './user-config.service';
 
 @NgModule({
   imports: [CommonModule],
@@ -11,7 +14,12 @@ export class CoreConfigModule {
   static forRoot(): ModuleWithProviders {
     return {
       ngModule: CoreConfigModule,
-      providers: [ConfigService],
+      providers: [
+        AuthConfigService,
+        SettingsConfigService,
+        SyncConfigService,
+        UserConfigService,
+      ],
     };
   }
 }

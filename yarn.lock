@@ -5437,9 +5437,9 @@ vm-browserify@0.0.4:
   dependencies:
     indexof "0.0.1"
 
-vts@^5.8.1:
-  version "5.8.1"
-  resolved "http://registry.npm.taobao.org/vts/download/vts-5.8.1.tgz#f71c6ecfc380b6b2a69500635280848d49161b21"
+vts@^5.8.3:
+  version "5.8.3"
+  resolved "http://registry.npm.taobao.org/vts/download/vts-5.8.3.tgz#4153691adad69028637a1ae9cc6041195b49cfdb"
   dependencies:
     tslint-config-prettier "^1.6.0"
 

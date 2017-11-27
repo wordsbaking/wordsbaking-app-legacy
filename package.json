@@ -55,6 +55,6 @@
     "tslint": "^5.8.0",
     "tslint-language-service": "^0.9.6",
     "typescript": "~2.4.2",
-    "vts": "^5.8.1"
+    "vts": "^5.8.3"
   }
 }

@@ -9,6 +9,7 @@ import * as moment from 'moment';
 import * as ms from 'ms';
 import * as v from 'villa';
 
+import {SettingsConfig, SettingsConfigService} from 'app/core/config';
 import {
   CollectionData,
   SyncItem,
@@ -18,7 +19,6 @@ import {
   WordDataLoadingStatus,
   WordDataService,
 } from 'app/core/data';
-import {ExposedSettings, SettingsService} from 'app/core/settings';
 import {UserService} from 'app/core/user';
 
 const FETCH_CACHE_SIZE = 20;
@@ -197,31 +197,53 @@ export class EngineService implements OnDestroy {
   constructor(
     private wordDataService: WordDataService,
     private userService: UserService,
-    private settingsService: SettingsService,
     private syncService: SyncService,
+    settingsConfigService: SettingsConfigService,
   ) {
     this.subscription.add(
       Observable.combineLatest(
         this.userService.todayStartAt$,
-        this.settingsService.settings$,
+        settingsConfigService.collectionIDSet$,
+        settingsConfigService.studyScopeSet$,
+        settingsConfigService.dailyStudyPlan$,
+        settingsConfigService.newWordsPriority$,
+        settingsConfigService.studyOrder$,
       )
         .distinctUntilChanged(_.isEqual)
-        .switchMap(([todayStartAt, settings]) =>
-          Observable.combineLatest(
-            this.syncService.records.itemMap$,
-            this.syncService.collections.itemMap$,
-          )
-            .first()
-            .map(([recordItemMap, collectionItemMap]) => [
+        .switchMap(
+          (
+            [
               todayStartAt,
-              settings,
-              recordItemMap,
-              collectionItemMap,
-            ]),
+              collectionIDSet,
+              studyScopeSet,
+              dailyStudyPlan,
+              newWordsPriority,
+              studyOrder,
+            ],
+          ) => {
+            return Observable.combineLatest(
+              this.syncService.records.itemMap$,
+              this.syncService.collections.itemMap$,
+            )
+              .first()
+              .map(([recordItemMap, collectionItemMap]) => [
+                todayStartAt,
+                {
+                  collectionIDSet,
+                  studyScopeSet,
+                  dailyStudyPlan,
+                  newWordsPriority,
+                  studyOrder,
+                },
+                recordItemMap,
+                collectionItemMap,
+              ]);
+          },
         )
         .subscribe(
-          ([todayStartAt, settings, recordItemMap, collectionItemMap]) =>
-            this.load(todayStartAt, settings, recordItemMap, collectionItemMap),
+          ([todayStartAt, settings, recordItemMap, collectionItemMap]) => {
+            this.load(todayStartAt, settings, recordItemMap, collectionItemMap);
+          },
         ),
     );
   }
@@ -440,7 +462,14 @@ export class EngineService implements OnDestroy {
       dailyStudyPlan,
       newWordsPriority,
       studyOrder,
-    }: ExposedSettings,
+    }: Pick<
+      SettingsConfig,
+      | 'collectionIDSet'
+      | 'studyScopeSet'
+      | 'dailyStudyPlan'
+      | 'newWordsPriority'
+      | 'studyOrder'
+    >,
     recordItemMap: Map<string, SyncItem<StudyRecordData>>,
     collectionItemMap: Map<string, SyncItem<CollectionData>>,
   ): void {

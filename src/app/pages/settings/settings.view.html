@@ -63,14 +63,14 @@
         title="学习提醒"
         [description]="notificationDescription$ | async"
         (wbPress)="toggleNotification()">
-        <wb-switch [checked]="settingsService.notification$ | async"></wb-switch>
+        <wb-switch [checked]="settingsConfigService.notification$ | async"></wb-switch>
       </wb-settings-view-settings-item>
 
       <wb-settings-view-settings-item
         title="顽固单词加强"
         [description]="obstinateEnhanceDescription$ | async"
         (wbPress)="toggleObstinateEnhance()">
-        <wb-switch [checked]="settingsService.obstinateEnhance$ | async"></wb-switch>
+        <wb-switch [checked]="settingsConfigService.obstinateEnhance$ | async"></wb-switch>
       </wb-settings-view-settings-item>
 
       <wb-settings-view-settings-item
@@ -83,7 +83,7 @@
         title="固定词条位置"
         [description]="fixedStackDescription$ | async"
         (wbPress)="toggleFixedStack()">
-        <wb-switch [checked]="settingsService.fixedStack$ | async"></wb-switch>
+        <wb-switch [checked]="settingsConfigService.fixedStack$ | async"></wb-switch>
       </wb-settings-view-settings-item>
     </wb-settings-view-settings-group>
 
@@ -95,7 +95,7 @@
         title="使用向导"
         [description]="showGuideDescription$ | async"
         (wbPress)="toggleShowGuide()">
-        <wb-switch [checked]="settingsService.showGuide$ | async"></wb-switch>
+        <wb-switch [checked]="settingsConfigService.showGuide$ | async"></wb-switch>
       </wb-settings-view-settings-item>
 
       <wb-settings-view-settings-item title="软件版本" description="版本号 1.0.0.2378">

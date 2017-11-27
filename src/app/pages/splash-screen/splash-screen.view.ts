@@ -1,7 +1,7 @@
 import {Component} from '@angular/core';
 import {Router} from '@angular/router';
 
-import {ConfigService} from 'app/core/config';
+import {AuthConfigService} from 'app/core/config';
 
 import * as logger from 'logger';
 
@@ -11,12 +11,15 @@ import * as logger from 'logger';
   styleUrls: ['./splash-screen.view.less'],
 })
 export class SplashScreenView {
-  constructor(private configService: ConfigService, private router: Router) {
+  constructor(
+    private authConfigService: AuthConfigService,
+    private router: Router,
+  ) {
     this.initialize().catch(logger.error);
   }
 
   async initialize(): Promise<void> {
-    let apiKey = await this.configService.apiKey$.first().toPromise();
+    let apiKey = await this.authConfigService.apiKey$.first().toPromise();
     await this.router.navigate(apiKey ? ['/glance'] : ['/sign-up']);
   }
 }

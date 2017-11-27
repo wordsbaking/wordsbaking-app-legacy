@@ -10,6 +10,12 @@ export interface SettingItemConfig<T> {
   getSelectionListItems(): SelectionListPopup.ListItem<T>[];
 }
 
+export interface SettingItemStatic {
+  getDescription<T>(value: T): string;
+  getSelectionListItems<T>(selectedValue: T): SelectionListPopup.ListItem<T>[];
+  convertValue<T, U = T>(value: T): U;
+}
+
 export abstract class SettingItem<T, TConvertValue = T> {
   abstract readonly key: string;
   protected abstract list: SelectionListPopup.ListItem<T>[];

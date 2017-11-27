@@ -11,7 +11,11 @@ import memorize from 'memorize-decorator';
 import * as v from 'villa';
 
 import {APIService} from 'app/core/common';
-import {ConfigService} from 'app/core/config';
+import {
+  SettingsRawConfig,
+  SyncConfigService,
+  UserConfig,
+} from 'app/core/config';
 import {StudyRecordData} from 'app/core/engine';
 import {DBStorage} from 'app/core/storage';
 
@@ -85,14 +89,12 @@ export class SyncService implements CategoryHost {
   readonly lastSyncTime$ = new BehaviorSubject(0 as TimeNumber);
   readonly syncing$ = new BehaviorSubject(false);
 
-  readonly syncAt$ = this.configService.syncAt$;
-
   readonly app: Category;
-  readonly user: Category;
-  readonly settings: Category;
+  readonly user: Category<UserConfig>;
+  readonly settings: Category<SettingsRawConfig>;
   readonly statistics: Category;
-  readonly records: Category<StudyRecordData>;
-  readonly collections: Category<CollectionData>;
+  readonly records: Category<Dict<StudyRecordData>>;
+  readonly collections: Category<Dict<CollectionData>>;
 
   readonly categoryNames: CategoryName[];
 
@@ -102,7 +104,7 @@ export class SyncService implements CategoryHost {
 
   constructor(
     readonly apiService: APIService,
-    readonly configService: ConfigService, // readonly url: string, // readonly auth?: AuthData, // readonly dbStorageName = DEFAULT_DATA_TYPE, // configStorage = new LocalData.DBStorage<any>( //   dbStorageName,
+    readonly syncConfigService: SyncConfigService, // readonly url: string, // readonly auth?: AuthData, // readonly dbStorageName = DEFAULT_DATA_TYPE, // configStorage = new LocalData.DBStorage<any>( //   dbStorageName,
   ) {
     let typeManager = this.typeManager;
 
@@ -129,7 +131,10 @@ export class SyncService implements CategoryHost {
     ).map(maps => maps.reduce((total, map) => total + map.size, 0));
   }
 
-  async addPassive(category: Category, id: string): Promise<void> {
+  async addPassive<T, K extends keyof T>(
+    category: Category<T>,
+    id: K,
+  ): Promise<void> {
     if (!category.passive) {
       throw new Error(`Category "${category.name}" is not passive`);
     }
@@ -159,10 +164,22 @@ export class SyncService implements CategoryHost {
     ]);
   }
 
-  async update(
-    category: Category,
-    id: string,
+  async update<T, K extends keyof T>(
+    category: Category<T>,
+    id: K,
+    updateData: T[K],
+  ): Promise<void>;
+  async update<T, K extends keyof T>(
+    category: Category<T>,
+    id: K,
     updateData: any,
+    type: DataEntryType | undefined,
+    bySync?: boolean,
+  ): Promise<void>;
+  async update<T, K extends keyof T>(
+    category: Category<T>,
+    id: K,
+    updateData: T[K],
     type?: DataEntryType,
     bySync = false,
   ): Promise<void> {
@@ -229,9 +246,9 @@ export class SyncService implements CategoryHost {
     }
   }
 
-  accumulate(
-    category: Category,
-    id: string,
+  accumulate<T, K extends keyof T>(
+    category: Category<T>,
+    id: K,
     value: any,
     accumulationID: any = Date.now(),
   ): Promise<void> {
@@ -248,7 +265,11 @@ export class SyncService implements CategoryHost {
     );
   }
 
-  async remove(category: Category, id: string, bySync = false): Promise<void> {
+  async remove<T, K extends keyof T>(
+    category: Category<T>,
+    id: K,
+    bySync = false,
+  ): Promise<void> {
     let now = Date.now();
 
     if (bySync) {
@@ -312,7 +333,7 @@ export class SyncService implements CategoryHost {
       }),
     );
 
-    let lastSyncAt = await this.configService.syncAt$.first().toPromise();
+    let lastSyncAt = await this.syncConfigService.syncAt$.first().toPromise();
 
     let request: SyncRequest = {
       time: Date.now(),
@@ -353,7 +374,7 @@ export class SyncService implements CategoryHost {
       );
     }
 
-    await this.configService.set('syncAt', syncAt);
+    await this.syncConfigService.set('syncAt', syncAt);
 
     this.lastSyncTime$.next(Date.now());
 
@@ -362,25 +383,25 @@ export class SyncService implements CategoryHost {
 
   async reset(): Promise<void> {
     await Promise.all([
-      this.configService.set('syncAt', undefined),
+      this.syncConfigService.set('syncAt', undefined),
       ...this.categoryNames.map(async name => this[name].reset()),
     ]);
   }
 }
 
-export class Category<T = any> {
-  readonly itemMap$ = new ReplaySubject<Map<string, SyncItem<T>>>();
+export class Category<T = Dict<any>, K extends keyof T = keyof T, V = T[K]> {
+  readonly itemMap$ = new ReplaySubject<Map<string, SyncItem<V>>>();
   readonly syncPendingItemMap$ = new ReplaySubject<Map<string, UpdateItem>>();
 
   private pendingMergeItemIDSet: Set<string>;
 
-  private itemMap: Map<string, SyncItem<T>>;
+  private itemMap: Map<string, SyncItem<V>>;
   private syncPendingItemMap: Map<string, UpdateItem>;
 
-  private dataStorage$: Observable<DBStorage<string, SyncItem<T>>>;
+  private dataStorage$: Observable<DBStorage<string, SyncItem<V>>>;
   private syncPendingStorage$: Observable<DBStorage<string, UpdateItem>>;
 
-  private writeItemScheduler = new v.BatchScheduler<SyncItem<T | undefined>>(
+  private writeItemScheduler = new v.BatchScheduler<SyncItem<V | undefined>>(
     this.writeItemBatchHandler.bind(this),
   );
 
@@ -395,7 +416,7 @@ export class Category<T = any> {
     private mergeLimit = 100,
   ) {
     this.dataStorage$ = Observable.defer(async () => {
-      let storage = await DBStorage.create<string, SyncItem<T>>({
+      let storage = await DBStorage.create<string, SyncItem<V>>({
         name: 'default',
         tableName: `${name}-data`,
         primaryKeyType: 'text',
@@ -405,10 +426,10 @@ export class Category<T = any> {
 
       let [mergedEntry] = _.remove(items, item => !item.id);
 
-      let itemMap = (this.itemMap = new Map<string, SyncItem<T>>(
+      let itemMap = (this.itemMap = new Map<string, SyncItem<V>>(
         mergedEntry
-          ? ((mergedEntry.data as any) as SyncItem<T>[]).map<
-              [string, SyncItem<T>]
+          ? ((mergedEntry.data as any) as SyncItem<V>[]).map<
+              [string, SyncItem<V>]
             >(item => [item.id, item])
           : [],
       ));
@@ -456,16 +477,16 @@ export class Category<T = any> {
       .refCount();
   }
 
-  async setItem(item: SyncItem<T>): Promise<void> {
+  async setItem(item: SyncItem<V>): Promise<void> {
     this.itemMap.set(item.id, item);
     this.itemMap$.next(this.itemMap);
 
     await this.writeItemScheduler.schedule(item);
   }
 
-  async removeItem(id: string | SyncItem<T>): Promise<void> {
+  async removeItem(id: K | SyncItem<V>): Promise<void> {
     if (typeof id === 'object') {
-      id = id.id;
+      id = id.id as K;
     }
 
     this.itemMap.delete(id);
@@ -550,7 +571,7 @@ export class Category<T = any> {
       .toPromise();
   }
 
-  private async writeItemBatchHandler(items: SyncItem<T>[]): Promise<void> {
+  private async writeItemBatchHandler(items: SyncItem<V>[]): Promise<void> {
     items = _.uniqBy(items.reverse(), 'id').reverse();
 
     let pendingMergeSet = this.pendingMergeItemIDSet;

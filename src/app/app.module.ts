@@ -6,9 +6,10 @@ import {RouterModule} from '@angular/router';
 import {CoreCommonModule} from 'app/core/common';
 import {CoreConfigModule} from 'app/core/config';
 import {CoreDataModule} from 'app/core/data';
+import {CoreEngineModule} from 'app/core/engine';
 import {CoreNavigationModule} from 'app/core/navigation';
-import {CoreSettingsModule} from 'app/core/settings';
 import {CoreUIModule} from 'app/core/ui';
+import {CoreUserModule} from 'app/core/user';
 
 import {UIModule} from 'app/ui';
 
@@ -25,10 +26,11 @@ import {SplashScreenView} from 'app/pages/splash-screen/splash-screen.view';
     CoreUIModule,
     AppRouting,
     UIModule.forRoot(),
-    CoreSettingsModule.forRoot(),
     CoreCommonModule.forRoot(),
     CoreConfigModule.forRoot(),
+    CoreUserModule.forRoot(),
     CoreDataModule.forRoot(),
+    CoreEngineModule.forRoot(),
     CoreNavigationModule.forRoot(),
   ],
   declarations: [AppView, SplashScreenView],

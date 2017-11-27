@@ -17,7 +17,7 @@ export interface DBStorageCreateOptions {
   indexSchema?: Dict<string>;
 }
 
-export class DBStorage<K extends string | number, T extends object> {
+export class DBStorage<K extends string | number, T> {
   readonly change$ = new Subject<void>();
 
   private constructor(
@@ -111,6 +111,21 @@ export class DBStorage<K extends string | number, T extends object> {
     return items;
   }
 
+  async getAllAsDict(): Promise<Dict<T>> {
+    let {rows} = await this.exec(`select * from "${this.tableName}"`);
+
+    // tslint:disable-next-line:no-null-keyword
+    let dict: Dict<T> = Object.create(null);
+
+    for (let i = 0; i < rows.length; i++) {
+      let row = rows.item(i);
+      let item = this.buildItem(row);
+      dict[row[this.primaryKey]] = item;
+    }
+
+    return dict;
+  }
+
   async getPrimaryKeys(): Promise<K[]> {
     let {rows} = await this.exec(
       `select "${this.primaryKey}" from "${this.tableName}"`,
@@ -138,18 +153,22 @@ export class DBStorage<K extends string | number, T extends object> {
     let extraColumns: string[] = [];
     let extraValues: any[] = [];
 
-    item = {...(item as object)} as T;
-
-    delete (item as any)[this.primaryKey];
-
     let columns = this.columns;
 
-    for (let column of columns) {
-      extraVariables.push('?,');
-      extraColumns.push(`"${column}",`);
-      extraValues.push((item as any)[column]);
+    if (item instanceof Object) {
+      item = {...(item as any)} as T;
 
-      delete (item as any)[column];
+      delete (item as any)[this.primaryKey];
+
+      for (let column of columns) {
+        extraVariables.push('?,');
+        extraColumns.push(`"${column}",`);
+        extraValues.push((item as any)[column]);
+
+        delete (item as any)[column];
+      }
+    } else if (columns.length) {
+      throw new TypeError('Expecting an object');
     }
 
     let json = JSON.stringify(item);
@@ -226,19 +245,23 @@ select ${[...columns, JSON_KEY]
       let values: any[] = [];
 
       for (let item of items) {
-        item = {...(item as object)} as T;
+        if (item instanceof Object) {
+          item = {...(item as any)} as T;
 
-        for (let column of columns) {
-          if (hasOwnProperty.call(item, column)) {
-            values.push((item as any)[column]);
-            delete (item as any)[column];
-          } else {
-            // tslint:disable-next-line:no-null-keyword
-            values.push(null);
+          for (let column of columns) {
+            if (hasOwnProperty.call(item, column)) {
+              values.push((item as any)[column]);
+              delete (item as any)[column];
+            } else {
+              // tslint:disable-next-line:no-null-keyword
+              values.push(null);
+            }
           }
-        }
 
-        values.push(JSON.stringify(item));
+          values.push(JSON.stringify(item));
+        } else if (columns.length) {
+          throw new TypeError('Expecting an object');
+        }
       }
 
       await this.exec(query, values);
@@ -249,12 +272,16 @@ select ${[...columns, JSON_KEY]
     }
   }
 
+  /**
+   * Insert an item without present primary key value? Only integer primary
+   * key available?
+   */
   async insert(item: T): Promise<number> {
     let extraVariables: string[] = [];
     let extraColumns: string[] = [];
     let extraValues: any[] = [];
 
-    item = {...(item as object)} as T;
+    item = {...(item as any)} as T;
 
     let columns = this.columns.concat();
 

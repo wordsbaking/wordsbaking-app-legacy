@@ -3,7 +3,7 @@ import {Injectable} from '@angular/core';
 import Axios from 'axios';
 import ExtendableError from 'extendable-error';
 
-import {ConfigService} from 'app/core/config';
+import {AuthConfigService} from 'app/core/config';
 
 const apiBaseUrl = '//localhost:1337';
 
@@ -58,7 +58,7 @@ export class APIError extends ExtendableError {
 
 @Injectable()
 export class APIService {
-  constructor(private configService: ConfigService) {}
+  constructor(private authConfigService: AuthConfigService) {}
 
   async call<T>(
     path: string,
@@ -92,12 +92,12 @@ export class APIService {
 
   async signUp(email: string, password: string): Promise<void> {
     let {apiKey} = await this.call<SignUpInfo>('/sign-up', {email, password});
-    await this.configService.set('apiKey', apiKey);
+    await this.authConfigService.set('apiKey', apiKey);
   }
 
   async signIn(email: string, password: string): Promise<void> {
     let {apiKey} = await this.call<SignInInfo>('/sign-in', {email, password});
-    await this.configService.set('apiKey', apiKey);
+    await this.authConfigService.set('apiKey', apiKey);
   }
 
   getUrl(path: string): string {
