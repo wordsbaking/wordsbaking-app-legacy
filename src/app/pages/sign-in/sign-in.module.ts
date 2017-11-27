@@ -1,6 +1,6 @@
 import {CommonModule} from '@angular/common';
 import {NgModule} from '@angular/core';
-
+import {ReactiveFormsModule} from '@angular/forms';
 import {RouterModule, Routes} from '@angular/router';
 
 import {CoreUIModule} from 'app/core/ui';
@@ -19,7 +19,12 @@ const routes: Routes = [
 ];
 
 @NgModule({
-  imports: [CommonModule, CoreUIModule, RouterModule.forChild(routes)],
+  imports: [
+    CommonModule,
+    ReactiveFormsModule,
+    CoreUIModule,
+    RouterModule.forChild(routes),
+  ],
   declarations: [SignInView],
 })
 export class SignInModule {}

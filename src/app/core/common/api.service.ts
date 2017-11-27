@@ -46,6 +46,10 @@ export interface SignUpInfo {
   apiKey: string;
 }
 
+export interface SignInInfo {
+  apiKey: string;
+}
+
 export class APIError extends ExtendableError {
   constructor(readonly code: string, message: string) {
     super(message);
@@ -88,7 +92,11 @@ export class APIService {
 
   async signUp(email: string, password: string): Promise<void> {
     let {apiKey} = await this.call<SignUpInfo>('/sign-up', {email, password});
+    await this.configService.set('apiKey', apiKey);
+  }
 
+  async signIn(email: string, password: string): Promise<void> {
+    let {apiKey} = await this.call<SignInInfo>('/sign-in', {email, password});
     await this.configService.set('apiKey', apiKey);
   }
 

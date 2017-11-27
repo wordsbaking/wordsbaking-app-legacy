@@ -21,9 +21,6 @@ const signUpViewTransitions = trigger('signUpViewTransitions', [
 export class SignUpView implements OnInit {
   form: FormGroup;
 
-  email: string;
-  password: string;
-
   @HostBinding('@signUpViewTransitions') signUpViewTransitions = '';
 
   whyAccountDescriptionVisible = false;
@@ -43,8 +40,15 @@ export class SignUpView implements OnInit {
   }
 
   async signUp(): Promise<void> {
-    if (this.form.invalid) {
-      alert('error');
+    let errors = this.form.errors;
+
+    if (errors) {
+      if (errors.email) {
+        await this.dialogService.alert('邮箱格式不正确.');
+      } else if (errors.password) {
+        await this.dialogService.alert('密码长度应在 6-32 位之间.');
+      }
+
       return;
     }
 
