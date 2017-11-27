@@ -1,3 +1,5 @@
+@import '~styles/common.less';
+
 :host {
   display: block;
 }
@@ -31,5 +33,33 @@ wb-settings-view-settings-item.user-profile-entry {
     top: 0;
     background-size: cover;
     border-radius: 2px;
+  }
+}
+
+.user-manager-menu {
+  display: block;
+  background-color: @color-fg;
+  width: 100%;
+  padding: 20px 10px;
+
+  wb-selection-list {
+    max-height: 200px;
+    overflow: auto;
+  }
+
+  wb-selection-list-item {
+    flex: none;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    height: 40px;
+  }
+
+  wb-selection-list-item.selected {
+    background-color: transparent;
+  }
+
+  wb-selection-list-item:active {
+    background-color: @color-fg-f !important;
   }
 }

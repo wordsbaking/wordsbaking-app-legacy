@@ -204,7 +204,7 @@ export class PopupService {
   private listenDocumentClick(): void {
     let touchDelegate = new TouchDelegate(document);
 
-    touchDelegate.on(TouchIdentifier.tap, (event): void => {
+    touchDelegate.on(TouchIdentifier.press, (event): void => {
       if (event.originalEvent.type === 'mouseup') {
         return;
       }

@@ -1,7 +1,9 @@
 import {trigger} from '@angular/animations';
-import {Component, HostBinding} from '@angular/core';
+import {Component, HostBinding, ViewChild} from '@angular/core';
 
 import {Observable} from 'rxjs/Observable';
+
+import {PopupComponent} from 'app/ui';
 
 import {SentenceTtsSpeed, StudyOrder, StudyScope} from 'app/core/engine';
 
@@ -11,7 +13,7 @@ import {PronunciationType} from 'app/core/data';
 
 import {SelectionListPopupService, pageTransitions} from 'app/core/ui';
 
-import * as settingConfig from './settings.config';
+import * as SettingsConfig from './settings.config';
 
 const settingsViewTransition = trigger('settingsViewTransition', [
   ...pageTransitions,
@@ -24,33 +26,52 @@ const settingsViewTransition = trigger('settingsViewTransition', [
   animations: [settingsViewTransition],
 })
 export class SettingsView {
+  @ViewChild(PopupComponent) userManagerMenuPopupComponent: PopupComponent;
+
   @HostBinding('@settingsViewTransition') settingsViewTransition = '';
 
   readonly pronunciationDescription$ = this.settingsService.pronunciation$.map(
-    pron => settingConfig.Pronunciation.getDescription(pron),
+    pron => SettingsConfig.Pronunciation.getDescription(pron),
   );
 
   readonly studyScopesDescription$ = this.settingsService.studyScopeSet$.map(
-    studyScopeSet => settingConfig.StudyScopes.getDescription(studyScopeSet),
+    studyScopeSet => SettingsConfig.StudyScopes.getDescription(studyScopeSet),
   );
 
   readonly dailyStudyPlansDescription$ = this.settingsService.dailyStudyPlan$.map(
     dailyStudyPlan =>
-      settingConfig.DailyStudyPlan.getDescription(dailyStudyPlan),
+      SettingsConfig.DailyStudyPlan.getDescription(dailyStudyPlan),
   );
 
   readonly newWordsPriorityDescription$ = this.settingsService.newWordsPriority$.map(
     newWordsPriority =>
-      settingConfig.NewWordsPriority.getDescription(newWordsPriority),
+      SettingsConfig.NewWordsPriority.getDescription(newWordsPriority),
   );
 
   readonly studyOrderDescription$ = this.settingsService.studyOrder$.map(
-    studyOrder => settingConfig.StudyOrder.getDescription(studyOrder),
+    studyOrder => SettingsConfig.StudyOrder.getDescription(studyOrder),
   );
 
   readonly sentenceTtsSpeedDescription$ = this.settingsService.sentenceTtsSpeed$.map(
     sentenceTtsSpeed =>
-      settingConfig.SentenceTtsSpeed.getDescription(sentenceTtsSpeed),
+      SettingsConfig.SentenceTtsSpeed.getDescription(sentenceTtsSpeed),
+  );
+
+  readonly notificationDescription$ = this.settingsService.notification$.map(
+    notification => SettingsConfig.Notification.getDescription(notification),
+  );
+
+  readonly obstinateEnhanceDescription$ = this.settingsService.obstinateEnhance$.map(
+    obstinateEnhance =>
+      SettingsConfig.ObstinateEnhance.getDescription(obstinateEnhance),
+  );
+
+  readonly fixedStackDescription$ = this.settingsService.fixedStack$.map(
+    fixedStack => SettingsConfig.FixedStack.getDescription(fixedStack),
+  );
+
+  readonly showGuideDescription$ = this.settingsService.showGuide$.map(
+    showGuide => SettingsConfig.ShowGuide.getDescription(showGuide),
   );
 
   constructor(
@@ -58,82 +79,139 @@ export class SettingsView {
     private selectionListPopupService: SelectionListPopupService,
   ) {}
 
-  selectPronunciation(): Promise<PronunciationType | undefined> {
-    return this.selectSettingItemValue<
+  showUserManagerMenuPopup(): void {
+    this.userManagerMenuPopupComponent.showAsLocation({
+      width: 'match-parent',
+      positions: ['bottom'],
+      animation: 'fadeInDown',
+      background: true,
+      margin: 0,
+      clearOnClick: true,
+    });
+  }
+
+  togglePronunciation(): Promise<PronunciationType | undefined> {
+    return this.toggleSettingItemValue<
       PronunciationType | undefined
     >(
       'pronunciation',
       this.settingsService.pronunciation$,
-      settingConfig.Pronunciation as typeof settingConfig.SettingItem,
+      SettingsConfig.Pronunciation as typeof SettingsConfig.SettingItem,
     );
   }
 
-  selectStudyScopes(): Promise<Set<StudyScope>> {
-    return this.selectSettingItemValue<Set<StudyScope>>(
+  toggleStudyScopes(): Promise<Set<StudyScope>> {
+    return this.toggleSettingItemValue<Set<StudyScope>>(
       'studyScopes',
       this.settingsService.studyScopeSet$,
-      settingConfig.StudyScopes as typeof settingConfig.SettingItem,
+      SettingsConfig.StudyScopes as typeof SettingsConfig.SettingItem,
     );
   }
 
-  selectDailyStudyPlan(): Promise<number> {
-    return this.selectSettingItemValue<number>(
+  toggleDailyStudyPlan(): Promise<number> {
+    return this.toggleSettingItemValue<number>(
       'dailyStudyPlan',
       this.settingsService.dailyStudyPlan$,
-      settingConfig.DailyStudyPlan as typeof settingConfig.SettingItem,
+      SettingsConfig.DailyStudyPlan as typeof SettingsConfig.SettingItem,
     );
   }
 
-  selectNewWordsPriority(): Promise<number> {
-    return this.selectSettingItemValue<number>(
+  toggleNewWordsPriority(): Promise<number> {
+    return this.toggleSettingItemValue<number>(
       'newWordsPriority',
       this.settingsService.newWordsPriority$,
-      settingConfig.NewWordsPriority as typeof settingConfig.SettingItem,
+      SettingsConfig.NewWordsPriority as typeof SettingsConfig.SettingItem,
     );
   }
 
-  selectStudyOrder(): Promise<StudyOrder> {
-    return this.selectSettingItemValue<StudyOrder>(
+  toggleStudyOrder(): Promise<StudyOrder> {
+    return this.toggleSettingItemValue<StudyOrder>(
       'studyOrder',
       this.settingsService.studyOrder$,
-      settingConfig.StudyOrder as typeof settingConfig.SettingItem,
+      SettingsConfig.StudyOrder as typeof SettingsConfig.SettingItem,
     );
   }
 
-  selectSentenceTtsSpeed(): Promise<SentenceTtsSpeed> {
-    return this.selectSettingItemValue<SentenceTtsSpeed>(
+  toggleSentenceTtsSpeed(): Promise<SentenceTtsSpeed> {
+    return this.toggleSettingItemValue<SentenceTtsSpeed>(
       'sentenceTtsSpeed',
       this.settingsService.sentenceTtsSpeed$,
-      settingConfig.SentenceTtsSpeed as typeof settingConfig.SettingItem,
+      SettingsConfig.SentenceTtsSpeed as typeof SettingsConfig.SettingItem,
     );
   }
 
-  private async selectSettingItemValue<T>(
+  toggleNotification(force?: boolean): Promise<boolean> {
+    return this.toggleSettingItemValue(
+      'notification',
+      this.settingsService.notification$,
+      SettingsConfig.Notification as typeof SettingsConfig.SettingItem,
+      force,
+    );
+  }
+
+  toggleObstinateEnhance(force?: boolean): Promise<boolean> {
+    return this.toggleSettingItemValue(
+      'obstinateEnhance',
+      this.settingsService.obstinateEnhance$,
+      SettingsConfig.ObstinateEnhance as typeof SettingsConfig.SettingItem,
+      force,
+    );
+  }
+
+  toggleFixedStack(force?: boolean): Promise<boolean> {
+    return this.toggleSettingItemValue(
+      'fixedStack',
+      this.settingsService.fixedStack$,
+      SettingsConfig.FixedStack as typeof SettingsConfig.SettingItem,
+      force,
+    );
+  }
+
+  toggleShowGuide(force?: boolean): Promise<boolean> {
+    return this.toggleSettingItemValue(
+      'showGuide',
+      this.settingsService.showGuide$,
+      SettingsConfig.ShowGuide as typeof SettingsConfig.SettingItem,
+      force,
+    );
+  }
+
+  private async toggleSettingItemValue<T>(
     key: SettingsItemName,
     value$: Observable<T>,
-    settingItem: typeof settingConfig.SettingItem,
+    settingItem: typeof SettingsConfig.SettingItem,
+    force?: T,
   ): Promise<T> {
-    let value = await new Promise<T>(resolve => value$.subscribe(resolve));
-
-    let selectedValues = await this.selectionListPopupService.show(
-      settingItem.getSelectionListItems(value),
+    let currentValue = await new Promise<T>(resolve =>
+      value$.subscribe(resolve),
     );
 
-    if (!selectedValues) {
-      return value;
+    let nextValue: T;
+
+    if (typeof currentValue !== 'boolean') {
+      if (force === undefined) {
+        let selectedValues = await this.selectionListPopupService.show(
+          settingItem.getSelectionListItems(currentValue),
+        );
+
+        if (!selectedValues) {
+          return currentValue;
+        }
+
+        nextValue = selectedValues[0];
+      } else {
+        nextValue = force;
+      }
+    } else {
+      nextValue = (force === undefined ? !currentValue : force) as T;
     }
 
-    let selectedValue = selectedValues[0];
-
-    if (selectedValue === value) {
-      return value;
+    if (nextValue === currentValue) {
+      return currentValue;
     }
 
-    let newValue =
-      selectedValue instanceof Set ? Array.from(selectedValue) : selectedValue;
+    await this.settingsService.set(key, settingItem.convertValue(nextValue));
 
-    await this.settingsService.set(key, newValue);
-
-    return selectedValue;
+    return nextValue;
   }
 }

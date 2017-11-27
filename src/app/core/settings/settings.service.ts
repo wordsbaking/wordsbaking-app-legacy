@@ -162,7 +162,7 @@ export class SettingsService {
 
     await storage.set(settings);
 
-    setTimeout(() => this.zone.run(() => undefined), 10);
+    setTimeout(() => this.zone.run(() => undefined), 32);
   }
 
   async reset(): Promise<void> {
