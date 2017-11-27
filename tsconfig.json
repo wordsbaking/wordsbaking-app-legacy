@@ -10,7 +10,7 @@
     "noImplicitReturns": true,
     "noEmitOnError": true,
     "noUnusedLocals": true,
-    "noUnusedParameters": false,
+    "noUnusedParameters": true,
     "skipDefaultLibCheck": true,
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
