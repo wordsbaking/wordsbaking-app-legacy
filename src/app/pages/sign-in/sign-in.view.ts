@@ -3,7 +3,7 @@ import {Component, HostBinding, OnInit} from '@angular/core';
 import {FormBuilder, FormGroup, Validators} from '@angular/forms';
 import {Router} from '@angular/router';
 
-import {DialogService} from 'app/ui';
+import {DialogService, LoadingService} from 'app/ui';
 
 import {APIService} from 'app/core/common';
 import {pageTransitions} from 'app/core/ui';
@@ -27,6 +27,7 @@ export class SignInView implements OnInit {
     private formBuilder: FormBuilder,
     private apiService: APIService,
     private dialogService: DialogService,
+    private loadingService: LoadingService,
     private router: Router,
   ) {}
 
@@ -56,7 +57,10 @@ export class SignInView implements OnInit {
     } = this.form.controls;
 
     try {
-      await this.apiService.signIn(email, password);
+      await this.loadingService.wait(
+        this.apiService.signIn(email, password),
+        '登录中...',
+      ).result;
     } catch (error) {
       switch (error.code) {
         case 'UserNotExistsError':
