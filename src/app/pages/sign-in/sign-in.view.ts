@@ -39,12 +39,12 @@ export class SignInView implements OnInit {
   }
 
   async signIn(): Promise<void> {
-    let errors = this.form.errors;
+    let form = this.form;
 
-    if (errors) {
-      if (errors.email) {
+    if (form.invalid) {
+      if (form.get('email')!.errors) {
         await this.dialogService.alert('邮箱格式不正确.');
-      } else if (errors.password) {
+      } else if (form.get('password')!.errors) {
         await this.dialogService.alert('请填写账号密码.');
       }
 
@@ -70,7 +70,7 @@ export class SignInView implements OnInit {
           await this.dialogService.alert(`密码错误, 请重试或找回密码.`);
           break;
         default:
-          await this.dialogService.alert(`未知错误 ${error.code}.`);
+          await this.dialogService.alert(`未知错误 ${error.code || ''}.`);
           break;
       }
 

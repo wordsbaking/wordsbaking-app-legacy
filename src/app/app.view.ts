@@ -44,7 +44,7 @@ export class AppView {
 
   private mountPageLoadingHint(): void {
     let navigationUrl: string | undefined;
-    let navigationLoadingHandler: LoadingHandler | undefined;
+    let navigationLoadingHandler: LoadingHandler<void> | undefined;
     let navigationLoadingTimerHandle: number;
 
     this.router.events.subscribe(event => {
@@ -53,7 +53,7 @@ export class AppView {
       } else if (event instanceof RouteConfigLoadStart) {
         clearTimeout(navigationLoadingTimerHandle);
         navigationLoadingTimerHandle = setTimeout(() => {
-          navigationLoadingHandler = this.loadingService.show('页面加载中...');
+          navigationLoadingHandler = this.loadingService.show('加载中...');
         }, 100);
       } else if (
         event instanceof NavigationEnd &&
