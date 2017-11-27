@@ -39,9 +39,16 @@ export class SignUpView implements OnInit {
 
   ngOnInit(): void {
     // prevent browser auto filling
-    (this.element.querySelector(
+
+    let emailInput = this.element.querySelector(
       'input[name=email]',
-    )! as HTMLInputElement).readOnly = false;
+    )! as HTMLInputElement;
+
+    emailInput.readOnly = true;
+
+    setTimeout(() => {
+      emailInput.readOnly = false;
+    }, 800);
 
     this.form = this.formBuilder.group({
       email: ['', [Validators.email]],
