@@ -4,6 +4,7 @@ import {RouterModule, Routes} from '@angular/router';
 
 import {UIModule} from 'app/ui';
 
+import {CoreNavigationModule} from 'app/core/navigation';
 import {CoreUIModule} from 'app/core/ui';
 
 import {
@@ -31,6 +32,7 @@ const routes: Routes = [
     CommonModule,
     UIModule,
     CoreUIModule,
+    CoreNavigationModule,
     RouterModule.forChild(routes),
   ],
   declarations: [
