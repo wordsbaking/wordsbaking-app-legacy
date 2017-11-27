@@ -13,12 +13,12 @@ import {
   WordStackComponent,
   WordStackInteractiveDirective,
 } from './components';
-import {StudyComponent} from './study.view';
+import {StudyView} from './study.view';
 
 const routes: Routes = [
   {
     path: '',
-    component: StudyComponent,
+    component: StudyView,
   },
   {
     path: '**',
@@ -34,7 +34,7 @@ const routes: Routes = [
     RouterModule.forChild(routes),
   ],
   declarations: [
-    StudyComponent,
+    StudyView,
     WordStackComponent,
     WordCardComponent,
     WordDetailCardComponent,
