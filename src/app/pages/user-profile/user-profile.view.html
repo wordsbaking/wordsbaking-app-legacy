@@ -1,0 +1,34 @@
+ <wb-page>
+  <wb-page-header>
+    <button class="back-button" wbTriggerBack>
+      <span class="icon back"></span>
+      <span class="title tagline">个人信息</span>
+    </button>
+  </wb-page-header>
+  <wb-page-content>
+    <form method="POST" action="#">
+      <div class="form-item">
+        <div class="avatar-area">
+          <span class="avatar" [style.backgroundImage]="'url('+ (avatarUrl$ | async) +')'"></span>
+          <input type="file" name="avatar" />
+        </div>
+      </div>
+      <div class="form-item">
+        <div class="input-area">
+          <label class="input-label" for="nickname">昵称</label>
+          <input placeholder="输入昵称" id="nickname" name="nickname" />
+        </div>
+      </div>
+      <div class="form-item">
+        <div class="input-area">
+          <label class="input-label" for="tagline">标签行</label>
+          <input placeholder="输入标签行" id="tagline" name="tagline" />
+        </div>
+      </div>
+    </form>
+  </wb-page-content>
+  <wb-page-footer>
+    <button class="secondary" wbTriggerBack>取消</button>
+    <button wbTriggerBack>保存</button>
+  </wb-page-footer>
+</wb-page>
