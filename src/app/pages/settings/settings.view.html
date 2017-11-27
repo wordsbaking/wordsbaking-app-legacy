@@ -1,6 +1,6 @@
-<wb-page #page>
+<wb-page>
   <wb-page-header>
-    <button class="back-button" (wbPress)="page.back()">
+    <button class="back-button" wbTriggerBack>
       <span class="icon back"></span>
       <span class="title">词焙设置</span>
     </button>
@@ -10,7 +10,8 @@
     <wb-settings-view-settings-group title="账号信息">
       <wb-settings-view-settings-item class="user-profile-entry"
         title="账号"
-        description="maolion.j@gmail.com">
+        description="maolion.j@gmail.com"
+        wbPressLink="/user-profile">
         <span class="avatar" [style.backgroundImage]="'url(https://picsum.photos/128/128)'"></span>
         <button class="small" (wbPress)="showUserManagerMenuPopup()" [wbPressStop]="true">管理</button>
       </wb-settings-view-settings-item>
@@ -107,7 +108,7 @@
 <wb-popup #userManagerMenuPopup>
   <div class="user-manager-menu">
     <wb-selection-list [preventSelected]="true">
-      <wb-selection-list-item>
+      <wb-selection-list-item wbPressLink="/user-profile">
         <span class="text">修改信息</span>
       </wb-selection-list-item>
       <wb-selection-list-item>

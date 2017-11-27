@@ -1,0 +1,79 @@
+@import '~styles/common.less';
+
+:host {
+  display: block;
+}
+
+wb-page-content {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  align-items: center;
+  justify-content: center;
+}
+
+form {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+
+  .avatar-area {
+    position: relative;
+    width: 120px;
+    height: 120px;
+    background-color: @color-fg-f;
+    border-radius: 2px;
+    overflow: hidden;
+    transition: @transition-opacity;
+    margin-bottom: 20px;
+
+    &:active {
+      opacity: 0.6;
+    }
+
+    input {
+      position: absolute;
+      opacity: 0;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+    }
+
+    .avatar {
+      display: block;
+      width: 100%;
+      height: 100%;
+      background-size: cover;
+    }
+  }
+
+  .input-area {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+
+    label {
+      text-align: center;
+      margin-top: 10px;
+      font-size: @size-text-smaller;
+      color: @color-text-l;
+    }
+
+    input {
+      padding: 0 5px;
+      line-height: 30px;
+      height: 30px;
+      color: @color-text;
+      text-align: center;
+      border-bottom: 1px solid @color-fg-xf;
+      transition: @transition-border-color;
+    }
+
+    input:focus {
+      border-color: @color-theme;
+    }
+  }
+}

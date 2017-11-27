@@ -13,7 +13,7 @@ const studyViewTransitions = trigger('studyViewTransitions', [
   styleUrls: ['./study.view.less'],
   animations: [studyViewTransitions],
 })
-export class StudyComponent {
+export class StudyView {
   @HostBinding('@studyViewTransitions') studyViewTransitions = '';
 
   switchAudioMode(): void {}

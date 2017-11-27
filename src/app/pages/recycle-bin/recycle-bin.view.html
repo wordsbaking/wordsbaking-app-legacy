@@ -1,5 +1,5 @@
-<wb-page #page (wbPress)="page.toggleHeaderExtension(false)" [wbPressStop]="false">
-  <wb-page-header (wbPress)="page.toggleHeaderExtension()">
+<wb-page #page (wbPress)="page.toggleHeaderExtension(false)"  [wbPressStop]="false">
+  <wb-page-header wbTriggerBack>
     <button class="back-button" (wbPress)="page.back()">
       <span class="icon back"></span>
       <span class="title">回收站</span>

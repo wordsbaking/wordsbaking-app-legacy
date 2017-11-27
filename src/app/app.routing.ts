@@ -39,6 +39,11 @@ const routes: Routes = [
     data: {target: 'recycle-bin'},
   },
   {
+    path: 'user-profile',
+    loadChildren: './pages/user-profile/user-profile.module#UserProfileModule',
+    data: {target: 'user-profile'},
+  },
+  {
     path: '**',
     redirectTo: 'glance',
   },

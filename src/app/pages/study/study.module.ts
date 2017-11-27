@@ -4,6 +4,7 @@ import {RouterModule, Routes} from '@angular/router';
 
 import {UIModule} from 'app/ui';
 
+import {CoreNavigationModule} from 'app/core/navigation';
 import {CoreUIModule} from 'app/core/ui';
 
 import {
@@ -13,12 +14,12 @@ import {
   WordStackComponent,
   WordStackInteractiveDirective,
 } from './components';
-import {StudyComponent} from './study.view';
+import {StudyView} from './study.view';
 
 const routes: Routes = [
   {
     path: '',
-    component: StudyComponent,
+    component: StudyView,
   },
   {
     path: '**',
@@ -31,10 +32,11 @@ const routes: Routes = [
     CommonModule,
     UIModule,
     CoreUIModule,
+    CoreNavigationModule,
     RouterModule.forChild(routes),
   ],
   declarations: [
-    StudyComponent,
+    StudyView,
     WordStackComponent,
     WordCardComponent,
     WordDetailCardComponent,

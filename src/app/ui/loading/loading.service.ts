@@ -15,8 +15,8 @@ export interface LoadingShowOptions {
   background?: string;
 }
 
-export interface LoadingHandler {
-  result: Promise<void>;
+export interface LoadingHandler<T> {
+  result: Promise<T>;
   hint$: BehaviorSubject<string>;
   clear(): void;
 }
@@ -24,7 +24,7 @@ export interface LoadingHandler {
 export interface LoadingInfo {
   componentRef: ComponentRef<LoadingComponent>;
   options: LoadingShowOptions;
-  handler: LoadingHandler;
+  handler: LoadingHandler<any>;
   onClear(): void;
 }
 
@@ -39,23 +39,23 @@ export class LoadingService {
     private viewContainerService: ViewContainerService,
   ) {}
 
-  wait(
-    process: Promise<any>,
+  wait<T>(
+    process: Promise<T>,
     hint: string,
     options?: LoadingShowOptions,
-  ): LoadingHandler;
-  wait(
-    process: Promise<any>,
+  ): LoadingHandler<T>;
+  wait<T>(
+    process: Promise<T>,
     hint: string,
     container: ViewContainerRef,
     options?: LoadingShowOptions,
-  ): LoadingHandler;
-  wait(
-    process: Promise<any>,
+  ): LoadingHandler<T>;
+  wait<T>(
+    process: Promise<T>,
     hint: string,
     arg3?: any,
     arg4?: any,
-  ): LoadingHandler {
+  ): LoadingHandler<T> {
     let container: ViewContainerRef =
       arg3 && arg3 instanceof ViewContainerRef
         ? arg3
@@ -65,19 +65,19 @@ export class LoadingService {
       (!(arg3 && arg3 instanceof ViewContainerRef) ? arg3 : arg4) || {};
 
     let loadingHandler = this.mount(hint, container, options);
-
+    loadingHandler.result = process;
     process.then(loadingHandler.clear, loadingHandler.clear);
 
     return loadingHandler;
   }
 
-  show(hint: string, options?: LoadingShowOptions): LoadingHandler;
+  show(hint: string, options?: LoadingShowOptions): LoadingHandler<void>;
   show(
     hint: string,
     container: ViewContainerRef,
     options?: LoadingShowOptions,
-  ): LoadingHandler;
-  show(hint: string, arg2?: any, arg3?: any): LoadingHandler {
+  ): LoadingHandler<void>;
+  show(hint: string, arg2?: any, arg3?: any): LoadingHandler<void> {
     let container: ViewContainerRef =
       arg2 && arg2 instanceof ViewContainerRef
         ? arg2
@@ -99,7 +99,7 @@ export class LoadingService {
     hint: string,
     containerRef: ViewContainerRef,
     options: LoadingShowOptions,
-  ): LoadingHandler {
+  ): LoadingHandler<any> {
     let {latestFullScreenLoadingInfo} = this;
     let loadingComponentFactory = this.resolve.resolveComponentFactory(
       LoadingComponent,
@@ -130,7 +130,7 @@ export class LoadingService {
     }
 
     let loadingInfo: LoadingInfo;
-    let handler: LoadingHandler;
+    let handler: LoadingHandler<void>;
 
     let result = new Promise<void>(onClear => {
       loadingInfo = {

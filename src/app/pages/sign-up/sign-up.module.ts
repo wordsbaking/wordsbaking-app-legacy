@@ -4,6 +4,8 @@ import {ReactiveFormsModule} from '@angular/forms';
 
 import {RouterModule, Routes} from '@angular/router';
 
+import {UIModule} from 'app/ui';
+
 import {CoreUIModule} from 'app/core/ui';
 
 import {SignUpView} from './sign-up.view';
@@ -22,6 +24,7 @@ const routes: Routes = [
 @NgModule({
   imports: [
     CommonModule,
+    UIModule,
     ReactiveFormsModule,
     CoreUIModule,
     RouterModule.forChild(routes),

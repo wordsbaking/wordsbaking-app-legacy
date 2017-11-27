@@ -1,6 +1,6 @@
 <wb-page #page (wbPress)="page.toggleHeaderExtension(false)"  [wbPressStop]="false">
   <wb-page-header>
-    <button class="back-button" (wbPress)="page.back()">
+    <button class="back-button" wbTriggerBack>
       <span class="icon back"></span>
       <span class="title tagline">时光在飞逝，生命知多少.</span>
     </button>

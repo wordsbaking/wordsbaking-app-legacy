@@ -3,7 +3,7 @@ import {Component, HostBinding, OnInit} from '@angular/core';
 import {FormBuilder, FormGroup, Validators} from '@angular/forms';
 import {Router} from '@angular/router';
 
-import {DialogService} from 'app/ui';
+import {DialogService, LoadingService} from 'app/ui';
 
 import {APIService} from 'app/core/common';
 import {pageTransitions} from 'app/core/ui';
@@ -27,6 +27,7 @@ export class SignInView implements OnInit {
     private formBuilder: FormBuilder,
     private apiService: APIService,
     private dialogService: DialogService,
+    private loadingService: LoadingService,
     private router: Router,
   ) {}
 
@@ -38,12 +39,12 @@ export class SignInView implements OnInit {
   }
 
   async signIn(): Promise<void> {
-    let errors = this.form.errors;
+    let form = this.form;
 
-    if (errors) {
-      if (errors.email) {
+    if (form.invalid) {
+      if (form.get('email')!.errors) {
         await this.dialogService.alert('邮箱格式不正确.');
-      } else if (errors.password) {
+      } else if (form.get('password')!.errors) {
         await this.dialogService.alert('请填写账号密码.');
       }
 
@@ -56,7 +57,10 @@ export class SignInView implements OnInit {
     } = this.form.controls;
 
     try {
-      await this.apiService.signIn(email, password);
+      await this.loadingService.wait(
+        this.apiService.signIn(email, password),
+        '登录中...',
+      ).result;
     } catch (error) {
       switch (error.code) {
         case 'UserNotExistsError':
@@ -66,7 +70,7 @@ export class SignInView implements OnInit {
           await this.dialogService.alert(`密码错误, 请重试或找回密码.`);
           break;
         default:
-          await this.dialogService.alert(`未知错误 ${error.code}.`);
+          await this.dialogService.alert(`未知错误 ${error.code || ''}.`);
           break;
       }
 
