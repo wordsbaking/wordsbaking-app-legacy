@@ -3,6 +3,8 @@ import {NgModule} from '@angular/core';
 
 import {RouterModule, Routes} from '@angular/router';
 
+import {UIModule} from 'app/ui';
+
 import {CoreUIModule} from 'app/core/ui';
 
 import {SignUpView} from './sign-up.view';
@@ -19,7 +21,12 @@ const routes: Routes = [
 ];
 
 @NgModule({
-  imports: [CommonModule, CoreUIModule, RouterModule.forChild(routes)],
+  imports: [
+    CommonModule,
+    UIModule,
+    CoreUIModule,
+    RouterModule.forChild(routes),
+  ],
   declarations: [SignUpView],
 })
 export class SignUpModule {}

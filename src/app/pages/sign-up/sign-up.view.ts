@@ -3,7 +3,9 @@ import {Component, HostBinding} from '@angular/core';
 
 import {pageTransitions} from 'app/core/ui';
 
-const signUpViewTransitions = trigger('signUpViewTransitions', [...pageTransitions]);
+const signUpViewTransitions = trigger('signUpViewTransitions', [
+  ...pageTransitions,
+]);
 
 @Component({
   selector: 'wb-view.sign-up-view',
