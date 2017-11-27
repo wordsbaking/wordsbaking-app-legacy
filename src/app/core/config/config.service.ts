@@ -8,6 +8,7 @@ const CONFIG_KEY = 'default';
 
 export interface ConfigItemExtension {
   syncAt?: TimeNumber;
+  apiKey?: string;
 }
 
 export type ConfigItemName = keyof ConfigItemExtension;
@@ -28,12 +29,18 @@ export class ConfigService {
 
   readonly config$ = this.storage$
     .switchMap(async storage => {
-      let {syncAt = 0 as TimeNumber} =
+      let {syncAt = 0 as TimeNumber, apiKey} =
         (await storage.get(CONFIG_KEY)) || ({} as ConfigItem);
 
-      return {syncAt};
+      return {syncAt, apiKey};
     })
     .repeatWhen(() => this.storage$.map(storage => storage.change$))
+    .publishReplay(1)
+    .refCount();
+
+  readonly apiKey$ = this.config$
+    .map(config => config.apiKey)
+    .distinctUntilChanged()
     .publishReplay(1)
     .refCount();
 
@@ -45,7 +52,8 @@ export class ConfigService {
 
   async set(name: ConfigItemName, value: any): Promise<void> {
     let storage = await this.storage$.toPromise();
-    let config = (await storage.get(CONFIG_KEY)) || ({} as ConfigItem);
+    let config =
+      (await storage.get(CONFIG_KEY)) || ({id: CONFIG_KEY} as ConfigItem);
 
     config[name] = value;
 

@@ -1,6 +1,6 @@
 import {CommonModule} from '@angular/common';
 import {NgModule} from '@angular/core';
-
+import {ReactiveFormsModule} from '@angular/forms';
 import {RouterModule, Routes} from '@angular/router';
 
 import {UIModule} from 'app/ui';
@@ -24,6 +24,7 @@ const routes: Routes = [
   imports: [
     CommonModule,
     UIModule,
+    ReactiveFormsModule,
     CoreUIModule,
     RouterModule.forChild(routes),
   ],

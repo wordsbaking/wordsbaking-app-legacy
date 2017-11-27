@@ -4,18 +4,18 @@
   </wb-page-header>
 
   <wb-page-content>
-    <form>
+    <form [formGroup]="form">
       <div class="form-item">
         <label>
           <span class="label-text">邮箱</span>
-          <input type="text" />
+          <input formControlName="email" type="text" />
         </label>
       </div>
 
       <div class="form-item">
         <label>
           <span class="label-text">密码</span>
-          <input type="text" />
+          <input formControlName="password" type="password" />
         </label>
       </div>
 
@@ -27,6 +27,6 @@
 
   <wb-page-footer>
     <button wbPressLink="/sign-up" class="secondary">注册</button>
-    <button wbPressLink="/glance">登录词焙</button>
+    <button (wbPress)="signIn()">登录词焙</button>
   </wb-page-footer>
 </wb-page>
