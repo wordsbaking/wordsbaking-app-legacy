@@ -1,20 +1,10 @@
-import {Injectable} from '@angular/core';
+import {Injectable, NgZone} from '@angular/core';
 
 import {Observable} from 'rxjs/Observable';
 
 import {PronunciationType} from 'app/core/data';
 import {SentenceTtsSpeed, StudyOrder, StudyScope} from 'app/core/engine';
 import {DBStorage} from 'app/core/storage';
-
-// @Injectable()
-// export class SettingsService {
-//   readonly selectedCollectionIDs$: Observable<string[]>;
-//   readonly studyScopeSet$: Observable<Set<StudyScope>>;
-
-//   readonly dailyStudyPlan$: Observable<number>;
-
-//   constructor() {}
-// }
 
 const SETTINGS_KEY = 'default';
 
@@ -26,6 +16,10 @@ export interface SettingsItemExtension {
   studyOrder?: StudyOrder;
   sentenceTtsSpeed?: SentenceTtsSpeed;
   pronunciation?: PronunciationType;
+  notification?: boolean;
+  obstinateEnhance?: boolean;
+  fixedStack?: boolean;
+  showGuide?: boolean;
 }
 
 export interface ExposedSettings {
@@ -35,7 +29,11 @@ export interface ExposedSettings {
   newWordsPriority: number;
   studyOrder: StudyOrder;
   sentenceTtsSpeed: SentenceTtsSpeed;
-  pronunciation?: PronunciationType;
+  pronunciation: PronunciationType;
+  notification: boolean;
+  obstinateEnhance: boolean;
+  fixedStack: boolean;
+  showGuide: boolean;
 }
 
 export type SettingsItemName = keyof SettingsItemExtension;
@@ -68,6 +66,10 @@ export class SettingsService {
         studyOrder = StudyOrder.random,
         pronunciation = 'us',
         sentenceTtsSpeed = SentenceTtsSpeed.default,
+        notification = true,
+        obstinateEnhance = true,
+        fixedStack = true,
+        showGuide = true,
       } =
         (await storage.get(SETTINGS_KEY)) || ({} as SettingsItem);
 
@@ -79,9 +81,13 @@ export class SettingsService {
         studyOrder,
         pronunciation,
         sentenceTtsSpeed,
+        notification,
+        obstinateEnhance,
+        fixedStack,
+        showGuide,
       };
     })
-    .repeatWhen(() => this.storage$.map(storage => storage.change$))
+    .repeatWhen(() => this.storage$.switchMap(storage => storage.change$))
     .publishReplay(1)
     .refCount();
 
@@ -121,13 +127,42 @@ export class SettingsService {
     .publishReplay(1)
     .refCount();
 
+  readonly notification$ = this.settings$
+    .map(settings => settings.notification)
+    .distinctUntilChanged()
+    .publishReplay(1)
+    .refCount();
+
+  readonly obstinateEnhance$ = this.settings$
+    .map(settings => settings.obstinateEnhance)
+    .distinctUntilChanged()
+    .publishReplay(1)
+    .refCount();
+
+  readonly fixedStack$ = this.settings$
+    .map(settings => settings.fixedStack)
+    .distinctUntilChanged()
+    .publishReplay(1)
+    .refCount();
+
+  readonly showGuide$ = this.settings$
+    .map(settings => settings.showGuide)
+    .distinctUntilChanged()
+    .publishReplay(1)
+    .refCount();
+
+  constructor(private zone: NgZone) {}
+
   async set(name: SettingsItemName, value: any): Promise<void> {
     let storage = await this.storage$.toPromise();
-    let settings = (await storage.get(SETTINGS_KEY)) || ({} as SettingsItem);
+    let settings =
+      (await storage.get(SETTINGS_KEY)) || ({id: SETTINGS_KEY} as SettingsItem);
 
     settings[name] = value;
 
     await storage.set(settings);
+
+    setTimeout(() => this.zone.run(() => undefined), 10);
   }
 
   async reset(): Promise<void> {
