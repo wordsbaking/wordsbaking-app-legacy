@@ -1,5 +1,5 @@
 import {trigger} from '@angular/animations';
-import {Component, HostBinding, OnInit} from '@angular/core';
+import {Component, ElementRef, HostBinding, OnInit} from '@angular/core';
 import {FormBuilder, FormGroup, Validators} from '@angular/forms';
 import {Router} from '@angular/router';
 
@@ -25,14 +25,24 @@ export class SignUpView implements OnInit {
 
   whyAccountDescriptionVisible = false;
 
+  private element: HTMLElement;
+
   constructor(
     private formBuilder: FormBuilder,
     private apiService: APIService,
     private dialogService: DialogService,
     private router: Router,
-  ) {}
+    private ref: ElementRef,
+  ) {
+    this.element = this.ref.nativeElement;
+  }
 
   ngOnInit(): void {
+    // prevent browser auto filling
+    (this.element.querySelector(
+      'input[name=email]',
+    )! as HTMLInputElement).readOnly = false;
+
     this.form = this.formBuilder.group({
       email: ['', [Validators.email]],
       password: ['', [Validators.minLength(6), Validators.maxLength(32)]],
