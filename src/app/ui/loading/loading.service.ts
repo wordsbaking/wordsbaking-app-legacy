@@ -65,7 +65,7 @@ export class LoadingService {
       (!(arg3 && arg3 instanceof ViewContainerRef) ? arg3 : arg4) || {};
 
     let loadingHandler = this.mount(hint, container, options);
-
+    loadingHandler.result = process;
     process.then(loadingHandler.clear, loadingHandler.clear);
 
     return loadingHandler;
