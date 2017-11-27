@@ -12,7 +12,7 @@
         title="账号"
         description="maolion.j@gmail.com">
         <span class="avatar" [style.backgroundImage]="'url(https://picsum.photos/128/128)'"></span>
-        <button class="small">管理</button>
+        <button class="small" (wbPress)="showUserManagerMenuPopup()" [wbPressStop]="true">管理</button>
       </wb-settings-view-settings-item>
 
       <wb-settings-view-settings-item title="最后同步" description="2017年11月2日 20:10">
@@ -22,33 +22,33 @@
     <wb-settings-view-settings-group title="基本设置">
       <wb-settings-view-settings-item
         title="单词发音"
-        description="{{pronunciationDescription$ | async}}"
-        (wbPress)="selectPronunciation()">
+        [description]="pronunciationDescription$ | async"
+        (wbPress)="togglePronunciation()">
       </wb-settings-view-settings-item>
 
       <wb-settings-view-settings-item
         title="学习范围"
-        description="{{studyScopesDescription$ | async}}"
-        (wbPress)="selectStudyScopes()">
+        [description]="studyScopesDescription$ | async"
+        (wbPress)="toggleStudyScopes()">
       </wb-settings-view-settings-item>
 
       <wb-settings-view-settings-item
         title="学习计划"
         description="每天学习20个新单词"
-        description="{{dailyStudyPlansDescription$ | async}}"
-        (wbPress)="selectDailyStudyPlan()">
+        [description]="dailyStudyPlansDescription$ | async"
+        (wbPress)="toggleDailyStudyPlan()">
       </wb-settings-view-settings-item>
 
       <wb-settings-view-settings-item
         title="学习优先级"
-        description="{{newWordsPriorityDescription$ | async}}"
-        (wbPress)="selectNewWordsPriority()">
+        [description]="newWordsPriorityDescription$ | async"
+        (wbPress)="toggleNewWordsPriority()">
       </wb-settings-view-settings-item>
 
       <wb-settings-view-settings-item
         title="学习顺序"
-        description="{{studyOrderDescription$ | async}}"
-        (wbPress)="selectStudyOrder()">
+        [description]="studyOrderDescription$ | async"
+        (wbPress)="toggleStudyOrder()">
       </wb-settings-view-settings-item>
 
       <wb-settings-view-settings-item
@@ -59,22 +59,31 @@
     </wb-settings-view-settings-group>
 
     <wb-settings-view-settings-group title="使用偏好">
-      <wb-settings-view-settings-item title="学习提醒" description="开启">
-        <wb-switch></wb-switch>
+      <wb-settings-view-settings-item
+        title="学习提醒"
+        [description]="notificationDescription$ | async"
+        (wbPress)="toggleNotification()">
+        <wb-switch [checked]="settingsService.notification$ | async"></wb-switch>
       </wb-settings-view-settings-item>
 
-      <wb-settings-view-settings-item title="顽固单词加强" description="关闭">
-        <wb-switch></wb-switch>
+      <wb-settings-view-settings-item
+        title="顽固单词加强"
+        [description]="obstinateEnhanceDescription$ | async"
+        (wbPress)="toggleObstinateEnhance()">
+        <wb-switch [checked]="settingsService.obstinateEnhance$ | async"></wb-switch>
       </wb-settings-view-settings-item>
 
       <wb-settings-view-settings-item
         title="例句朗读速度"
-        description="{{sentenceTtsSpeedDescription$ | async}}"
-        (wbPress)="selectSentenceTtsSpeed()">
+        [description]="sentenceTtsSpeedDescription$ | async"
+        (wbPress)="toggleSentenceTtsSpeed()">
       </wb-settings-view-settings-item>
 
-      <wb-settings-view-settings-item title="固定词条位置" description="开启">
-        <wb-switch></wb-switch>
+      <wb-settings-view-settings-item
+        title="固定词条位置"
+        [description]="fixedStackDescription$ | async"
+        (wbPress)="toggleFixedStack()">
+        <wb-switch [checked]="settingsService.fixedStack$ | async"></wb-switch>
       </wb-settings-view-settings-item>
     </wb-settings-view-settings-group>
 
@@ -82,8 +91,11 @@
       <wb-settings-view-settings-item title="建议与反馈" description="提交建议与反馈">
       </wb-settings-view-settings-item>
 
-      <wb-settings-view-settings-item title="使用向导" description="关闭">
-        <wb-switch></wb-switch>
+      <wb-settings-view-settings-item
+        title="使用向导"
+        [description]="showGuideDescription$ | async"
+        (wbPress)="toggleShowGuide()">
+        <wb-switch [checked]="settingsService.showGuide$ | async"></wb-switch>
       </wb-settings-view-settings-item>
 
       <wb-settings-view-settings-item title="软件版本" description="版本号 1.0.0.2378">
@@ -91,3 +103,19 @@
     </wb-settings-view-settings-group>
   </wb-page-content>
 </wb-page>
+
+<wb-popup #userManagerMenuPopup>
+  <div class="user-manager-menu">
+    <wb-selection-list [preventSelected]="true">
+      <wb-selection-list-item>
+        <span class="text">修改信息</span>
+      </wb-selection-list-item>
+      <wb-selection-list-item>
+        <span class="text">账号设置</span>
+      </wb-selection-list-item>
+      <wb-selection-list-item wbPressLink="/sign-in">
+        <span class="text">注销登录</span>
+      </wb-selection-list-item>
+    </wb-selection-list>
+  </div>
+</wb-popup>

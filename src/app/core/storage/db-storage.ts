@@ -72,8 +72,11 @@ export class DBStorage<K extends string | number, T extends object> {
         },
         error => reject(error),
         () => {
-          this.change$.next();
           resolve(result);
+
+          if (changed) {
+            this.change$.next();
+          }
         },
       );
     });

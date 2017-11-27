@@ -41,6 +41,8 @@ export class SelectionListComponent<T>
 
   @Output('change') selectedChangeEvent = new EventEmitter<(T | undefined)[]>();
 
+  @Input('preventSelected') preventSelected = false;
+
   private selectedChange$ = new Subject<void>();
 
   private touchDelegate: TouchDelegate;
@@ -127,6 +129,10 @@ export class SelectionListComponent<T>
     listItemComponent: SelectionListItemComponent<T>,
     force?: boolean,
   ): void {
+    if (this.preventSelected) {
+      return;
+    }
+
     if (this.multiple) {
       this.toggleMultipleSelected(listItemComponent, force);
     } else {
