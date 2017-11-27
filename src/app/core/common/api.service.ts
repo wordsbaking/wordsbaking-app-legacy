@@ -1,8 +1,24 @@
 import {Injectable} from '@angular/core';
 
 import Axios from 'axios';
+import ExtendableError from 'extendable-error';
 
-const apiBaseUrl = '';
+import {ConfigService} from 'app/core/config';
+
+const apiBaseUrl = '//localhost:1337';
+
+interface APIErrorData {
+  code: string;
+  message: string;
+}
+
+// type ErrorMessageBuilder = (error: APIErrorData) => string;
+
+// const errorMessageBuilderDict: Dict<ErrorMessageBuilder> = {
+//   UserExistsError(): string {
+//     return '该用户已经存在';
+//   },
+// };
 
 interface APISuccessResult {
   data: any;
@@ -13,10 +29,7 @@ interface APIRedirectionResult {
 }
 
 interface APIErrorResult {
-  error: {
-    code: string;
-    message: string;
-  };
+  error: APIErrorData;
 }
 
 type APIResult = APISuccessResult | APIErrorResult | APIRedirectionResult;
@@ -29,8 +42,20 @@ export interface APICallOptions {
   onDownloadProgress?: OnProgress;
 }
 
+export interface SignUpInfo {
+  apiKey: string;
+}
+
+export class APIError extends ExtendableError {
+  constructor(readonly code: string, message: string) {
+    super(message);
+  }
+}
+
 @Injectable()
 export class APIService {
+  constructor(private configService: ConfigService) {}
+
   async call<T>(
     path: string,
     body?: any,
@@ -39,7 +64,7 @@ export class APIService {
     let url = apiBaseUrl + path;
 
     let response = await Axios.post(url, body, {
-      withCredentials: true,
+      // withCredentials: true,
       headers: {
         'Content-Type': type,
       },
@@ -55,10 +80,16 @@ export class APIService {
       throw undefined;
     } else if ('error' in result) {
       let error = (result as APIErrorResult).error;
-      throw new Error(error.message);
+      throw new APIError(error.code, error.message || error.code);
     } else {
       return (result as APISuccessResult).data;
     }
+  }
+
+  async signUp(email: string, password: string): Promise<void> {
+    let {apiKey} = await this.call<SignUpInfo>('/sign-up', {email, password});
+
+    await this.configService.set('apiKey', apiKey);
   }
 
   getUrl(path: string): string {

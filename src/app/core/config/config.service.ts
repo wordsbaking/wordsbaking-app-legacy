@@ -52,7 +52,8 @@ export class ConfigService {
 
   async set(name: ConfigItemName, value: any): Promise<void> {
     let storage = await this.storage$.toPromise();
-    let config = (await storage.get(CONFIG_KEY)) || ({} as ConfigItem);
+    let config =
+      (await storage.get(CONFIG_KEY)) || ({id: CONFIG_KEY} as ConfigItem);
 
     config[name] = value;
 
