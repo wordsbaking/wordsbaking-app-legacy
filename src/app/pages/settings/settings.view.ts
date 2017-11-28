@@ -178,9 +178,7 @@ export class SettingsView {
     settingItem: SettingsConfig.SettingItemStatic,
     force?: T,
   ): Promise<T> {
-    let currentValue = await new Promise<T>(resolve =>
-      value$.subscribe(resolve),
-    );
+    let currentValue = await value$.first().toPromise();
 
     let nextValue: T;
 
