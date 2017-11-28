@@ -17,11 +17,14 @@ export abstract class ConfigGroup<
   readonly update$ = new Subject<string>();
 
   readonly storage$ = Observable.from(
-    DBStorage.create<string, ConfigGroupItem>({
-      name: 'default',
-      tableName: this.tableName,
-      primaryKeyType: 'text',
-    }),
+    DBStorage.create<string, ConfigGroupItem>(
+      {
+        name: 'default',
+        tableName: this.tableName,
+        primaryKeyType: 'text',
+      },
+      this.zone,
+    ),
   );
 
   readonly config$ = this.storage$
@@ -44,7 +47,6 @@ export abstract class ConfigGroup<
     await storage.set(name, value);
 
     this.update$.next(name);
-    this.zone.run(() => {});
   }
 
   /**
