@@ -38,22 +38,27 @@ export type OnProgress = (event: ProgressEvent) => void;
 
 export interface APICallOptions {
   type?: string;
+  auth?: boolean;
   onUploadProgress?: OnProgress;
   onDownloadProgress?: OnProgress;
-}
-
-export interface SignUpInfo {
-  apiKey: string;
-}
-
-export interface SignInInfo {
-  apiKey: string;
 }
 
 export class APIError extends ExtendableError {
   constructor(readonly code: string, message: string) {
     super(message);
   }
+}
+
+// /sign-up
+
+export interface SignUpInfo {
+  apiKey: string;
+}
+
+// /sign-in
+
+export interface SignInInfo {
+  apiKey: string;
 }
 
 @Injectable()
@@ -63,14 +68,26 @@ export class APIService {
   async call<T>(
     path: string,
     body?: any,
-    {type, onUploadProgress, onDownloadProgress}: APICallOptions = {},
+    {
+      type,
+      auth = true,
+      onUploadProgress,
+      onDownloadProgress,
+    }: APICallOptions = {},
   ): Promise<T> {
     let url = apiBaseUrl + path;
+
+    let apiKey: string | undefined;
+
+    if (auth) {
+      apiKey = await this.authConfigService.nonEmptyAPIKey$.first().toPromise();
+    }
 
     let response = await Axios.post(url, body, {
       // withCredentials: true,
       headers: {
         'Content-Type': type,
+        ...apiKey ? {'X-API-Key': apiKey} : {},
       },
       onUploadProgress,
       onDownloadProgress,
@@ -91,12 +108,20 @@ export class APIService {
   }
 
   async signUp(email: string, password: string): Promise<void> {
-    let {apiKey} = await this.call<SignUpInfo>('/sign-up', {email, password});
+    let {apiKey} = await this.call<SignUpInfo>(
+      '/sign-up',
+      {email, password},
+      {auth: false},
+    );
     await this.authConfigService.set('apiKey', apiKey);
   }
 
   async signIn(email: string, password: string): Promise<void> {
-    let {apiKey} = await this.call<SignInInfo>('/sign-in', {email, password});
+    let {apiKey} = await this.call<SignInInfo>(
+      '/sign-in',
+      {email, password},
+      {auth: false},
+    );
     await this.authConfigService.set('apiKey', apiKey);
   }
 

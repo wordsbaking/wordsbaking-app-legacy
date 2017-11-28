@@ -5,9 +5,11 @@ import {Injectable, OnDestroy} from '@angular/core';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import {Observable} from 'rxjs/Observable';
 import {ReplaySubject} from 'rxjs/ReplaySubject';
+import {Subscription} from 'rxjs/Subscription';
 
 import * as _ from 'lodash';
 import memorize from 'memorize-decorator';
+import * as ms from 'ms';
 import * as v from 'villa';
 
 import {APIService} from 'app/core/common';
@@ -16,7 +18,8 @@ import {SyncConfigService} from 'app/core/config/sync';
 import {StudyRecordData} from 'app/core/engine';
 import {DBStorage} from 'app/core/storage';
 
-import {Subscription} from 'rxjs/Subscription';
+import * as logger from 'logger';
+
 import {
   AccumulationDataEntryTypeDefinition,
   AccumulationUpdateData,
@@ -27,6 +30,8 @@ import {
   UpdateItem,
   ValueDataEntryTypeDefinition,
 } from './types';
+
+const SYNC_BATCH_TIMEOUT = ms('10s');
 
 interface SyncRequest {
   syncAt: number;
@@ -102,6 +107,10 @@ export class SyncService implements CategoryHost, OnDestroy {
 
   private subscription = new Subscription();
 
+  private syncBatchScheduler = new v.BatchScheduler<void>(async () => {
+    await this.sync();
+  }, SYNC_BATCH_TIMEOUT);
+
   constructor(
     readonly apiService: APIService,
     readonly syncConfigService: SyncConfigService, // readonly url: string, // readonly auth?: AuthData, // readonly dbStorageName = DEFAULT_DATA_TYPE, // configStorage = new LocalData.DBStorage<any>( //   dbStorageName,
@@ -135,6 +144,12 @@ export class SyncService implements CategoryHost, OnDestroy {
     this.syncPending$ = Observable.combineLatest(
       ...categoryNames.map(name => categoryDict[name].syncPendingItemMap$),
     ).map(maps => maps.reduce((total, map) => total + map.size, 0));
+
+    this.subscription.add(
+      Observable.interval(ms('1m')).subscribe(() =>
+        this.syncBatchScheduler.schedule(undefined).catch(logger.error),
+      ),
+    );
   }
 
   ngOnDestroy(): void {
@@ -172,6 +187,8 @@ export class SyncService implements CategoryHost, OnDestroy {
         data: undefined,
       }),
     ]);
+
+    this.syncBatchScheduler.schedule(undefined).catch(logger.error);
   }
 
   async update<T, K extends keyof T>(
@@ -253,6 +270,8 @@ export class SyncService implements CategoryHost, OnDestroy {
         updateAt: now,
         data: updateData,
       });
+
+      this.syncBatchScheduler.schedule(undefined).catch(logger.error);
     }
   }
 
@@ -304,6 +323,8 @@ export class SyncService implements CategoryHost, OnDestroy {
         data: undefined,
         removed: true,
       });
+
+      this.syncBatchScheduler.schedule(undefined).catch(logger.error);
     }
   }
 
@@ -354,7 +375,7 @@ export class SyncService implements CategoryHost, OnDestroy {
     let {
       syncAt,
       updates: categoryToIDToDownUpdateDictDict,
-    } = await this.apiService.call<SyncResult>('/api/sync', request);
+    } = await this.apiService.call<SyncResult>('/sync', request);
 
     await Promise.all(
       this.categoryNames.map(name =>

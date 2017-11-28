@@ -10,6 +10,10 @@ interface AuthConfig {
 export class AuthConfigService extends ConfigGroup<AuthConfig> {
   readonly apiKey$ = this.getObservable('apiKey');
 
+  readonly nonEmptyAPIKey$ = this.apiKey$.filter(
+    <T>(apiKey: T | undefined): apiKey is T => !!apiKey,
+  );
+
   constructor() {
     super('auth');
   }
