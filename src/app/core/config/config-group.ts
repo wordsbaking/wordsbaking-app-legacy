@@ -3,6 +3,7 @@ import {NgZone} from '@angular/core';
 import {Observable} from 'rxjs/Observable';
 import {Subject} from 'rxjs/Subject';
 
+import {SyncCategory, SyncService} from 'app/core/data';
 import {DBStorage} from 'app/core/storage';
 
 export interface ConfigGroupItem {
@@ -36,15 +37,30 @@ export abstract class ConfigGroup<
     .publishReplay(1)
     .refCount();
 
-  constructor(readonly tableName: string, readonly zone: NgZone) {}
+  constructor(tableName: string, zone: NgZone);
+  constructor(
+    tableName: string,
+    zone: NgZone,
+    syncService: SyncService,
+    syncCategory: SyncCategory,
+  );
+  constructor(
+    readonly tableName: string,
+    readonly zone: NgZone,
+    private syncService?: SyncService,
+    private syncCategory?: SyncCategory,
+  ) {}
 
   async set<K extends keyof TRaw>(
     name: keyof TRaw,
     value: TRaw[K],
   ): Promise<void> {
-    let storage = await this.storage$.toPromise();
-
-    await storage.set(name, value);
+    if (this.syncCategory) {
+      await this.syncService!.update(this.syncCategory, name, value);
+    } else {
+      let storage = await this.storage$.toPromise();
+      await storage.set(name, value);
+    }
 
     this.update$.next(name);
   }

@@ -79,7 +79,7 @@ export type CategoryName =
   | 'records'
   | 'collections';
 
-export type CategoryHost = {[key in CategoryName]: Category};
+export type CategoryHost = {[key in CategoryName]: SyncCategory};
 
 @Injectable()
 export class SyncService implements CategoryHost, OnDestroy {
@@ -90,12 +90,12 @@ export class SyncService implements CategoryHost, OnDestroy {
   readonly lastSyncTime$ = new BehaviorSubject(0 as TimeNumber);
   readonly syncing$ = new BehaviorSubject(false);
 
-  readonly app: Category;
-  readonly user: Category<UserConfig>;
-  readonly settings: Category<SettingsRawConfig>;
-  readonly statistics: Category;
-  readonly records: Category<Dict<StudyRecordData>>;
-  readonly collections: Category<Dict<CollectionData>>;
+  readonly app: SyncCategory;
+  readonly user: SyncCategory<UserConfig>;
+  readonly settings: SyncCategory<SettingsRawConfig>;
+  readonly statistics: SyncCategory;
+  readonly records: SyncCategory<Dict<StudyRecordData>>;
+  readonly collections: SyncCategory<Dict<CollectionData>>;
 
   readonly categoryNames: CategoryName[];
 
@@ -115,13 +115,13 @@ export class SyncService implements CategoryHost, OnDestroy {
     typeManager.register(new ValueDataEntryTypeDefinition());
     typeManager.register(new AccumulationDataEntryTypeDefinition());
 
-    let categoryDict: {[name in CategoryName]: Category} = {
-      app: new Category('app', typeManager, zone),
-      user: new Category('user', typeManager, zone),
-      settings: new Category('settings', typeManager, zone),
-      statistics: new Category('statistics', typeManager, zone),
-      records: new Category('records', typeManager, zone),
-      collections: new Category('collections', typeManager, zone, true),
+    let categoryDict: {[name in CategoryName]: SyncCategory} = {
+      app: new SyncCategory('app', typeManager, zone),
+      user: new SyncCategory('user', typeManager, zone),
+      settings: new SyncCategory('settings', typeManager, zone),
+      statistics: new SyncCategory('statistics', typeManager, zone),
+      records: new SyncCategory('records', typeManager, zone),
+      collections: new SyncCategory('collections', typeManager, zone, true),
     };
 
     Object.assign(this, categoryDict);
@@ -146,7 +146,7 @@ export class SyncService implements CategoryHost, OnDestroy {
   }
 
   async addPassive<T, K extends keyof T>(
-    category: Category<T>,
+    category: SyncCategory<T>,
     id: K,
   ): Promise<void> {
     if (!category.passive) {
@@ -179,19 +179,19 @@ export class SyncService implements CategoryHost, OnDestroy {
   }
 
   async update<T, K extends keyof T>(
-    category: Category<T>,
+    category: SyncCategory<T>,
     id: K,
     updateData: T[K],
   ): Promise<void>;
   async update<T, K extends keyof T>(
-    category: Category<T>,
+    category: SyncCategory<T>,
     id: K,
     updateData: any,
     type: DataEntryType | undefined,
     bySync?: boolean,
   ): Promise<void>;
   async update<T, K extends keyof T>(
-    category: Category<T>,
+    category: SyncCategory<T>,
     id: K,
     updateData: T[K],
     type?: DataEntryType,
@@ -261,7 +261,7 @@ export class SyncService implements CategoryHost, OnDestroy {
   }
 
   accumulate<T, K extends keyof T>(
-    category: Category<T>,
+    category: SyncCategory<T>,
     id: K,
     value: any,
     accumulationID: any = Date.now(),
@@ -280,7 +280,7 @@ export class SyncService implements CategoryHost, OnDestroy {
   }
 
   async remove<T, K extends keyof T>(
-    category: Category<T>,
+    category: SyncCategory<T>,
     id: K,
     bySync = false,
   ): Promise<void> {
@@ -403,7 +403,11 @@ export class SyncService implements CategoryHost, OnDestroy {
   }
 }
 
-export class Category<T = Dict<any>, K extends keyof T = keyof T, V = T[K]> {
+export class SyncCategory<
+  T = Dict<any>,
+  K extends keyof T = keyof T,
+  V = T[K]
+> {
   readonly itemMap$ = new ReplaySubject<Map<string, SyncItem<V>>>(1);
   readonly syncPendingItemMap$ = new ReplaySubject<Map<string, UpdateItem>>(1);
 
