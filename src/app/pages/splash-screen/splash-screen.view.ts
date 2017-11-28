@@ -1,7 +1,7 @@
 import {Component} from '@angular/core';
 import {Router} from '@angular/router';
 
-import {AuthConfigService} from 'app/core/config';
+import {AuthConfigService} from 'app/core/config/auth';
 
 import * as logger from 'logger';
 

@@ -11,11 +11,8 @@ import memorize from 'memorize-decorator';
 import * as v from 'villa';
 
 import {APIService} from 'app/core/common';
-import {
-  SettingsRawConfig,
-  SyncConfigService,
-  UserConfig,
-} from 'app/core/config';
+import {SettingsRawConfig, UserConfig} from 'app/core/config';
+import {SyncConfigService} from 'app/core/config/sync';
 import {StudyRecordData} from 'app/core/engine';
 import {DBStorage} from 'app/core/storage';
 

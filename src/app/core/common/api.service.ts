@@ -3,7 +3,7 @@ import {Injectable} from '@angular/core';
 import Axios from 'axios';
 import ExtendableError from 'extendable-error';
 
-import {AuthConfigService} from 'app/core/config';
+import {AuthConfigService} from 'app/core/config/auth';
 
 const apiBaseUrl = '//localhost:1337';
 
