@@ -1,4 +1,4 @@
-import {Injectable, NgZone} from '@angular/core';
+import {Injectable} from '@angular/core';
 
 import {ConfigGroup} from './config-group';
 
@@ -10,8 +10,8 @@ interface SyncConfig {
 export class SyncConfigService extends ConfigGroup<SyncConfig> {
   readonly syncAt$ = this.getObservable('syncAt');
 
-  constructor(zone: NgZone) {
-    super('sync', zone);
+  constructor() {
+    super('sync');
   }
 
   protected transformRaw({

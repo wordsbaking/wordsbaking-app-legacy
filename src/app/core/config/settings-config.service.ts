@@ -1,4 +1,4 @@
-import {Injectable, NgZone} from '@angular/core';
+import {Injectable} from '@angular/core';
 
 import {PronunciationType, SyncService} from 'app/core/data';
 import {SentenceTtsSpeed, StudyOrder, StudyScope} from 'app/core/engine';
@@ -50,8 +50,8 @@ export class SettingsConfigService extends ConfigGroup<
   readonly fixedStack$ = this.getObservable('fixedStack');
   readonly showGuide$ = this.getObservable('showGuide');
 
-  constructor(zone: NgZone, syncService: SyncService) {
-    super('settings', zone, syncService, syncService.settings);
+  constructor(syncService: SyncService) {
+    super('settings', syncService, syncService.settings);
   }
 
   transformRaw({

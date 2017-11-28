@@ -1,11 +1,4 @@
-import {
-  Component,
-  ElementRef,
-  EventEmitter,
-  HostBinding,
-  Input,
-  Output,
-} from '@angular/core';
+import {Component, ElementRef, HostBinding, Input} from '@angular/core';
 
 export type SwitchComponentSize = 'large' | 'normal' | 'small';
 
@@ -19,29 +12,29 @@ export class SwitchComponent {
 
   @Input('tabindex') tabIndex: string | number | undefined = undefined;
 
-  @Input()
-  set checked(checked: boolean) {
-    this.checkboxChecked = checked;
-  }
-
-  get checked(): boolean {
-    return this.checkboxChecked;
-  }
-
-  @Output() checkedChange = new EventEmitter<boolean>();
+  // @Output() checkedChange = new EventEmitter<boolean>();
 
   element: HTMLElement;
 
-  @HostBinding('class.selected') private checkboxChecked = false;
+  @HostBinding('class.selected') private _checked = false;
 
   constructor(ref: ElementRef) {
     this.element = ref.nativeElement;
   }
 
-  onChange(event: Event): void {
-    let checkboxInput = event.target as HTMLInputElement;
-    this.checkboxChecked = checkboxInput.checked;
-
-    this.checkedChange.emit(this.checkboxChecked);
+  @Input()
+  set checked(checked: boolean) {
+    this._checked = checked;
   }
+
+  get checked(): boolean {
+    return this._checked;
+  }
+
+  // onChange(event: Event): void {
+  //   let checkboxInput = event.target as HTMLInputElement;
+  //   this.checkboxChecked = checkboxInput.checked;
+
+  //   this.checkedChange.emit(this.checkboxChecked);
+  // }
 }

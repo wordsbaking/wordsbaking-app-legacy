@@ -164,7 +164,7 @@ interface CandidateInfo {
 
 @Injectable()
 export class EngineService implements OnDestroy {
-  readonly stats$: ReplaySubject<StudyStats>;
+  readonly stats$ = new ReplaySubject<StudyStats>();
 
   /** @internal */
   studyScopeSet = new Set<StudyScope>();

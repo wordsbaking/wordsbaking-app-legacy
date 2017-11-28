@@ -1,6 +1,6 @@
 // tslint:disable:no-null-keyword
 
-import {Injectable, NgZone, OnDestroy} from '@angular/core';
+import {Injectable, OnDestroy} from '@angular/core';
 
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import {Observable} from 'rxjs/Observable';
@@ -105,7 +105,6 @@ export class SyncService implements CategoryHost, OnDestroy {
   constructor(
     readonly apiService: APIService,
     readonly syncConfigService: SyncConfigService, // readonly url: string, // readonly auth?: AuthData, // readonly dbStorageName = DEFAULT_DATA_TYPE, // configStorage = new LocalData.DBStorage<any>( //   dbStorageName,
-    zone: NgZone,
   ) {
     let typeManager = this.typeManager;
 
@@ -113,12 +112,12 @@ export class SyncService implements CategoryHost, OnDestroy {
     typeManager.register(new AccumulationDataEntryTypeDefinition());
 
     let categoryDict: {[name in CategoryName]: SyncCategory} = {
-      app: new SyncCategory('app', typeManager, zone),
-      user: new SyncCategory('user', typeManager, zone),
-      settings: new SyncCategory('settings', typeManager, zone),
-      statistics: new SyncCategory('statistics', typeManager, zone),
-      records: new SyncCategory('records', typeManager, zone),
-      collections: new SyncCategory('collections', typeManager, zone, true),
+      app: new SyncCategory('app', typeManager),
+      user: new SyncCategory('user', typeManager),
+      settings: new SyncCategory('settings', typeManager),
+      statistics: new SyncCategory('statistics', typeManager),
+      records: new SyncCategory('records', typeManager),
+      collections: new SyncCategory('collections', typeManager, true),
     };
 
     Object.assign(this, categoryDict);
@@ -425,21 +424,17 @@ export class SyncCategory<
   constructor(
     readonly name: string,
     readonly typeManager: DataEntryTypeManager,
-    zone: NgZone,
     // readonly dataStorage: DBStorage<string, Item<T>>,
     // readonly syncPendingStorage: DBStorage<string, UpdateItem>,
     readonly passive = false,
     private mergeLimit = 100,
   ) {
     this.dataStorage$ = Observable.defer(async () => {
-      let storage = await DBStorage.create<string, SyncItem<V>>(
-        {
-          name: 'default',
-          tableName: `${name}-data`,
-          primaryKeyType: 'text',
-        },
-        zone,
-      );
+      let storage = await DBStorage.create<string, SyncItem<V>>({
+        name: 'default',
+        tableName: `${name}-data`,
+        primaryKeyType: 'text',
+      });
 
       let items = await storage.getAll();
 
@@ -475,15 +470,12 @@ export class SyncCategory<
       .refCount();
 
     this.syncPendingStorage$ = Observable.defer(async () => {
-      let storage = await DBStorage.create<string, UpdateItem>(
-        {
-          name: 'default',
-          tableName: `${name}-sync-pending`,
-          primaryKeyType: 'text',
-          indexSchema: {updateAt: 'integer'},
-        },
-        zone,
-      );
+      let storage = await DBStorage.create<string, UpdateItem>({
+        name: 'default',
+        tableName: `${name}-sync-pending`,
+        primaryKeyType: 'text',
+        indexSchema: {updateAt: 'integer'},
+      });
 
       let items = await storage.getAll();
 

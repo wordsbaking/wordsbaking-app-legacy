@@ -1,4 +1,4 @@
-import {Injectable, NgZone} from '@angular/core';
+import {Injectable} from '@angular/core';
 
 import {ConfigGroup} from './config-group';
 
@@ -10,8 +10,8 @@ interface AuthConfig {
 export class AuthConfigService extends ConfigGroup<AuthConfig> {
   readonly apiKey$ = this.getObservable('apiKey');
 
-  constructor(zone: NgZone) {
-    super('auth', zone);
+  constructor() {
+    super('auth');
   }
 
   protected transformRaw({apiKey}: Partial<AuthConfig>): AuthConfig {

@@ -1,4 +1,4 @@
-import {Injectable, NgZone} from '@angular/core';
+import {Injectable} from '@angular/core';
 
 import {SyncService} from 'app/core/data';
 
@@ -14,8 +14,8 @@ export class UserConfigService extends ConfigGroup<UserConfig> {
   readonly today$ = this.getObservable('today');
   readonly lastActiveAt$ = this.getObservable('lastActiveAt');
 
-  constructor(zone: NgZone, syncService: SyncService) {
-    super('user', zone, syncService, syncService.user);
+  constructor(syncService: SyncService) {
+    super('user', syncService, syncService.user);
   }
 
   protected transformRaw({

@@ -1,5 +1,3 @@
-import {NgZone} from '@angular/core';
-
 import {Subject} from 'rxjs/Subject';
 
 const JSON_KEY = '_json';
@@ -27,7 +25,6 @@ export class DBStorage<K extends string | number, T> {
     readonly tableName: string,
     readonly primaryKey: string,
     readonly columns: string[],
-    readonly zone: NgZone,
   ) {}
 
   async exec(queries: string[], argsArray?: any[][]): Promise<SQLResultSet>;
@@ -83,8 +80,6 @@ export class DBStorage<K extends string | number, T> {
         },
       );
     });
-
-    this.zone.run(() => {});
 
     return resultSet;
   }
@@ -359,16 +354,13 @@ values (
     return item;
   }
 
-  static async create<K extends string | number, T extends object>(
-    {
-      name = 'default',
-      tableName = 'data',
-      primaryKey = 'id',
-      primaryKeyType = 'integer',
-      indexSchema = {},
-    }: DBStorageCreateOptions,
-    zone: NgZone,
-  ): Promise<DBStorage<K, T>> {
+  static async create<K extends string | number, T extends object>({
+    name = 'default',
+    tableName = 'data',
+    primaryKey = 'id',
+    primaryKeyType = 'integer',
+    indexSchema = {},
+  }: DBStorageCreateOptions): Promise<DBStorage<K, T>> {
     let columns = Object.keys(indexSchema);
 
     let db = DBStorage.dbMap.get(name);
@@ -399,9 +391,7 @@ create table if not exists "${tableName}" (
       );
     });
 
-    zone.run(() => {});
-
-    return new DBStorage(db, tableName, primaryKey, columns, zone);
+    return new DBStorage(db, tableName, primaryKey, columns);
   }
 
   private static dbMap = new Map<string, Database>();
