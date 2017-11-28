@@ -7,5 +7,16 @@ import {Component, Input} from '@angular/core';
 })
 export class ProgressSimpleComponent {
   @Input() title: string;
-  @Input() info: string;
+  @Input() done: number | undefined;
+  @Input() total: number | undefined;
+
+  get doneText(): string {
+    let done = this.done;
+    return typeof done === 'number' ? done.toString() : '-';
+  }
+
+  get slashTotalText(): string {
+    let total = this.total;
+    return typeof total === 'number' ? `/${total}` : '';
+  }
 }
