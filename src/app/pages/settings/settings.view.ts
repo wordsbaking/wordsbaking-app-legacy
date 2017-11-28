@@ -11,7 +11,7 @@ import {PronunciationType} from 'app/core/data';
 import {SentenceTtsSpeed, StudyOrder, StudyScope} from 'app/core/engine';
 import {SelectionListPopupService, pageTransitions} from 'app/core/ui';
 
-import * as SettingsConfig from './settings.config';
+import * as SettingsConfig from './settings-config';
 
 const settingsViewTransition = trigger('settingsViewTransition', [
   ...pageTransitions,
