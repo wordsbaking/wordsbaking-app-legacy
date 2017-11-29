@@ -7,18 +7,13 @@ import {SyncCategory, SyncService} from 'app/core/data';
 import {DBStorage} from 'app/core/storage';
 import {Subscription} from 'rxjs/Subscription';
 
-export interface ConfigGroupItem {
-  id: string;
-  [key: string]: any;
-}
-
 export abstract class ConfigGroup<
   TExposed extends object,
   TRaw extends object = Partial<TExposed>
 > implements OnDestroy {
   readonly update$ = new Subject<string>();
 
-  readonly storage$: Observable<DBStorage<string, ConfigGroupItem>> | undefined;
+  readonly storage$: Observable<DBStorage<string, any>> | undefined;
 
   readonly config$: Observable<TExposed>;
 
@@ -51,7 +46,7 @@ export abstract class ConfigGroup<
         .refCount();
     } else {
       this.storage$ = Observable.from(
-        DBStorage.create<string, ConfigGroupItem>({
+        DBStorage.create<string, any>({
           name: 'default',
           tableName: this.tableName,
           primaryKeyType: 'text',
