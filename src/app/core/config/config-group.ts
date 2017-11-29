@@ -1,23 +1,20 @@
-import {OnDestroy} from '@angular/core';
-
 import {Observable} from 'rxjs/Observable';
 import {Subject} from 'rxjs/Subject';
 
+import {memorize} from 'memorize-decorator';
+
 import {SyncCategory, SyncService} from 'app/core/data';
 import {DBStorage} from 'app/core/storage';
-import {Subscription} from 'rxjs/Subscription';
 
 export abstract class ConfigGroup<
   TExposed extends object,
   TRaw extends object = Partial<TExposed>
-> implements OnDestroy {
+> {
   readonly update$ = new Subject<string>();
 
   readonly storage$: Observable<DBStorage<string, any>> | undefined;
 
   readonly config$: Observable<TExposed>;
-
-  private subscription = new Subscription();
 
   constructor(tableName: string);
   constructor(
@@ -58,20 +55,10 @@ export abstract class ConfigGroup<
           let raw = ((await storage.getAllAsDict()) as any) as TRaw;
           return this.transformRaw(raw);
         })
-        .repeatWhen(() => this.update$)
+        .repeatWhen(() => this.storage$!.switchMap(storage => storage.change$))
         .publishReplay(1)
         .refCount();
-
-      this.subscription.add(
-        this.storage$
-          .switchMap(storage => storage.change$)
-          .subscribe(() => this.update$.next()),
-      );
     }
-  }
-
-  ngOnDestroy(): void {
-    this.subscription.unsubscribe();
   }
 
   async set<K extends keyof TRaw>(
@@ -84,8 +71,6 @@ export abstract class ConfigGroup<
       let storage = await this.storage$!.toPromise();
       await storage.set(name, value);
     }
-
-    this.update$.next(name);
   }
 
   /**
@@ -101,9 +86,8 @@ export abstract class ConfigGroup<
     }
   }
 
-  protected getObservable<K extends keyof TExposed>(
-    name: K,
-  ): Observable<TExposed[K]> {
+  @memorize()
+  getObservable<K extends keyof TExposed>(name: K): Observable<TExposed[K]> {
     return this.config$
       .map(config => config[name])
       .distinctUntilChanged()

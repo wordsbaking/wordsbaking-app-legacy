@@ -1,2 +1,8 @@
-<span class="text">{{selected ? selected.name : '-'}}</span>
-<button class="ghost small dark-text" (wbPress)="showPopup()">{{selected ? '切换' : '选择'}}</button>
+<ng-container *ngIf="selected$ | async as collection; else nonSelected">
+  <span class="text">{{collection.name}}</span>
+  <button class="ghost small dark-text" (wbPress)="showPopup()">切换</button>
+</ng-container>
+<ng-template #nonSelected>
+    <span class="text">-</span>
+    <button class="ghost small dark-text" (wbPress)="showPopup()">选择</button>
+</ng-template>
