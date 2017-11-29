@@ -15,6 +15,7 @@ import * as v from 'villa';
 import {APIService} from 'app/core/common';
 import {SettingsRawConfig, UserConfig} from 'app/core/config';
 import {SyncConfigService} from 'app/core/config/sync';
+import {AppData} from 'app/core/data';
 import {StudyRecordData} from 'app/core/engine';
 import {DBStorage} from 'app/core/storage';
 
@@ -92,7 +93,7 @@ export class SyncService implements CategoryHost, OnDestroy {
   readonly lastSyncTime$ = new BehaviorSubject(0 as TimeNumber);
   readonly syncing$ = new BehaviorSubject(false);
 
-  readonly app: SyncCategory;
+  readonly app: SyncCategory<AppData>;
   readonly user: SyncCategory<UserConfig>;
   readonly settings: SyncCategory<SettingsRawConfig>;
   readonly statistics: SyncCategory;
@@ -302,12 +303,12 @@ export class SyncService implements CategoryHost, OnDestroy {
     let now = Date.now();
 
     if (bySync) {
-      let pendingUpdate = category.syncPendingItemMap$
+      let pendingUpdate = await category.syncPendingItemMap$
         .first()
         .map(map => map.get(id))
         .toPromise();
 
-      if (!pendingUpdate) {
+      if (!pendingUpdate || !pendingUpdate.removed) {
         // if pendingUpdate && pendingUpdate.removed, this item should already
         // have been removed.
         await category.removeItem(id);
