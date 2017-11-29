@@ -1,5 +1,8 @@
+import {OnDestroy} from '@angular/core';
+
 import {Observable} from 'rxjs/Observable';
 import {Subject} from 'rxjs/Subject';
+import {Subscription} from 'rxjs/Subscription';
 
 import {memorize} from 'memorize-decorator';
 
@@ -9,12 +12,14 @@ import {DBStorage} from 'app/core/storage';
 export abstract class ConfigGroup<
   TExposed extends object,
   TRaw extends object = Partial<TExposed>
-> {
+> implements OnDestroy {
   readonly update$ = new Subject<string>();
 
   readonly storage$: Observable<DBStorage<string, any>> | undefined;
 
   readonly config$: Observable<TExposed>;
+
+  protected subscription = new Subscription();
 
   constructor(tableName: string);
   constructor(
@@ -50,15 +55,23 @@ export abstract class ConfigGroup<
         }),
       );
 
+      let change$ = this.storage$.switchMap(storage => storage.change$);
+
       this.config$ = this.storage$
         .switchMap(async storage => {
           let raw = ((await storage.getAllAsDict()) as any) as TRaw;
           return this.transformRaw(raw);
         })
-        .repeatWhen(() => this.storage$!.switchMap(storage => storage.change$))
+        .repeatWhen(() => change$)
         .publishReplay(1)
         .refCount();
+
+      this.subscription.add(this.config$.subscribe());
     }
+  }
+
+  ngOnDestroy(): void {
+    this.subscription.unsubscribe();
   }
 
   async set<K extends keyof TRaw>(
@@ -88,11 +101,7 @@ export abstract class ConfigGroup<
 
   @memorize()
   getObservable<K extends keyof TExposed>(name: K): Observable<TExposed[K]> {
-    return this.config$
-      .map(config => config[name])
-      .distinctUntilChanged()
-      .publishReplay(1)
-      .refCount();
+    return this.config$.map(config => config[name]).distinctUntilChanged();
   }
 
   protected abstract transformRaw(raw: TRaw): TExposed;

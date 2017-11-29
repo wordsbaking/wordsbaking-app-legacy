@@ -165,7 +165,8 @@ export class SyncService implements CategoryHost, OnDestroy {
       throw new Error(`Category "${category.name}" is not passive`);
     }
 
-    // TODO: doesn't seem to be safe enough (2 years ago)
+    // TODO: doesn't seem to be safe enough (this comment is written 2 years
+    // ago)
     let exists = await category.itemMap$
       .first()
       .map(map => map.has(id))
@@ -188,8 +189,6 @@ export class SyncService implements CategoryHost, OnDestroy {
         data: undefined,
       }),
     ]);
-
-    this.syncBatchScheduler.schedule(undefined).catch(logger.error);
   }
 
   async update<T, K extends keyof T>(
@@ -331,11 +330,26 @@ export class SyncService implements CategoryHost, OnDestroy {
 
   @memorize({ttl: 'async'})
   async sync(): Promise<boolean> {
+    this.syncing$.next(true);
+
+    try {
+      return await this._sync();
+    } finally {
+      this.syncing$.next(false);
+    }
+  }
+
+  async reset(): Promise<void> {
+    await Promise.all([
+      this.syncConfigService.set('syncAt', undefined),
+      ...this.categoryNames.map(async name => this[name].reset()),
+    ]);
+  }
+
+  private async _sync(): Promise<boolean> {
     let categoryToIDToUpUpdateDictDict: Dict<Dict<UpUpdate>> = Object.create(
       null,
     );
-
-    this.syncing$.next(true);
 
     let syncStartTime = Date.now();
 
@@ -410,14 +424,15 @@ export class SyncService implements CategoryHost, OnDestroy {
 
     this.lastSyncTime$.next(Date.now());
 
-    return !!downUpdateCategoryNames.length;
-  }
+    let hasDownUpdate = !!downUpdateCategoryNames.length;
 
-  async reset(): Promise<void> {
-    await Promise.all([
-      this.syncConfigService.set('syncAt', undefined),
-      ...this.categoryNames.map(async name => this[name].reset()),
-    ]);
+    let hasPending = !!await this.syncPending$.first().toPromise();
+
+    if (hasPending) {
+      return (await this._sync()) || hasDownUpdate;
+    } else {
+      return hasDownUpdate;
+    }
   }
 }
 
@@ -427,12 +442,11 @@ export class SyncCategory<
   V = T[K]
 > {
   readonly itemMap$ = new ReplaySubject<Map<string, SyncItem<V>>>(1);
-  readonly syncPendingItemMap$ = new ReplaySubject<Map<string, UpdateItem>>(1);
+  readonly syncPendingItemMap$ = new BehaviorSubject(
+    new Map<string, UpdateItem>(),
+  );
 
   private pendingMergeItemIDSet: Set<string>;
-
-  private itemMap: Map<string, SyncItem<V>>;
-  private syncPendingItemMap: Map<string, UpdateItem>;
 
   private dataStorage$: Observable<DBStorage<string, SyncItem<V>>>;
   private syncPendingStorage$: Observable<DBStorage<string, UpdateItem>>;
@@ -462,13 +476,13 @@ export class SyncCategory<
 
       let [mergedEntry] = _.remove(items, item => !item.id);
 
-      let itemMap = (this.itemMap = new Map<string, SyncItem<V>>(
+      let itemMap = new Map<string, SyncItem<V>>(
         mergedEntry
           ? ((mergedEntry.data as any) as SyncItem<V>[]).map<
               [string, SyncItem<V>]
             >(item => [item.id, item])
           : [],
-      ));
+      );
 
       let pendingMergeSet = (this.pendingMergeItemIDSet = new Set<string>());
 
@@ -501,11 +515,9 @@ export class SyncCategory<
 
       let items = await storage.getAll();
 
-      this.syncPendingItemMap = new Map(
-        items.map<[string, UpdateItem]>(item => [item.id, item]),
+      this.syncPendingItemMap$.next(
+        new Map(items.map<[string, UpdateItem]>(item => [item.id, item])),
       );
-
-      this.syncPendingItemMap$.next(this.syncPendingItemMap);
 
       return storage;
     })
@@ -521,8 +533,9 @@ export class SyncCategory<
   }
 
   async setItem(item: SyncItem<V>): Promise<void> {
-    this.itemMap.set(item.id, item);
-    this.itemMap$.next(this.itemMap);
+    let itemMap = await this.itemMap$.first().toPromise();
+    itemMap.set(item.id, item);
+    this.itemMap$.next(itemMap);
 
     await this.writeItemScheduler.schedule(item);
   }
@@ -532,8 +545,10 @@ export class SyncCategory<
       id = id.id as K;
     }
 
-    this.itemMap.delete(id);
-    this.itemMap$.next(this.itemMap);
+    let itemMap = await this.itemMap$.first().toPromise();
+
+    itemMap.delete(id);
+    this.itemMap$.next(itemMap);
 
     await this.writeItemScheduler.schedule({
       id,
@@ -557,7 +572,7 @@ export class SyncCategory<
     // TODO: should we use those variables directly instead of using their
     // observable version?
 
-    let syncPendingItemMap = this.syncPendingItemMap;
+    let syncPendingItemMap = await this.syncPendingItemMap$.first().toPromise();
 
     let id = updateItem.id;
 
@@ -578,9 +593,11 @@ export class SyncCategory<
   }
 
   async markPendingUpdatesSynced(ids: string[]): Promise<void> {
+    let syncPendingItemMap = await this.syncPendingItemMap$.first().toPromise();
+
     let markedUpdateItems = ids
       .map(id => {
-        let updateItem = this.syncPendingItemMap.get(id)!;
+        let updateItem = syncPendingItemMap.get(id)!;
 
         let typeDef = this.typeManager.get(updateItem.type)!;
 
@@ -595,13 +612,15 @@ export class SyncCategory<
   }
 
   async removePendingUpdateBefore(time: TimeNumber): Promise<void> {
-    for (let [id, item] of this.syncPendingItemMap) {
+    let syncPendingItemMap = await this.syncPendingItemMap$.first().toPromise();
+
+    for (let [id, item] of syncPendingItemMap) {
       if (item.updateAt < time) {
-        this.syncPendingItemMap.delete(id);
+        syncPendingItemMap.delete(id);
       }
     }
 
-    this.syncPendingItemMap$.next(this.syncPendingItemMap);
+    this.syncPendingItemMap$.next(syncPendingItemMap);
 
     let storage = await this.syncPendingStorage$.toPromise();
     await storage.removeWhere('updateAt < ?', time);
@@ -644,10 +663,11 @@ export class SyncCategory<
       // TODO: transaction?
 
       let storage = await this.dataStorage$.toPromise();
+      let itemMap = await this.itemMap$.first().toPromise();
 
       await storage.set({
         id: '',
-        data: Array.from(this.itemMap.values()) as any,
+        data: Array.from(itemMap.values()) as any,
       });
 
       await storage.removeWhere("id != ''");

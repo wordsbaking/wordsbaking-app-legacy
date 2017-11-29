@@ -1,4 +1,4 @@
-import {Injectable} from '@angular/core';
+import {Injectable, OnDestroy} from '@angular/core';
 
 import {PronunciationType, SyncService} from 'app/core/data';
 import {SentenceTtsSpeed, StudyOrder, StudyScope} from 'app/core/engine';
@@ -37,7 +37,7 @@ export interface SettingsConfig {
 export class SettingsConfigService extends ConfigGroup<
   SettingsConfig,
   SettingsRawConfig
-> {
+> implements OnDestroy {
   readonly collectionIDSet$ = this.getObservable('collectionIDSet');
   readonly studyScopeSet$ = this.getObservable('studyScopeSet');
   readonly dailyStudyPlan$ = this.getObservable('dailyStudyPlan');
@@ -52,6 +52,18 @@ export class SettingsConfigService extends ConfigGroup<
 
   constructor(syncService: SyncService) {
     super('settings', syncService, syncService.settings);
+
+    this.subscription.add(
+      this.collectionIDSet$
+        .switchMap(async idSet => {
+          for (let id of idSet) {
+            await syncService.addPassive(syncService.collections, id);
+          }
+
+          await syncService.sync();
+        })
+        .subscribe(),
+    );
   }
 
   transformRaw({
