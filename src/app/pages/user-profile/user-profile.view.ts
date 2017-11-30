@@ -89,12 +89,12 @@ export class UserProfileView implements OnInit {
     let form = this.form;
 
     if (form.invalid) {
-      let nicknameControl = form.get('nickname')!;
+      let displayNameControl = form.get('displayName')!;
       let taglineControl = form.get('tagline')!;
 
-      if (nicknameControl.hasError('required')) {
+      if (displayNameControl.hasError('required')) {
         await this.dialogService.alert('昵称不能为空.');
-      } else if (nicknameControl.hasError('maxLength')) {
+      } else if (displayNameControl.hasError('maxlength')) {
         await this.dialogService.alert('昵称不超过10个字符.');
       } else if (taglineControl.errors) {
         await this.dialogService.alert('标签行内容不超过20个字符');
