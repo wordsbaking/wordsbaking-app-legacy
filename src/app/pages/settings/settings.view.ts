@@ -10,6 +10,7 @@ import {
   SettingsRawConfig,
   UserConfigService,
 } from 'app/core/config';
+import {AuthConfigService} from 'app/core/config/auth';
 import {PronunciationType} from 'app/core/data';
 import {SentenceTtsSpeed, StudyOrder, StudyScope} from 'app/core/engine';
 import {SelectionListPopupService, pageTransitions} from 'app/core/ui';
@@ -83,6 +84,7 @@ export class SettingsView {
     private selectionListPopupService: SelectionListPopupService,
     private dialogService: DialogService,
     private userService: UserService,
+    public authConfigService: AuthConfigService,
     public userConfigService: UserConfigService,
   ) {}
 

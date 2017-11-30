@@ -10,7 +10,7 @@
     <wb-settings-view-settings-group title="账号信息">
       <wb-settings-view-settings-item class="user-profile-entry"
         title="账号"
-        description="maolion.j@gmail.com"
+        [description]="authConfigService.account$ | async"
         wbPressLink="/user-profile">
         <span class="avatar"
           [style.backgroundImage]="'url('+(userConfigService.avatarUrl$ | async)+')'"></span>
