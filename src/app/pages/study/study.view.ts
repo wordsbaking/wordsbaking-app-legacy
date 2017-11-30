@@ -3,6 +3,8 @@ import {Component, HostBinding} from '@angular/core';
 
 import {pageTransitions} from 'app/core/ui';
 
+import {UserConfigService} from 'app/core/config';
+
 const studyViewTransitions = trigger('studyViewTransitions', [
   ...pageTransitions,
 ]);
@@ -15,6 +17,8 @@ const studyViewTransitions = trigger('studyViewTransitions', [
 })
 export class StudyView {
   @HostBinding('@studyViewTransitions') studyViewTransitions = '';
+
+  constructor(public userConfigService: UserConfigService) {}
 
   switchAudioMode(): void {}
 }

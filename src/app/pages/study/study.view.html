@@ -7,7 +7,7 @@
     <div class="toolbar" (wbPress)="page.toggleHeaderExtension()">
       <span class="time">00:00</span>
       <div class="avatar-wrapper">
-        <span class="avatar" [style.backgroundImage]="'url(https://picsum.photos/128/128)'"></span>
+        <span class="avatar" [style.backgroundImage]="'url('+ (this.userConfigService.avatarUrl$ | async) +')'"></span>
       </div>
     </div>
   </wb-page-header>
