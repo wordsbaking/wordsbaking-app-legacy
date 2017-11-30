@@ -12,7 +12,8 @@
         title="账号"
         description="maolion.j@gmail.com"
         wbPressLink="/user-profile">
-        <span class="avatar" [style.backgroundImage]="'url(https://picsum.photos/128/128)'"></span>
+        <span class="avatar"
+          [style.backgroundImage]="'url('+(userConfigService.avatarUrl$ | async)+')'"></span>
         <button class="small" (wbPress)="showUserManagerMenuPopup()" [wbPressStop]="true">管理</button>
       </wb-settings-view-settings-item>
 

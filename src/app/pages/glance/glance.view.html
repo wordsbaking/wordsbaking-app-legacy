@@ -2,11 +2,12 @@
   <wb-page-header (wbPress)="page.toggleHeaderExtension()">
     <div class="user-profile">
       <div class="avatar-wrapper" wbPressLink="/user-profile">
-        <span class="avatar" [style.backgroundImage]="'url(https://picsum.photos/128/128)'"></span>
+        <span class="avatar"
+          [style.backgroundImage]="'url('+(userConfigService.avatarUrl$ | async)+')'"></span>
       </div>
       <div class="meta">
-        <span class="meta-item nickname">狮子哥哥</span>
-        <span class="meta-item tagline">时光在飞逝，生命知多少.</span>
+        <span class="meta-item displayName">{{userConfigService.displayName$ | async}}</span>
+        <span class="meta-item tagline">{{userConfigService.tagline$ | async}}</span>
       </div>
     </div>
     <div class="toolbar">

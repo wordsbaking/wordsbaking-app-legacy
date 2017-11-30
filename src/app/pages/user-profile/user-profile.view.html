@@ -6,29 +6,43 @@
     </button>
   </wb-page-header>
   <wb-page-content>
-    <form method="POST" action="#">
+    <form [formGroup]="form" method="POST" action="#">
       <div class="form-item">
         <div class="avatar-area">
-          <span class="avatar" [style.backgroundImage]="'url('+ (avatarUrl$ | async) +')'"></span>
-          <input type="file" name="avatar" />
+          <img class="avatar" [src]="avatarUrl$ | async" />
+          <input #fileInput
+            formControlName="avatar"
+            type="file"
+            name="avatar"
+            accept=".jpg, .png"
+            (change)="onAvatarFileChange(fileInput.files)" />
         </div>
       </div>
       <div class="form-item">
         <div class="input-area">
           <label class="input-label" for="nickname">昵称</label>
-          <input placeholder="输入昵称" id="nickname" name="nickname" />
+          <input #displayNameInput
+            formControlName="displayName"
+            placeholder="输入昵称"
+            id="displayName"
+            name="displayName"
+            [value]="displayName$ | async" />
         </div>
       </div>
       <div class="form-item">
         <div class="input-area">
           <label class="input-label" for="tagline">标签行</label>
-          <input placeholder="输入标签行" id="tagline" name="tagline" />
+          <input #taglineInput
+            formControlName="tagline"
+            placeholder="输入标签行"
+            id="tagline"
+            name="tagline"/>
         </div>
       </div>
     </form>
   </wb-page-content>
   <wb-page-footer>
     <button class="secondary" wbTriggerBack>取消</button>
-    <button wbTriggerBack>保存</button>
+    <button (wbPress)="save()">保存</button>
   </wb-page-footer>
 </wb-page>

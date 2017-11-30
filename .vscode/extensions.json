@@ -6,6 +6,7 @@
     "shinnn.stylelint",
     "shardulm94.trailing-spaces",
     "esbenp.prettier-vscode",
-    "mrmlnc.vscode-less"
+    "mrmlnc.vscode-less",
+    "vilicvane.sensitive-replace"
   ]
 }

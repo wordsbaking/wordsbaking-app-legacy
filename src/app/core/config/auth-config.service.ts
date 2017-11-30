@@ -4,6 +4,7 @@ import {ConfigGroup} from './config-group';
 
 interface AuthConfig {
   apiKey: string | undefined;
+  userId: string | undefined;
 }
 
 @Injectable()
@@ -18,7 +19,7 @@ export class AuthConfigService extends ConfigGroup<AuthConfig> {
     super('auth');
   }
 
-  protected transformRaw({apiKey}: Partial<AuthConfig>): AuthConfig {
-    return {apiKey};
+  protected transformRaw({apiKey, userId}: Partial<AuthConfig>): AuthConfig {
+    return {apiKey, userId};
   }
 }

@@ -1,14 +1,15 @@
 import {trigger} from '@angular/animations';
 import {Component, HostBinding, OnInit} from '@angular/core';
 
-import {SettingsConfigService} from 'app/core/config';
+import {Observable} from 'rxjs/Observable';
+
+import * as logger from 'logger';
+
+import {SettingsConfigService, UserConfigService} from 'app/core/config';
 import {SyncService} from 'app/core/data';
 import {EngineService} from 'app/core/engine';
 import {pageTransitions} from 'app/core/ui';
 import {UserService} from 'app/core/user';
-
-import * as logger from 'logger';
-import {Observable} from 'rxjs/Observable';
 
 const glanceViewTransitions = trigger('glanceViewTransitions', [
   ...pageTransitions,
@@ -96,6 +97,7 @@ export class GlanceView implements OnInit {
     private userService: UserService,
     private syncService: SyncService,
     private settingsConfigService: SettingsConfigService,
+    public userConfigService: UserConfigService,
   ) {}
 
   ngOnInit() {

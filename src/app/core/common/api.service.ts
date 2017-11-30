@@ -125,6 +125,12 @@ export class APIService {
     await this.authConfigService.set('apiKey', apiKey);
   }
 
+  async uploadAvatar(avatarData: Blob): Promise<string> {
+    return this.call<string>('/update-profile', avatarData, {
+      type: 'application/octet-stream',
+    });
+  }
+
   getUrl(path: string): string {
     return apiBaseUrl + path;
   }
