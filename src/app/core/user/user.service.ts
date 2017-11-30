@@ -8,8 +8,12 @@ import {Subscription} from 'rxjs/Subscription';
 import * as moment from 'moment';
 import * as ms from 'ms';
 
+import {LoadingService} from 'app/ui';
+
+import {APIService} from 'app/core/common';
 import {UserConfigService} from 'app/core/config';
 import {SyncService} from 'app/core/data';
+import {NavigationService} from 'app/core/navigation';
 
 const DAY_START_CLOCK = 4; // A new day start at 4 AM.
 const STUDY_ACTIVE_TIMEOUT = ms('30s');
@@ -64,6 +68,9 @@ export class UserService implements OnDestroy {
   constructor(
     private userConfigService: UserConfigService,
     private syncService: SyncService,
+    private apiService: APIService,
+    private loadingService: LoadingService,
+    private navigationService: NavigationService,
   ) {
     this.subscription.add(
       this.studyHeartBeat$
@@ -100,5 +107,10 @@ export class UserService implements OnDestroy {
 
   triggerStudyHeartBeat() {
     this.studyHeartBeat$.next();
+  }
+
+  async signOut(): Promise<void> {
+    await this.loadingService.wait(this.apiService.signOut(), '注销中...');
+    await this.navigationService.navigate(['/sign-in']);
   }
 }

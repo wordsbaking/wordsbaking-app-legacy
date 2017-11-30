@@ -3,9 +3,8 @@ import {Component, HostBinding, ViewChild} from '@angular/core';
 
 import {Observable} from 'rxjs/Observable';
 
-import {PopupComponent} from 'app/ui';
+import {DialogService, PopupComponent} from 'app/ui';
 
-// import {SettingsItemName, SettingsService} from 'app/core/settings';
 import {
   SettingsConfigService,
   SettingsRawConfig,
@@ -14,6 +13,7 @@ import {
 import {PronunciationType} from 'app/core/data';
 import {SentenceTtsSpeed, StudyOrder, StudyScope} from 'app/core/engine';
 import {SelectionListPopupService, pageTransitions} from 'app/core/ui';
+import {UserService} from 'app/core/user';
 
 import * as SettingsConfig from './settings-config';
 
@@ -81,6 +81,8 @@ export class SettingsView {
   constructor(
     private settingsConfigService: SettingsConfigService,
     private selectionListPopupService: SelectionListPopupService,
+    private dialogService: DialogService,
+    private userService: UserService,
     public userConfigService: UserConfigService,
   ) {}
 
@@ -177,6 +179,16 @@ export class SettingsView {
       SettingsConfig.ShowGuide,
       force,
     );
+  }
+
+  async signOut(): Promise<void> {
+    this.userManagerMenuPopupComponent.clear();
+
+    let confirmed = await this.dialogService.confirm('确定退出登录吗?');
+
+    if (confirmed) {
+      await this.userService.signOut();
+    }
   }
 
   private async toggleSettingItemValue<T>(
