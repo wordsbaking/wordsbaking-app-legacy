@@ -1,6 +1,7 @@
 import {OnDestroy} from '@angular/core';
 
 import {Observable} from 'rxjs/Observable';
+import {Subject} from 'rxjs/Subject';
 import {Subscription} from 'rxjs/Subscription';
 
 import {memorize} from 'memorize-decorator';
@@ -8,6 +9,8 @@ import {memorize} from 'memorize-decorator';
 import {SyncCategory, SyncService} from 'app/core/data';
 import {DBStorage} from 'app/core/storage';
 import {configStorageDict, initialRawConfigDict} from 'app/preload';
+
+const CONFIG_AUTO_SYNC_TIMEOUT = 500;
 
 export abstract class ConfigGroup<
   TExposed extends object,
@@ -18,6 +21,8 @@ export abstract class ConfigGroup<
   readonly config$: Observable<TExposed>;
 
   protected subscription = new Subscription();
+
+  private syncSchedule$: Subject<void>;
 
   constructor(name: string);
   constructor(
@@ -43,6 +48,14 @@ export abstract class ConfigGroup<
           return this.transformRaw((dict as any) as TRaw);
         })
         .shareReplay(1);
+
+      this.syncSchedule$ = new Subject<void>();
+
+      this.subscription.add(
+        this.syncSchedule$
+          .debounceTime(CONFIG_AUTO_SYNC_TIMEOUT)
+          .subscribe(() => syncService.sync()),
+      );
     } else {
       this.storage = configStorageDict[name];
 
@@ -66,6 +79,7 @@ export abstract class ConfigGroup<
   ): Promise<void> {
     if (this.syncCategory) {
       await this.syncService!.update(this.syncCategory, name, value);
+      this.syncSchedule$.next();
     } else {
       await this.storage!.set(name, value);
     }
