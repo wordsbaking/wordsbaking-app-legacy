@@ -6,7 +6,8 @@ import {ViewContainerService} from './util/view-container.service';
 import {DialogModule} from './dialog';
 import {LoadingModule} from './loading';
 import {PopupModule} from './popup';
-import {TouchModule} from './touch/touch.module';
+import {ToastModule} from './toast';
+import {TouchModule} from './touch';
 
 import {SelectionListItemComponent} from './selection-list-item/selection-list-item.component';
 import {SelectionListComponent} from './selection-list/selection-list.component';
@@ -19,6 +20,7 @@ import {SwitchComponent} from './switch/switch.component';
     PopupModule,
     DialogModule,
     LoadingModule,
+    ToastModule,
   ],
   declarations: [
     SwitchComponent,
@@ -44,6 +46,7 @@ export class UIModule {
         ...PopupModule.forRoot().providers,
         ...DialogModule.forRoot().providers,
         ...LoadingModule.forRoot().providers,
+        ...ToastModule.forRoot().providers,
       ],
     };
   }

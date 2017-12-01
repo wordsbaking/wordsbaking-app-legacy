@@ -2,7 +2,7 @@
   <wb-page-header>
     <button class="back-button" wbTriggerBack>
       <span class="icon back"></span>
-      <span class="title tagline">时光在飞逝，生命知多少.</span>
+      <span class="title tagline">{{this.userConfigService.tagline$ | async}}</span>
     </button>
     <div class="toolbar" (wbPress)="page.toggleHeaderExtension()">
       <span class="time">00:00</span>

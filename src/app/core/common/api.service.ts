@@ -5,7 +5,7 @@ import ExtendableError from 'extendable-error';
 
 import {AuthConfigService} from 'app/core/config/auth';
 
-const apiBaseUrl = '//localhost:1337';
+const apiBaseUrl = '//10.0.9.131:1337';
 
 interface APIErrorData {
   code: string;
