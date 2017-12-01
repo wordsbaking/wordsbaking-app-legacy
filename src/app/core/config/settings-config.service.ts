@@ -56,11 +56,22 @@ export class SettingsConfigService extends ConfigGroup<
     this.subscription.add(
       this.collectionIDSet$
         .switchMap(async idSet => {
+          let hasNew = false;
+
           for (let id of idSet) {
-            await syncService.addPassive(syncService.collections, id);
+            let added = await syncService.addPassive(
+              syncService.collections,
+              id,
+            );
+
+            if (added && !hasNew) {
+              hasNew = added;
+            }
           }
 
-          await syncService.sync();
+          if (hasNew) {
+            await syncService.sync();
+          }
         })
         .subscribe(),
     );

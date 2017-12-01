@@ -1,8 +1,9 @@
 export type DataEntryType = 'value' | 'accumulation';
 
-export interface UpdateItem {
+export interface SyncUpdateItem {
   id: string;
   type?: DataEntryType;
+  updateID: number;
   updateAt: TimeNumber;
   data: any;
   removed?: true;

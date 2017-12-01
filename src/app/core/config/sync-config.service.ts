@@ -2,7 +2,7 @@ import {Injectable} from '@angular/core';
 
 import {ConfigGroup} from './config-group';
 
-interface SyncConfig {
+export interface SyncConfig {
   syncAt: TimeNumber;
 }
 

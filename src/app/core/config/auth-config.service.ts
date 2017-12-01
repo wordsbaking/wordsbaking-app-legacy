@@ -2,7 +2,7 @@ import {Injectable} from '@angular/core';
 
 import {ConfigGroup} from './config-group';
 
-interface AuthConfig {
+export interface AuthConfig {
   apiKey: string | undefined;
 }
 

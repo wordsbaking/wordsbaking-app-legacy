@@ -1,17 +1,19 @@
-import {Component} from '@angular/core';
+import {Component, OnDestroy} from '@angular/core';
+
+import {Observable} from 'rxjs/Observable';
+import {Subscription} from 'rxjs/Subscription';
 
 import {SettingsConfigService} from 'app/core/config';
-import {AppDataService} from 'app/core/data';
+import {AppDataService, SyncService} from 'app/core/data';
 import {CollectionInfo} from 'app/core/engine';
 import {SelectionListPopup, SelectionListPopupService} from 'app/core/ui';
-import {Observable} from 'rxjs/Observable';
 
 @Component({
   selector: 'wb-glance-view-collection-selector',
   templateUrl: './collection-selector.component.html',
   styleUrls: ['./collection-selector.component.less'],
 })
-export class CollectionSelectorComponent {
+export class CollectionSelectorComponent implements OnDestroy {
   private selectedID$ = this.settingsConfigService.collectionIDSet$
     .map(idSet => Array.from(idSet)[0] as string | undefined)
     .publishReplay(1)
@@ -30,11 +32,18 @@ export class CollectionSelectorComponent {
     return collectionList.find(collection => collection.id === id);
   });
 
+  private subscription = new Subscription();
+
   constructor(
     private selectionListPopupService: SelectionListPopupService,
     private appDataService: AppDataService,
     private settingsConfigService: SettingsConfigService,
+    private syncService: SyncService,
   ) {}
+
+  ngOnDestroy() {
+    this.subscription.unsubscribe();
+  }
 
   async showPopup(): Promise<void> {
     let selectedID = await this.selectedID$.first().toPromise();

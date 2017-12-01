@@ -1,34 +1,32 @@
 import {OnDestroy} from '@angular/core';
 
 import {Observable} from 'rxjs/Observable';
-import {Subject} from 'rxjs/Subject';
 import {Subscription} from 'rxjs/Subscription';
 
 import {memorize} from 'memorize-decorator';
 
 import {SyncCategory, SyncService} from 'app/core/data';
 import {DBStorage} from 'app/core/storage';
+import {configStorageDict, initialRawConfigDict} from 'app/preload';
 
 export abstract class ConfigGroup<
   TExposed extends object,
   TRaw extends object = Partial<TExposed>
 > implements OnDestroy {
-  readonly update$ = new Subject<string>();
-
-  readonly storage$: Observable<DBStorage<string, any>> | undefined;
+  readonly storage: DBStorage<string, any> | undefined;
 
   readonly config$: Observable<TExposed>;
 
   protected subscription = new Subscription();
 
-  constructor(tableName: string);
+  constructor(name: string);
   constructor(
-    tableName: string,
+    name: string,
     syncService: SyncService,
     syncCategory: SyncCategory,
   );
   constructor(
-    readonly tableName: string,
+    readonly name: string,
     private syncService?: SyncService,
     private syncCategory?: SyncCategory,
   ) {
@@ -44,29 +42,17 @@ export abstract class ConfigGroup<
 
           return this.transformRaw((dict as any) as TRaw);
         })
-        .publishReplay(1)
-        .refCount();
+        .shareReplay(1);
     } else {
-      this.storage$ = Observable.from(
-        DBStorage.create<string, any>({
-          name: 'default',
-          tableName: this.tableName,
-          primaryKeyType: 'text',
-        }),
-      );
+      this.storage = configStorageDict[name];
 
-      let change$ = this.storage$.switchMap(storage => storage.change$);
-
-      this.config$ = this.storage$
-        .switchMap(async storage => {
-          let raw = ((await storage.getAllAsDict()) as any) as TRaw;
+      this.config$ = this.storage.change$
+        .switchMap(async () => (this.storage!.getAllAsDict() as any) as TRaw)
+        .startWith(initialRawConfigDict[name] as TRaw)
+        .map(raw => {
           return this.transformRaw(raw);
         })
-        .repeatWhen(() => change$)
-        .publishReplay(1)
-        .refCount();
-
-      this.subscription.add(this.config$.subscribe());
+        .shareReplay(1);
     }
   }
 
@@ -81,8 +67,7 @@ export abstract class ConfigGroup<
     if (this.syncCategory) {
       await this.syncService!.update(this.syncCategory, name, value);
     } else {
-      let storage = await this.storage$!.toPromise();
-      await storage.set(name, value);
+      await this.storage!.set(name, value);
     }
   }
 
@@ -94,14 +79,16 @@ export abstract class ConfigGroup<
     if (this.syncCategory) {
       await this.syncCategory.reset();
     } else {
-      let storage = await this.storage$!.toPromise();
-      await storage.empty();
+      await this.storage!.empty();
     }
   }
 
   @memorize()
   getObservable<K extends keyof TExposed>(name: K): Observable<TExposed[K]> {
-    return this.config$.map(config => config[name]).distinctUntilChanged();
+    return this.config$
+      .map(config => config[name])
+      .distinctUntilChanged()
+      .shareReplay(1);
   }
 
   protected abstract transformRaw(raw: TRaw): TExposed;

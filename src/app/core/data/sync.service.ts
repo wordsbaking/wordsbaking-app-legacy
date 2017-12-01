@@ -4,7 +4,7 @@ import {Injectable, OnDestroy} from '@angular/core';
 
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import {Observable} from 'rxjs/Observable';
-import {ReplaySubject} from 'rxjs/ReplaySubject';
+import {Subject} from 'rxjs/Subject';
 import {Subscription} from 'rxjs/Subscription';
 
 import * as _ from 'lodash';
@@ -12,15 +12,21 @@ import memorize from 'memorize-decorator';
 import * as ms from 'ms';
 import * as v from 'villa';
 
+import {
+  syncItemMapDict,
+  syncPendingItemMapDict,
+  syncPendingStorageDict,
+  syncStorageDict,
+} from 'app/preload';
+
 import {APIService} from 'app/core/common';
 import {SettingsRawConfig, UserConfig} from 'app/core/config';
 import {SyncConfigService} from 'app/core/config/sync';
-import {AppData} from 'app/core/data';
 import {StudyRecordData} from 'app/core/engine';
-import {DBStorage} from 'app/core/storage';
 
 import * as logger from 'logger';
 
+import {AppData} from './app-data.service';
 import {
   AccumulationDataEntryTypeDefinition,
   AccumulationUpdateData,
@@ -28,11 +34,12 @@ import {
   DataEntryType,
   DataEntryTypeManager,
   SyncItem,
-  UpdateItem,
+  SyncUpdateItem,
   ValueDataEntryTypeDefinition,
 } from './types';
 
 const SYNC_BATCH_TIMEOUT = ms('10s');
+const AUTO_SYNC_INTERVAL = ms('1m');
 
 interface SyncRequest {
   syncAt: number;
@@ -74,7 +81,7 @@ export type SyncUpdateMarker<Update> = (update: Update) => boolean;
 
 export type PassiveCategoryName = 'collections';
 
-export type CategoryName =
+export type SyncCategoryName =
   | 'app'
   | 'user'
   | 'settings'
@@ -82,7 +89,7 @@ export type CategoryName =
   | 'records'
   | 'collections';
 
-export type CategoryHost = {[key in CategoryName]: SyncCategory};
+export type CategoryHost = {[key in SyncCategoryName]: SyncCategory};
 
 @Injectable()
 export class SyncService implements CategoryHost, OnDestroy {
@@ -100,17 +107,19 @@ export class SyncService implements CategoryHost, OnDestroy {
   readonly records: SyncCategory<Dict<StudyRecordData>>;
   readonly collections: SyncCategory<Dict<CollectionData>>;
 
-  readonly categoryNames: CategoryName[];
+  readonly categoryNames: SyncCategoryName[];
 
   readonly syncPending$: Observable<number>;
 
+  private syncAt: TimeNumber;
+  private lastUpdateID = this.createUpdateID();
+
   private typeManager = new DataEntryTypeManager();
 
-  private subscription = new Subscription();
+  private syncBatchScheduleFlush$ = new Subject<void>();
+  private syncBatchSchedule$ = new Subject<void>();
 
-  private syncBatchScheduler = new v.BatchScheduler<void>(async () => {
-    await this.sync();
-  }, SYNC_BATCH_TIMEOUT);
+  private subscription = new Subscription();
 
   constructor(
     readonly apiService: APIService,
@@ -121,7 +130,7 @@ export class SyncService implements CategoryHost, OnDestroy {
     typeManager.register(new ValueDataEntryTypeDefinition());
     typeManager.register(new AccumulationDataEntryTypeDefinition());
 
-    let categoryDict: {[name in CategoryName]: SyncCategory} = {
+    let categoryDict: {[name in SyncCategoryName]: SyncCategory} = {
       app: new SyncCategory('app', typeManager),
       user: new SyncCategory('user', typeManager),
       settings: new SyncCategory('settings', typeManager),
@@ -134,22 +143,30 @@ export class SyncService implements CategoryHost, OnDestroy {
 
     let categoryNames = (this.categoryNames = Object.keys(
       categoryDict,
-    ) as CategoryName[]);
-
-    for (let name of categoryNames) {
-      for (let subscription of categoryDict[name].subscribe()) {
-        this.subscription.add(subscription);
-      }
-    }
+    ) as SyncCategoryName[]);
 
     this.syncPending$ = Observable.combineLatest(
       ...categoryNames.map(name => categoryDict[name].syncPendingItemMap$),
-    ).map(maps => maps.reduce((total, map) => total + map.size, 0));
+    )
+      .map(maps => maps.reduce((total, map) => total + map.size, 0))
+      .shareReplay(1);
+
+    syncConfigService.syncAt$
+      .first()
+      .subscribe(syncAt => (this.syncAt = syncAt));
 
     this.subscription.add(
-      Observable.interval(ms('1m')).subscribe(() =>
-        this.syncBatchScheduler.schedule(undefined).catch(logger.error),
-      ),
+      this.syncBatchSchedule$
+        .merge(Observable.interval(AUTO_SYNC_INTERVAL))
+        .audit(() =>
+          Observable.race(
+            Observable.interval(SYNC_BATCH_TIMEOUT),
+            this.syncBatchScheduleFlush$.first(),
+          ),
+        )
+        .subscribe(() => {
+          this.aggregateSync().catch(logger.error);
+        }),
     );
   }
 
@@ -160,35 +177,44 @@ export class SyncService implements CategoryHost, OnDestroy {
   async addPassive<T, K extends keyof T>(
     category: SyncCategory<T>,
     id: K,
-  ): Promise<void> {
+  ): Promise<boolean> {
     if (!category.passive) {
       throw new Error(`Category "${category.name}" is not passive`);
     }
 
     // TODO: doesn't seem to be safe enough (this comment is written 2 years
     // ago)
-    let exists = await category.itemMap$
-      .first()
-      .map(map => map.has(id))
-      .toPromise();
+    let exists =
+      category.itemMap$.value.has(id) ||
+      category.syncPendingItemMap$.value.has(id);
 
     if (exists) {
-      return;
+      return false;
     }
 
-    let item: SyncItem<any> = {
+    // let item: SyncItem<any> = {
+    //   id,
+    //   data: undefined,
+    // };
+
+    // await Promise.all([
+    //   category.setItem(item),
+    //   category.addPendingUpdate({
+    //     id,
+    //     updateAt: Date.now(),
+    //     updateID: await this.getNextUpdateID(),
+    //     data: undefined,
+    //   }),
+    // ]);
+
+    await category.addPendingUpdate({
       id,
       data: undefined,
-    };
+      updateAt: Date.now(),
+      updateID: this.createUpdateID(),
+    });
 
-    await Promise.all([
-      category.setItem(item),
-      category.addPendingUpdate({
-        id,
-        updateAt: Date.now(),
-        data: undefined,
-      }),
-    ]);
+    return true;
   }
 
   async update<T, K extends keyof T>(
@@ -210,8 +236,6 @@ export class SyncService implements CategoryHost, OnDestroy {
     type?: DataEntryType,
     bySync = false,
   ): Promise<void> {
-    let now = Date.now();
-
     // If it's been syncing down from the server, type would always be
     // undefined. and it will let the default merger to replace the value by
     // the server value.
@@ -220,14 +244,21 @@ export class SyncService implements CategoryHost, OnDestroy {
       type = 'value';
     }
 
+    if (!bySync) {
+      await category.addPendingUpdate({
+        id,
+        type,
+        data: updateData,
+        updateAt: Date.now(),
+        updateID: this.createUpdateID(),
+      });
+
+      this.syncBatchSchedule$.next();
+    }
+
     let typeDef = this.typeManager.get(type)!;
 
-    let item = bySync
-      ? undefined
-      : await category.itemMap$
-          .first()
-          .map(map => map.get(id))
-          .toPromise();
+    let item = bySync ? undefined : category.itemMap$.value.get(id);
 
     if (item) {
       item.data = typeDef.merge(item.data, updateData);
@@ -242,10 +273,7 @@ export class SyncService implements CategoryHost, OnDestroy {
       // happened. So we need to check and merge these updates (that have
       // already been combined as one).
       if (bySync) {
-        let pendingUpdate = await category.syncPendingItemMap$
-          .first()
-          .map(map => map.get(id))
-          .toPromise();
+        let pendingUpdate = category.syncPendingItemMap$.value.get(id);
 
         if (pendingUpdate && !pendingUpdate.removed && !category.passive) {
           let updateType = pendingUpdate.type || type;
@@ -261,17 +289,6 @@ export class SyncService implements CategoryHost, OnDestroy {
       } else {
         await category.setItem(item);
       }
-    }
-
-    if (!bySync) {
-      await category.addPendingUpdate({
-        id,
-        type,
-        updateAt: now,
-        data: updateData,
-      });
-
-      this.syncBatchScheduler.schedule(undefined).catch(logger.error);
     }
   }
 
@@ -299,13 +316,20 @@ export class SyncService implements CategoryHost, OnDestroy {
     id: K,
     bySync = false,
   ): Promise<void> {
-    let now = Date.now();
+    if (!bySync) {
+      await category.addPendingUpdate({
+        id,
+        data: undefined,
+        removed: true,
+        updateAt: Date.now(),
+        updateID: this.createUpdateID(),
+      });
+
+      this.syncBatchSchedule$.next();
+    }
 
     if (bySync) {
-      let pendingUpdate = await category.syncPendingItemMap$
-        .first()
-        .map(map => map.get(id))
-        .toPromise();
+      let pendingUpdate = category.syncPendingItemMap$.value.get(id);
 
       if (!pendingUpdate || !pendingUpdate.removed) {
         // if pendingUpdate && pendingUpdate.removed, this item should already
@@ -314,28 +338,6 @@ export class SyncService implements CategoryHost, OnDestroy {
       }
     } else {
       await category.removeItem(id);
-    }
-
-    if (!bySync) {
-      await category.addPendingUpdate({
-        id,
-        updateAt: now,
-        data: undefined,
-        removed: true,
-      });
-
-      this.syncBatchScheduler.schedule(undefined).catch(logger.error);
-    }
-  }
-
-  @memorize({ttl: 'async'})
-  async sync(): Promise<boolean> {
-    this.syncing$.next(true);
-
-    try {
-      return await this._sync();
-    } finally {
-      this.syncing$.next(false);
     }
   }
 
@@ -346,20 +348,44 @@ export class SyncService implements CategoryHost, OnDestroy {
     ]);
   }
 
+  async sync(): Promise<boolean> {
+    this.syncBatchScheduleFlush$.next();
+    return this.aggregateSync();
+  }
+
+  private createUpdateID(): number {
+    let lastUpdateID = Number(localStorage.lastUpdateID) || 0;
+
+    let updateID = Math.max(lastUpdateID + 1, Date.now());
+
+    localStorage.lastUpdateID = (this.lastUpdateID = updateID).toString();
+
+    return updateID;
+  }
+
+  @memorize({ttl: 'async'})
+  private async aggregateSync(): Promise<boolean> {
+    this.syncing$.next(true);
+
+    try {
+      return await this._sync();
+    } finally {
+      this.syncing$.next(false);
+    }
+  }
+
   private async _sync(): Promise<boolean> {
     let categoryToIDToUpUpdateDictDict: Dict<Dict<UpUpdate>> = Object.create(
       null,
     );
 
-    let syncStartTime = Date.now();
+    let lastUpdateID = this.lastUpdateID;
 
     await Promise.all(
       this.categoryNames.map(async name => {
         let category = this[name];
 
-        let syncPendingItemMap = await category.syncPendingItemMap$
-          .first()
-          .toPromise();
+        let syncPendingItemMap = await category.syncPendingItemMap$.value;
 
         if (!syncPendingItemMap.size) {
           return;
@@ -369,7 +395,7 @@ export class SyncService implements CategoryHost, OnDestroy {
           name
         ] = Object.create(null) as Dict<UpUpdate>);
 
-        for (let {id, ...upUpdate} of syncPendingItemMap.values()) {
+        for (let {id, updateID, ...upUpdate} of syncPendingItemMap.values()) {
           upUpdateDict[id] = upUpdate;
         }
 
@@ -379,11 +405,9 @@ export class SyncService implements CategoryHost, OnDestroy {
       }),
     );
 
-    let lastSyncAt = await this.syncConfigService.syncAt$.first().toPromise();
-
     let request: SyncRequest = {
       time: Date.now(),
-      syncAt: lastSyncAt,
+      syncAt: this.syncAt,
       updates: categoryToIDToUpUpdateDictDict,
     };
 
@@ -394,13 +418,13 @@ export class SyncService implements CategoryHost, OnDestroy {
 
     await Promise.all(
       this.categoryNames.map(name =>
-        this[name].removePendingUpdateBefore(syncStartTime),
+        this[name].removePendingUpdateBefore(lastUpdateID),
       ),
     );
 
     let downUpdateCategoryNames = Object.keys(
       categoryToIDToDownUpdateDictDict,
-    ) as CategoryName[];
+    ) as SyncCategoryName[];
 
     for (let name of downUpdateCategoryNames) {
       let category = this[name];
@@ -420,15 +444,19 @@ export class SyncService implements CategoryHost, OnDestroy {
       );
     }
 
+    this.syncAt = syncAt;
     await this.syncConfigService.set('syncAt', syncAt);
 
     this.lastSyncTime$.next(Date.now());
 
     let hasDownUpdate = !!downUpdateCategoryNames.length;
 
-    let hasPending = !!await this.syncPending$.first().toPromise();
+    let syncPending = 0;
 
-    if (hasPending) {
+    this.syncPending$.first().subscribe(value => (syncPending = value));
+
+    if (syncPending) {
+      // Manually pass `syncAt` as syncPending$
       return (await this._sync()) || hasDownUpdate;
     } else {
       return hasDownUpdate;
@@ -441,21 +469,23 @@ export class SyncCategory<
   K extends keyof T = keyof T,
   V = T[K]
 > {
-  readonly itemMap$ = new ReplaySubject<Map<string, SyncItem<V>>>(1);
-  readonly syncPendingItemMap$ = new BehaviorSubject(
-    new Map<string, UpdateItem>(),
+  private syncStorage = syncStorageDict[this.name];
+
+  readonly itemMap$ = new BehaviorSubject<Map<string, SyncItem<V>>>(
+    syncItemMapDict[this.name],
   );
 
-  private pendingMergeItemIDSet: Set<string>;
+  private syncPendingStorage = syncPendingStorageDict[this.name];
 
-  private dataStorage$: Observable<DBStorage<string, SyncItem<V>>>;
-  private syncPendingStorage$: Observable<DBStorage<string, UpdateItem>>;
+  readonly syncPendingItemMap$ = new BehaviorSubject(
+    syncPendingItemMapDict[this.name],
+  );
 
   private writeItemScheduler = new v.BatchScheduler<SyncItem<V | undefined>>(
     this.writeItemBatchHandler.bind(this),
   );
 
-  private dataWriteLock = {};
+  private syncWriteLock = {};
 
   constructor(
     readonly name: string,
@@ -464,76 +494,11 @@ export class SyncCategory<
     // readonly syncPendingStorage: DBStorage<string, UpdateItem>,
     readonly passive = false,
     private mergeLimit = 100,
-  ) {
-    this.dataStorage$ = Observable.defer(async () => {
-      let storage = await DBStorage.create<string, SyncItem<V>>({
-        name: 'default',
-        tableName: `${name}-data`,
-        primaryKeyType: 'text',
-      });
-
-      let items = await storage.getAll();
-
-      let [mergedEntry] = _.remove(items, item => !item.id);
-
-      let itemMap = new Map<string, SyncItem<V>>(
-        mergedEntry
-          ? ((mergedEntry.data as any) as SyncItem<V>[]).map<
-              [string, SyncItem<V>]
-            >(item => [item.id, item])
-          : [],
-      );
-
-      let pendingMergeSet = (this.pendingMergeItemIDSet = new Set<string>());
-
-      for (let item of items) {
-        let id = item.id;
-
-        if (item.removed) {
-          itemMap.delete(id);
-        } else {
-          itemMap.set(id, item);
-        }
-
-        pendingMergeSet.add(id);
-      }
-
-      this.itemMap$.next(itemMap);
-
-      return storage;
-    })
-      .publishReplay(1)
-      .refCount();
-
-    this.syncPendingStorage$ = Observable.defer(async () => {
-      let storage = await DBStorage.create<string, UpdateItem>({
-        name: 'default',
-        tableName: `${name}-sync-pending`,
-        primaryKeyType: 'text',
-        indexSchema: {updateAt: 'integer'},
-      });
-
-      let items = await storage.getAll();
-
-      this.syncPendingItemMap$.next(
-        new Map(items.map<[string, UpdateItem]>(item => [item.id, item])),
-      );
-
-      return storage;
-    })
-      .publishReplay(1)
-      .refCount();
-  }
-
-  subscribe(): Subscription[] {
-    return [
-      this.dataStorage$.subscribe(),
-      this.syncPendingStorage$.subscribe(),
-    ];
-  }
+  ) {}
 
   async setItem(item: SyncItem<V>): Promise<void> {
-    let itemMap = await this.itemMap$.first().toPromise();
+    let itemMap = this.itemMap$.value;
+
     itemMap.set(item.id, item);
     this.itemMap$.next(itemMap);
 
@@ -545,7 +510,7 @@ export class SyncCategory<
       id = id.id as K;
     }
 
-    let itemMap = await this.itemMap$.first().toPromise();
+    let itemMap = this.itemMap$.value;
 
     itemMap.delete(id);
     this.itemMap$.next(itemMap);
@@ -568,15 +533,12 @@ export class SyncCategory<
     // });
   }
 
-  async addPendingUpdate(updateItem: UpdateItem): Promise<void> {
-    // TODO: should we use those variables directly instead of using their
-    // observable version?
-
-    let syncPendingItemMap = await this.syncPendingItemMap$.first().toPromise();
+  async addPendingUpdate(updateItem: SyncUpdateItem): Promise<void> {
+    let pendingItemMap = this.syncPendingItemMap$.value;
 
     let id = updateItem.id;
 
-    let prevItem = syncPendingItemMap.get(id);
+    let prevItem = pendingItemMap.get(id);
 
     if (prevItem && !prevItem.removed && !updateItem.removed) {
       let typeDef = this.typeManager.get(updateItem.type || prevItem.type)!;
@@ -584,16 +546,15 @@ export class SyncCategory<
       updateItem.data = typeDef.combine(prevItem.data, updateItem.data);
     }
 
-    syncPendingItemMap.set(id, updateItem);
+    pendingItemMap.set(id, updateItem);
 
-    this.syncPendingItemMap$.next(syncPendingItemMap);
+    this.syncPendingItemMap$.next(pendingItemMap);
 
-    let storage = await this.syncPendingStorage$.toPromise();
-    await storage.set(updateItem);
+    await this.syncPendingStorage.set(updateItem);
   }
 
   async markPendingUpdatesSynced(ids: string[]): Promise<void> {
-    let syncPendingItemMap = await this.syncPendingItemMap$.first().toPromise();
+    let syncPendingItemMap = this.syncPendingItemMap$.value;
 
     let markedUpdateItems = ids
       .map(id => {
@@ -603,74 +564,67 @@ export class SyncCategory<
 
         return typeDef.markSynced(updateItem.data) ? updateItem : undefined;
       })
-      .filter(updateItem => !!updateItem) as UpdateItem[];
+      .filter(updateItem => !!updateItem) as SyncUpdateItem[];
 
     if (markedUpdateItems.length) {
-      let storage = await this.syncPendingStorage$.toPromise();
-      await storage.setMultiple(markedUpdateItems);
+      await this.syncPendingStorage.setMultiple(markedUpdateItems);
     }
   }
 
-  async removePendingUpdateBefore(time: TimeNumber): Promise<void> {
-    let syncPendingItemMap = await this.syncPendingItemMap$.first().toPromise();
+  async removePendingUpdateBefore(lastUpdateID: number): Promise<void> {
+    let syncPendingItemMap = this.syncPendingItemMap$.value;
 
     for (let [id, item] of syncPendingItemMap) {
-      if (item.updateAt < time) {
+      if (item.updateID <= lastUpdateID) {
         syncPendingItemMap.delete(id);
       }
     }
 
     this.syncPendingItemMap$.next(syncPendingItemMap);
 
-    let storage = await this.syncPendingStorage$.toPromise();
-    await storage.removeWhere('updateAt < ?', time);
+    await this.syncPendingStorage.removeWhere('updateID <= ?', lastUpdateID);
   }
 
   /** For data resetting only, does not change data cached in memory.  */
   async reset(): Promise<void> {
-    await Observable.merge(this.dataStorage$, this.syncPendingStorage$)
-      .mergeMap(async storage => storage.empty())
-      .toPromise();
+    await Promise.all([
+      this.syncStorage.empty(),
+      this.syncPendingStorage.empty(),
+    ]);
   }
 
   private async writeItemBatchHandler(items: SyncItem<V>[]): Promise<void> {
     items = _.uniqBy(items.reverse(), 'id').reverse();
 
-    let pendingMergeSet = this.pendingMergeItemIDSet;
+    let mergePending = (await this.syncStorage.getPrimaryKeys()).length;
 
     if (
       items.length < Math.floor(this.mergeLimit / 10) ||
-      pendingMergeSet.size < this.mergeLimit
+      mergePending < this.mergeLimit
     ) {
       // Not that much new set operation, save them separately first.
-      await v.lock(this.dataWriteLock, async () => {
+      await v.lock(this.syncWriteLock, async () => {
         // do not want other write operation during merging,
         // or merging during other write operation.
-        let storage = await this.dataStorage$.toPromise();
-        await storage.setMultiple(items);
+        await this.syncStorage.setMultiple(items);
       });
     }
 
-    if (pendingMergeSet.size >= this.mergeLimit) {
+    if (mergePending >= this.mergeLimit) {
       // Skip normal set, and merge directly
-      pendingMergeSet.clear();
       await this.mergeItemsData();
     }
   }
 
   private async mergeItemsData(): Promise<void> {
-    await v.lock(this.dataWriteLock, async () => {
+    await v.lock(this.syncWriteLock, async () => {
       // TODO: transaction?
-
-      let storage = await this.dataStorage$.toPromise();
-      let itemMap = await this.itemMap$.first().toPromise();
-
-      await storage.set({
+      await this.syncStorage.set({
         id: '',
-        data: Array.from(itemMap.values()) as any,
+        data: Array.from(this.itemMap$.value.values()) as any,
       });
 
-      await storage.removeWhere("id != ''");
+      await this.syncStorage.removeWhere("id != ''");
     });
   }
 }

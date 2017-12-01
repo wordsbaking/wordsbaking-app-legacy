@@ -8,6 +8,8 @@ import 'rxjs/add/observable/from';
 import 'rxjs/add/observable/fromEvent';
 import 'rxjs/add/observable/interval';
 import 'rxjs/add/observable/merge';
+import 'rxjs/add/observable/race';
+import 'rxjs/add/operator/audit';
 import 'rxjs/add/operator/combineLatest';
 import 'rxjs/add/operator/concat';
 import 'rxjs/add/operator/concatAll';
@@ -25,9 +27,12 @@ import 'rxjs/add/operator/mergeMap';
 import 'rxjs/add/operator/observeOn';
 import 'rxjs/add/operator/pairwise';
 import 'rxjs/add/operator/publish';
+import 'rxjs/add/operator/publishBehavior';
 import 'rxjs/add/operator/publishReplay';
 import 'rxjs/add/operator/repeat';
 import 'rxjs/add/operator/repeatWhen';
+import 'rxjs/add/operator/share';
+import 'rxjs/add/operator/shareReplay';
 import 'rxjs/add/operator/skip';
 import 'rxjs/add/operator/startWith';
 import 'rxjs/add/operator/switch';
@@ -43,16 +48,22 @@ import {environment} from './environments/environment';
 
 import {hmrBootstrap} from './hmr';
 
+import {_preload} from './app/preload';
+
 if (environment.production) {
   enableProdMode();
 }
 
-if (environment.hmr && module['hot']) {
-  hmrBootstrap(module, bootstrap).catch(logger.error);
-} else {
-  bootstrap().catch(logger.error);
-}
+_preload()
+  .then(async () => {
+    if (environment.hmr && module['hot']) {
+      await hmrBootstrap(module, bootstrap);
+    } else {
+      await bootstrap();
+    }
 
-function bootstrap() {
-  return platformBrowserDynamic().bootstrapModule(AppModule, []);
-}
+    function bootstrap() {
+      return platformBrowserDynamic().bootstrapModule(AppModule, []);
+    }
+  })
+  .catch(logger.error);
