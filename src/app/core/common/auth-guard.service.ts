@@ -31,13 +31,6 @@ export class AuthGuardService
 
   private checkSigned(): Observable<boolean> {
     return this.authConfigService.apiKey$
-      .switchMap(apiKey => {
-        if (!apiKey) {
-          return this.authConfigService.apiKey$.delay(300);
-        }
-
-        return apiKey;
-      })
       .map(apiKey => {
         let signed = !!apiKey;
 

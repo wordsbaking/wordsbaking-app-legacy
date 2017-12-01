@@ -344,7 +344,7 @@ export class SyncService implements CategoryHost, OnDestroy {
 
   async reset(): Promise<void> {
     await Promise.all([
-      this.syncConfigService.set('syncAt', undefined),
+      this.syncConfigService.reset(),
       ...this.categoryNames.map(async name => this[name].reset()),
     ]);
   }

@@ -111,6 +111,7 @@ export class UserService implements OnDestroy {
 
   async signOut(): Promise<void> {
     await this.loadingService.wait(this.apiService.signOut(), '注销中...');
-    await this.navigationService.navigate(['/sign-in']);
+    await this.syncService.reset();
+    window.location.href = '/sign-in';
   }
 }

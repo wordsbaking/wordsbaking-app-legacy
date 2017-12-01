@@ -5,7 +5,7 @@ import ExtendableError from 'extendable-error';
 
 import {AuthConfigService} from 'app/core/config/auth';
 
-const apiBaseUrl = '//10.0.9.131:1337';
+const apiBaseUrl = '//localhost:1337';
 
 interface APIErrorData {
   code: string;
@@ -132,11 +132,7 @@ export class APIService {
   }
 
   async signOut(): Promise<void> {
-    await Promise.all([
-      this.authConfigService.set('apiKey', undefined),
-      this.authConfigService.set('userId', undefined),
-      this.authConfigService.set('account', undefined),
-    ]);
+    await this.authConfigService.reset();
   }
 
   async uploadAvatar(avatarData: Blob): Promise<string> {
