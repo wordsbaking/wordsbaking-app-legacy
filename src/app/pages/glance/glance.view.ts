@@ -1,14 +1,17 @@
 import {trigger} from '@angular/animations';
 import {Component, HostBinding, OnInit} from '@angular/core';
 
-import {SettingsConfigService} from 'app/core/config';
+import {Observable} from 'rxjs/Observable';
+
+import * as logger from 'logger';
+
+import {fadeTransitions} from 'app/ui/common';
+
+import {SettingsConfigService, UserConfigService} from 'app/core/config';
 import {SyncService} from 'app/core/data';
 import {EngineService} from 'app/core/engine';
 import {pageTransitions} from 'app/core/ui';
 import {UserService} from 'app/core/user';
-
-import * as logger from 'logger';
-import {Observable} from 'rxjs/Observable';
 
 const glanceViewTransitions = trigger('glanceViewTransitions', [
   ...pageTransitions,
@@ -18,7 +21,7 @@ const glanceViewTransitions = trigger('glanceViewTransitions', [
   selector: 'wb-view.glance-view',
   templateUrl: './glance.view.html',
   styleUrls: ['./glance.view.less'],
-  animations: [glanceViewTransitions],
+  animations: [glanceViewTransitions, fadeTransitions],
 })
 export class GlanceView implements OnInit {
   @HostBinding('@glanceViewTransitions') glanceViewTransitions = 'active';
@@ -92,9 +95,10 @@ export class GlanceView implements OnInit {
     .refCount();
 
   constructor(
+    public syncService: SyncService,
+    public userConfigService: UserConfigService,
     private engineService: EngineService,
     private userService: UserService,
-    private syncService: SyncService,
     private settingsConfigService: SettingsConfigService,
   ) {}
 

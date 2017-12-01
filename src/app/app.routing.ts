@@ -1,5 +1,7 @@
 import {RouterModule, Routes} from '@angular/router';
 
+import {AuthGuardService} from 'app/core/common';
+
 import {SplashScreenView} from 'app/pages/splash-screen/splash-screen.view';
 
 const routes: Routes = [
@@ -11,16 +13,25 @@ const routes: Routes = [
   {
     path: 'glance',
     loadChildren: './pages/glance/glance.module#GlanceModule',
+    canLoad: [AuthGuardService],
+    canActivate: [AuthGuardService],
+    canActivateChild: [AuthGuardService],
     data: {target: 'glance'},
   },
   {
     path: 'study',
     loadChildren: './pages/study/study.module#StudyModule',
+    canLoad: [AuthGuardService],
+    canActivate: [AuthGuardService],
+    canActivateChild: [AuthGuardService],
     data: {target: 'study'},
   },
   {
     path: 'settings',
     loadChildren: './pages/settings/settings.module#SettingsModule',
+    canLoad: [AuthGuardService],
+    canActivate: [AuthGuardService],
+    canActivateChild: [AuthGuardService],
     data: {target: 'settings'},
   },
   {
@@ -36,16 +47,22 @@ const routes: Routes = [
   {
     path: 'recycle-bin',
     loadChildren: './pages/recycle-bin/recycle-bin.module#RecycleBinModule',
+    canLoad: [AuthGuardService],
+    canActivate: [AuthGuardService],
+    canActivateChild: [AuthGuardService],
     data: {target: 'recycle-bin'},
   },
   {
     path: 'user-profile',
     loadChildren: './pages/user-profile/user-profile.module#UserProfileModule',
+    canLoad: [AuthGuardService],
+    canActivate: [AuthGuardService],
+    canActivateChild: [AuthGuardService],
     data: {target: 'user-profile'},
   },
   {
     path: '**',
-    redirectTo: 'glance',
+    redirectTo: 'sign-in',
   },
 ];
 

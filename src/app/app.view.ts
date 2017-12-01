@@ -5,9 +5,9 @@ import {
   ViewContainerRef,
 } from '@angular/core';
 import {
+  NavigationCancel,
   NavigationEnd,
   NavigationStart,
-  RouteConfigLoadStart,
   Router,
   RouterOutlet,
 } from '@angular/router';
@@ -46,17 +46,20 @@ export class AppView {
     let navigationUrl: string | undefined;
     let navigationLoadingHandler: LoadingHandler<void> | undefined;
     let navigationLoadingTimerHandle: number;
+    let firstPage = true;
 
     this.router.events.subscribe(event => {
       if (event instanceof NavigationStart) {
         navigationUrl = event.url;
-      } else if (event instanceof RouteConfigLoadStart) {
         clearTimeout(navigationLoadingTimerHandle);
+
         navigationLoadingTimerHandle = setTimeout(() => {
           navigationLoadingHandler = this.loadingService.show('加载中...');
-        }, 100);
+        }, firstPage ? 600 : 100);
+
+        firstPage = false;
       } else if (
-        event instanceof NavigationEnd &&
+        (event instanceof NavigationEnd || event instanceof NavigationCancel) &&
         navigationUrl === event.url
       ) {
         clearTimeout(navigationLoadingTimerHandle);

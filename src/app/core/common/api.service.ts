@@ -12,14 +12,6 @@ interface APIErrorData {
   message: string;
 }
 
-// type ErrorMessageBuilder = (error: APIErrorData) => string;
-
-// const errorMessageBuilderDict: Dict<ErrorMessageBuilder> = {
-//   UserExistsError(): string {
-//     return '该用户已经存在';
-//   },
-// };
-
 interface APISuccessResult {
   data: any;
 }
@@ -53,12 +45,16 @@ export class APIError extends ExtendableError {
 
 export interface SignUpInfo {
   apiKey: string;
+  account: string;
+  userId: string;
 }
 
 // /sign-in
 
 export interface SignInInfo {
   apiKey: string;
+  account: string;
+  userId: string;
 }
 
 @Injectable()
@@ -108,21 +104,45 @@ export class APIService {
   }
 
   async signUp(email: string, password: string): Promise<void> {
-    let {apiKey} = await this.call<SignUpInfo>(
+    let {apiKey, userId, account} = await this.call<SignUpInfo>(
       '/sign-up',
       {email, password},
       {auth: false},
     );
-    await this.authConfigService.set('apiKey', apiKey);
+
+    await Promise.all([
+      this.authConfigService.set('apiKey', apiKey),
+      this.authConfigService.set('userId', userId),
+      this.authConfigService.set('account', account),
+    ]);
   }
 
   async signIn(email: string, password: string): Promise<void> {
-    let {apiKey} = await this.call<SignInInfo>(
+    let {apiKey, userId, account} = await this.call<SignInInfo>(
       '/sign-in',
       {email, password},
       {auth: false},
     );
-    await this.authConfigService.set('apiKey', apiKey);
+
+    await Promise.all([
+      this.authConfigService.set('apiKey', apiKey),
+      this.authConfigService.set('userId', userId),
+      this.authConfigService.set('account', account),
+    ]);
+  }
+
+  async signOut(): Promise<void> {
+    await Promise.all([
+      this.authConfigService.set('apiKey', undefined),
+      this.authConfigService.set('userId', undefined),
+      this.authConfigService.set('account', undefined),
+    ]);
+  }
+
+  async uploadAvatar(avatarData: Blob): Promise<string> {
+    return this.call<string>('/update-profile', avatarData, {
+      type: 'application/octet-stream',
+    });
   }
 
   getUrl(path: string): string {

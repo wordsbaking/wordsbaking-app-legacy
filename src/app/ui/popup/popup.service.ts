@@ -158,7 +158,7 @@ export class PopupService {
 
     set.delete(info);
 
-    if (this.backgroundComponentRef) {
+    if (this.backgroundComponentRef && !set.size) {
       this.backgroundComponentRef.destroy();
       this.backgroundComponentRef = undefined;
     }

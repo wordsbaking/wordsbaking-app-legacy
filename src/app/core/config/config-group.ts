@@ -64,10 +64,13 @@ export abstract class ConfigGroup<
     name: keyof TRaw,
     value: TRaw[K],
   ): Promise<void> {
+    // tslint:disable-next-line:no-null-keyword
+    let jsonValue = value === undefined ? null : value;
+
     if (this.syncCategory) {
-      await this.syncService!.update(this.syncCategory, name, value);
+      await this.syncService!.update(this.syncCategory, name, jsonValue);
     } else {
-      await this.storage!.set(name, value);
+      await this.storage!.set(name, jsonValue);
     }
   }
 

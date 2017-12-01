@@ -10,9 +10,10 @@
     <wb-settings-view-settings-group title="账号信息">
       <wb-settings-view-settings-item class="user-profile-entry"
         title="账号"
-        description="maolion.j@gmail.com"
+        [description]="authConfigService.account$ | async"
         wbPressLink="/user-profile">
-        <span class="avatar" [style.backgroundImage]="'url(https://picsum.photos/128/128)'"></span>
+        <span class="avatar"
+          [style.backgroundImage]="'url('+(userConfigService.avatarUrl$ | async)+')'"></span>
         <button class="small" (wbPress)="showUserManagerMenuPopup()" [wbPressStop]="true">管理</button>
       </wb-settings-view-settings-item>
 
@@ -114,7 +115,7 @@
       <wb-selection-list-item>
         <span class="text">账号设置</span>
       </wb-selection-list-item>
-      <wb-selection-list-item wbPressLink="/sign-in">
+      <wb-selection-list-item (wbPress)="signOut()">
         <span class="text">注销登录</span>
       </wb-selection-list-item>
     </wb-selection-list>
