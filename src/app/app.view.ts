@@ -12,7 +12,14 @@ import {
   RouterOutlet,
 } from '@angular/router';
 
-import {LoadingHandler, LoadingService, ViewContainerService} from 'app/ui';
+import {
+  LoadingHandler,
+  LoadingService,
+  ToastService,
+  ViewContainerService,
+} from 'app/ui';
+
+import {SyncService} from 'app/core/data';
 
 import {routerTransitions} from './app-router.animations';
 
@@ -34,10 +41,16 @@ export class AppView {
   constructor(
     viewContainerRef: ViewContainerRef,
     viewContainerService: ViewContainerService,
+    syncService: SyncService,
+    toastService: ToastService,
     private router: Router,
     private loadingService: LoadingService,
   ) {
     viewContainerService.viewContainerRef = viewContainerRef;
+
+    syncService.lastSyncError$
+      .filter(err => !!err)
+      .subscribe(() => toastService.show('同步失败'));
 
     this.mountPageLoadingHint();
   }

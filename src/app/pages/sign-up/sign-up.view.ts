@@ -3,7 +3,7 @@ import {Component, ElementRef, HostBinding, OnInit} from '@angular/core';
 import {FormBuilder, FormGroup, Validators} from '@angular/forms';
 import {Router} from '@angular/router';
 
-import {DialogService, LoadingService} from 'app/ui';
+import {LoadingService, ToastService} from 'app/ui';
 
 import {APIService} from 'app/core/common';
 import {pageTransitions} from 'app/core/ui';
@@ -30,7 +30,7 @@ export class SignUpView implements OnInit {
   constructor(
     private formBuilder: FormBuilder,
     private apiService: APIService,
-    private dialogService: DialogService,
+    private toastService: ToastService,
     private loadingService: LoadingService,
     private router: Router,
     private ref: ElementRef,
@@ -61,9 +61,9 @@ export class SignUpView implements OnInit {
 
     if (form.invalid) {
       if (form.get('email')!.errors) {
-        await this.dialogService.alert('邮箱格式不正确.');
+        await this.toastService.show('邮箱格式不正确!');
       } else if (form.get('password')!.errors) {
-        await this.dialogService.alert('密码长度应在 6-32 位之间.');
+        await this.toastService.show('密码长度应在 6-32 位之间!');
       }
 
       return;
@@ -82,10 +82,10 @@ export class SignUpView implements OnInit {
     } catch (error) {
       switch (error.code) {
         case 'UserExistsError':
-          await this.dialogService.alert(`用户 ${email} 已存在.`);
+          await this.toastService.show(`用户 ${email} 已存在!`);
           break;
         default:
-          await this.dialogService.alert(`未知错误 ${error.code || ''}.`);
+          await this.toastService.show(`未知错误 ${error.code || ''}!`);
           break;
       }
 

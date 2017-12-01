@@ -17,7 +17,7 @@
         <button class="small" (wbPress)="showUserManagerMenuPopup()" [wbPressStop]="true">管理</button>
       </wb-settings-view-settings-item>
 
-      <wb-settings-view-settings-item title="最后同步" description="2017年11月2日 20:10">
+      <wb-settings-view-settings-item title="最后同步" [description]="lastSyncTimeDescription$ | async">
       </wb-settings-view-settings-item>
     </wb-settings-view-settings-group>
 

@@ -11,7 +11,7 @@ import {
   UserConfigService,
 } from 'app/core/config';
 import {AuthConfigService} from 'app/core/config/auth';
-import {PronunciationType} from 'app/core/data';
+import {PronunciationType, SyncService} from 'app/core/data';
 import {SentenceTtsSpeed, StudyOrder, StudyScope} from 'app/core/engine';
 import {SelectionListPopupService, pageTransitions} from 'app/core/ui';
 import {UserService} from 'app/core/user';
@@ -32,6 +32,18 @@ export class SettingsView {
   @ViewChild(PopupComponent) userManagerMenuPopupComponent: PopupComponent;
 
   @HostBinding('@settingsViewTransition') settingsViewTransition = '';
+
+  readonly lastSyncTimeDescription$ = this.syncService.lastSyncTime$.map(
+    time => {
+      if (time) {
+        let date = new Date(time);
+        return `${date.getFullYear()}年${date.getMonth() +
+          1}月${date.getDate()}日 ${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}`;
+      } else {
+        return '等待同步中...';
+      }
+    },
+  );
 
   readonly pronunciationDescription$ = this.settingsConfigService.pronunciation$.map(
     pron => SettingsConfig.Pronunciation.getDescription(pron),
@@ -84,6 +96,7 @@ export class SettingsView {
     private selectionListPopupService: SelectionListPopupService,
     private dialogService: DialogService,
     private userService: UserService,
+    private syncService: SyncService,
     public authConfigService: AuthConfigService,
     public userConfigService: UserConfigService,
   ) {}

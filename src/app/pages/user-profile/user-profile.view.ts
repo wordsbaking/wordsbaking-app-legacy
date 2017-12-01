@@ -7,10 +7,11 @@ import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 
 import * as ImageCompressor from '@xkeshi/image-compressor';
 
+import {LoadingService, ToastService} from 'app/ui';
+
 import {APIService} from 'app/core/common';
 import {NavigationService} from 'app/core/navigation';
 import {pageTransitions} from 'app/core/ui';
-import {DialogService, LoadingService} from 'app/ui';
 
 import {UserConfigService} from 'app/core/config';
 import {Observable} from 'rxjs/Observable';
@@ -52,9 +53,9 @@ export class UserProfileView implements OnInit {
     private sanitization: DomSanitizer,
     private userConfigService: UserConfigService,
     private apiService: APIService,
-    private dialogService: DialogService,
     private loadingService: LoadingService,
     private navigationService: NavigationService,
+    private toastService: ToastService,
   ) {}
 
   ngOnInit(): void {
@@ -93,13 +94,13 @@ export class UserProfileView implements OnInit {
       let taglineControl = form.get('tagline')!;
 
       if (displayNameControl.hasError('required')) {
-        await this.dialogService.alert('昵称不能为空.');
+        this.toastService.show('昵称不能为空!');
       } else if (displayNameControl.hasError('maxlength')) {
-        await this.dialogService.alert('昵称不超过10个字符.');
+        this.toastService.show('昵称不超过10个字符!');
       } else if (taglineControl.errors) {
-        await this.dialogService.alert('标签行内容不超过20个字符');
+        this.toastService.show('标签行内容不超过20个字符!');
       } else {
-        await this.dialogService.alert('请按要求填写完表单项目.');
+        this.toastService.show('请按要求填写完表单项目!');
       }
 
       return;
@@ -135,7 +136,7 @@ export class UserProfileView implements OnInit {
 
         syncPromises.push(this.userConfigService.set('avatar', avatar));
       } catch (e) {
-        await this.dialogService.alert('上传头像失败');
+        this.toastService.show('上传头像失败!');
         return;
       }
     }
@@ -158,8 +159,11 @@ export class UserProfileView implements OnInit {
       await this.loadingService.wait(Promise.all(syncPromises), '保存中...')
         .result;
     } catch (e) {
-      await this.dialogService.alert('保存失败失败');
+      this.toastService.show('保存失败!');
+      return;
     }
+
+    this.toastService.show('保存成功.');
 
     this.navigationService.back();
   }
