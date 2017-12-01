@@ -75,7 +75,7 @@ export class DBStorage<K extends string | number, T> {
           resolve(result);
 
           if (changed) {
-            this.change$.next();
+            setTimeout(() => this.change$.next());
           }
         },
       );
