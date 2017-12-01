@@ -7,7 +7,10 @@
       </div>
       <div class="meta">
         <span class="meta-item displayName">{{userConfigService.displayName$ | async}}</span>
-        <span class="meta-item tagline">{{userConfigService.tagline$ | async}}</span>
+        <span class="meta-item status">
+          <span class="tagline" *ngIf="!(syncService.syncing$ | async)" @fadeTransitions>{{userConfigService.tagline$ | async}}</span>
+          <span class="syncing-hint" *ngIf="syncService.syncing$ | async" [@fadeTransitions]="true">正在同步数据...</span>
+        </span>
       </div>
     </div>
     <div class="toolbar">

@@ -50,10 +50,19 @@ wb-page-header {
       font-size: @size-text-larger;
     }
 
-    .meta-item.tagline {
+    .meta-item.status {
+      position: relative;
       color: @color-theme-f;
       line-height: 24px;
+      height: 24px;
       font-size: @size-text-normal;
+
+      .tagline,
+      .syncing-hint {
+        position: absolute;
+        top: 0;
+        left: 0;
+      }
     }
   }
 

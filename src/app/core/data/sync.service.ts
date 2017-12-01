@@ -12,6 +12,8 @@ import memorize from 'memorize-decorator';
 import * as ms from 'ms';
 import * as v from 'villa';
 
+import {ToastService} from 'app/ui';
+
 import {APIService} from 'app/core/common';
 import {SettingsRawConfig, UserConfig} from 'app/core/config';
 import {SyncConfigService} from 'app/core/config/sync';
@@ -114,6 +116,7 @@ export class SyncService implements CategoryHost, OnDestroy {
 
   constructor(
     readonly apiService: APIService,
+    readonly toastService: ToastService,
     readonly syncConfigService: SyncConfigService, // readonly url: string, // readonly auth?: AuthData, // readonly dbStorageName = DEFAULT_DATA_TYPE, // configStorage = new LocalData.DBStorage<any>( //   dbStorageName,
   ) {
     let typeManager = this.typeManager;
@@ -334,6 +337,9 @@ export class SyncService implements CategoryHost, OnDestroy {
 
     try {
       return await this._sync();
+    } catch (e) {
+      this.toastService.show('同步失败!');
+      throw e;
     } finally {
       this.syncing$.next(false);
     }
