@@ -3,7 +3,7 @@ import {Component, HostBinding, OnInit} from '@angular/core';
 import {FormBuilder, FormGroup, Validators} from '@angular/forms';
 import {Router} from '@angular/router';
 
-import {DialogService, LoadingService} from 'app/ui';
+import {LoadingService, ToastService} from 'app/ui';
 
 import {APIService} from 'app/core/common';
 import {pageTransitions} from 'app/core/ui';
@@ -26,7 +26,7 @@ export class SignInView implements OnInit {
   constructor(
     private formBuilder: FormBuilder,
     private apiService: APIService,
-    private dialogService: DialogService,
+    private toastService: ToastService,
     private loadingService: LoadingService,
     private router: Router,
   ) {}
@@ -43,9 +43,9 @@ export class SignInView implements OnInit {
 
     if (form.invalid) {
       if (form.get('email')!.errors) {
-        await this.dialogService.alert('邮箱格式不正确.');
+        await this.toastService.show('邮箱格式不正确!');
       } else if (form.get('password')!.errors) {
-        await this.dialogService.alert('请填写账号密码.');
+        await this.toastService.show('请填写账号密码!');
       }
 
       return;
@@ -64,13 +64,13 @@ export class SignInView implements OnInit {
     } catch (error) {
       switch (error.code) {
         case 'UserNotExistsError':
-          await this.dialogService.alert(`用户 ${email} 不存在.`);
+          await this.toastService.show(`用户 ${email} 不存在!`);
           break;
         case 'PasswordMismatchError':
-          await this.dialogService.alert(`密码错误, 请重试或找回密码.`);
+          await this.toastService.show(`密码错误, 请重试或找回密码!`);
           break;
         default:
-          await this.dialogService.alert(`未知错误 ${error.code || ''}.`);
+          await this.toastService.show(`未知错误 ${error.code || ''}.`);
           break;
       }
 

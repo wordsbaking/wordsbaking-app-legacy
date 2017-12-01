@@ -1,5 +1,6 @@
 import {trigger} from '@angular/animations';
 import {Component, HostBinding, ViewChild} from '@angular/core';
+import * as moment from 'moment';
 
 import {Observable} from 'rxjs/Observable';
 
@@ -11,7 +12,7 @@ import {
   UserConfigService,
 } from 'app/core/config';
 import {AuthConfigService} from 'app/core/config/auth';
-import {PronunciationType} from 'app/core/data';
+import {PronunciationType, SyncService} from 'app/core/data';
 import {SentenceTtsSpeed, StudyOrder, StudyScope} from 'app/core/engine';
 import {SelectionListPopupService, pageTransitions} from 'app/core/ui';
 import {UserService} from 'app/core/user';
@@ -32,6 +33,16 @@ export class SettingsView {
   @ViewChild(PopupComponent) userManagerMenuPopupComponent: PopupComponent;
 
   @HostBinding('@settingsViewTransition') settingsViewTransition = '';
+
+  readonly lastSyncTimeDescription$ = this.syncService.lastSyncTime$.map(
+    time => {
+      if (time) {
+        return moment(time).format('YYYY年MM月DD日 HH:mm:ss');
+      } else {
+        return '等待同步中...';
+      }
+    },
+  );
 
   readonly pronunciationDescription$ = this.settingsConfigService.pronunciation$.map(
     pron => SettingsConfig.Pronunciation.getDescription(pron),
@@ -84,6 +95,7 @@ export class SettingsView {
     private selectionListPopupService: SelectionListPopupService,
     private dialogService: DialogService,
     private userService: UserService,
+    private syncService: SyncService,
     public authConfigService: AuthConfigService,
     public userConfigService: UserConfigService,
   ) {}
