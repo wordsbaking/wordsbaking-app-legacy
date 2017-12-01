@@ -131,9 +131,7 @@ export class APIService {
     ]);
   }
 
-  async signOut(): Promise<void> {
-    await this.authConfigService.reset();
-  }
+  async signOut(): Promise<void> {}
 
   async uploadAvatar(avatarData: Blob): Promise<string> {
     return this.call<string>('/update-profile', avatarData, {

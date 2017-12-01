@@ -17,7 +17,7 @@ export interface LoadingShowOptions {
 
 export interface LoadingHandler<T> {
   result: Promise<T>;
-  hint$: BehaviorSubject<string>;
+  setText(hint: string): void;
   clear(): void;
 }
 
@@ -149,7 +149,7 @@ export class LoadingService {
 
     handler = {
       result,
-      hint$,
+      setText: (hint: string) => hint$.next(hint),
       clear: () => {
         if (this.latestFullScreenLoadingInfo === loadingInfo) {
           this.clear(loadingInfo);

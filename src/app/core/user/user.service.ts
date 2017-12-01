@@ -12,6 +12,7 @@ import {LoadingService} from 'app/ui';
 
 import {APIService} from 'app/core/common';
 import {UserConfigService} from 'app/core/config';
+import {AuthConfigService} from 'app/core/config/auth';
 import {SyncService} from 'app/core/data';
 
 const DAY_START_CLOCK = 4; // A new day start at 4 AM.
@@ -69,6 +70,7 @@ export class UserService implements OnDestroy {
     private syncService: SyncService,
     private apiService: APIService,
     private loadingService: LoadingService,
+    private authConfigService: AuthConfigService,
   ) {
     this.subscription.add(
       this.studyHeartBeat$
@@ -107,9 +109,20 @@ export class UserService implements OnDestroy {
     this.studyHeartBeat$.next();
   }
 
+  async resetStorage(): Promise<void> {
+    await Promise.all([
+      this.syncService.reset(),
+      this.authConfigService.reset(),
+    ]);
+  }
+
   async signOut(): Promise<void> {
-    await this.loadingService.wait(this.apiService.signOut(), '注销中...');
-    await this.syncService.reset();
-    setTimeout(() => (window.location.href = '/sign-in'), 200);
+    this.loadingService.show('注销中...');
+    await this.resetStorage();
+    await this.apiService.signOut();
+
+    this.loadingService.show('退出登录!');
+
+    window.location.href = '/sign-in';
   }
 }

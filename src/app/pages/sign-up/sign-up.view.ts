@@ -7,6 +7,7 @@ import {LoadingService, ToastService} from 'app/ui';
 
 import {APIService} from 'app/core/common';
 import {pageTransitions} from 'app/core/ui';
+import {UserService} from 'app/core/user';
 
 const signUpViewTransitions = trigger('signUpViewTransitions', [
   ...pageTransitions,
@@ -32,6 +33,7 @@ export class SignUpView implements OnInit {
     private apiService: APIService,
     private toastService: ToastService,
     private loadingService: LoadingService,
+    private userService: UserService,
     private router: Router,
     private ref: ElementRef,
   ) {
@@ -73,6 +75,10 @@ export class SignUpView implements OnInit {
       email: {value: email},
       password: {value: password},
     } = this.form.controls;
+
+    try {
+      await this.userService.resetStorage();
+    } catch (e) {}
 
     try {
       await this.loadingService.wait(

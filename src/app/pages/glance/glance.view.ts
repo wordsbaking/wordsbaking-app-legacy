@@ -33,9 +33,10 @@ export class GlanceView implements OnInit {
     .publishReplay(1)
     .refCount();
 
-  todayNewGoal$ = this.settingsConfigService.dailyStudyPlan$.map(
-    plan => plan || undefined,
-  );
+  todayNewGoal$ = this.settingsConfigService.dailyStudyPlan$
+    .map(plan => plan || undefined)
+    .publishReplay(1)
+    .refCount();
 
   // Overall progress
 
