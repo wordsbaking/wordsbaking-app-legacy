@@ -173,9 +173,7 @@ export class DBStorage<K extends string | number, T> {
       throw new TypeError('Expecting an object');
     }
 
-    let json = JSON.stringify(item);
-
-    extraValues.push(json);
+    extraValues.push(stringify(item));
 
     let query = `\
 insert or replace into "${this.tableName}" (
@@ -260,7 +258,7 @@ select ${[...columns, JSON_KEY]
             }
           }
 
-          values.push(JSON.stringify(item));
+          values.push(stringify(item));
         } else if (columns.length) {
           throw new TypeError('Expecting an object');
         }
@@ -299,8 +297,7 @@ select ${[...columns, JSON_KEY]
       delete (item as any)[column];
     }
 
-    let json = JSON.stringify(item);
-    extraValues.push(json);
+    extraValues.push(stringify(item));
 
     let query = `\
 insert or replace into "${this.tableName}" (
@@ -335,7 +332,7 @@ values (
   }
 
   private buildItem(row: any): T {
-    let item = JSON.parse(row[JSON_KEY] || '{}');
+    let item = parse(row[JSON_KEY] || '');
 
     let columns = this.columns;
 
@@ -395,4 +392,12 @@ create table if not exists "${tableName}" (
   }
 
   private static dbMap = new Map<string, Database>();
+}
+
+function parse(extendedJSON: string): any {
+  return extendedJSON ? JSON.parse(extendedJSON) : undefined;
+}
+
+function stringify(value: any): string {
+  return value === undefined ? '' : JSON.stringify(value);
 }
