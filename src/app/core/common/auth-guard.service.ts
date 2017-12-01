@@ -33,7 +33,7 @@ export class AuthGuardService
     return this.authConfigService.apiKey$
       .switchMap(apiKey => {
         if (!apiKey) {
-          return this.authConfigService.apiKey$.delay(16);
+          return this.authConfigService.apiKey$.delay(300);
         }
 
         return apiKey;
