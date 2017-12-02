@@ -60,9 +60,18 @@ export class AppView {
     let navigationLoadingHandler: LoadingHandler<void> | undefined;
     let navigationLoadingTimerHandle: number;
     let firstPage = true;
+    let isSplashScreenPage = false;
 
     this.router.events.subscribe(event => {
+      if (event instanceof NavigationEnd) {
+        isSplashScreenPage = event.url === '/';
+      }
+
       if (event instanceof NavigationStart) {
+        if (isSplashScreenPage) {
+          return;
+        }
+
         navigationUrl = event.url;
         clearTimeout(navigationLoadingTimerHandle);
 
