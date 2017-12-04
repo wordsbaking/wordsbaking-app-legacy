@@ -13,14 +13,33 @@
   <base href="./">
   <link rel="icon" type="image/x-icon" href="favicon.ico">
   <style>
+    body {
+      position: relative;
+      z-index: 1;
+    }
+
+    body::after {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      content: '';
+      background: url('./assets/screen.png') no-repeat center #a4c400;
+      background-size: cover;
+      z-index: 2;
+      /* transition: opacity 0.2s linear; */
+    }
+
+    body.ready::after {
+      /* opacity: 0; */
+      display: none;
+    }
   </style>
 </head>
 
 <body oncontextmenu="return false">
   <wb-root></wb-root>
   <script src="cordova.js" defer async></script>
-  <script>
-    document.addEventListener('deviceready', function() { document.body.classList.add(cordova.platformId); }, false);
-  </script>
 </body>
 </html>

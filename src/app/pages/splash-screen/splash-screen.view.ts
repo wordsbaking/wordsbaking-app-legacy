@@ -25,7 +25,8 @@ export class SplashScreenView {
 
   async initialize(): Promise<void> {
     let apiKey = await this.authConfigService.apiKey$.first().toPromise();
-    await new Promise<void>(resolve => setTimeout(resolve, 1000));
+
+    await new Promise<void>(resolve => setTimeout(resolve, 600));
     await this.router.navigate(apiKey ? ['/glance'] : ['/sign-in']);
   }
 }
