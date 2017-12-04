@@ -3,7 +3,13 @@ import {Component, HostBinding} from '@angular/core';
 
 import {pageTransitions} from 'app/core/ui';
 
-import {UserConfigService} from 'app/core/config';
+import {
+  AudioMode,
+  SettingsConfigService,
+  UserConfigService,
+} from 'app/core/config';
+
+import * as logger from 'logger';
 
 const studyViewTransitions = trigger('studyViewTransitions', [
   ...pageTransitions,
@@ -18,7 +24,21 @@ const studyViewTransitions = trigger('studyViewTransitions', [
 export class StudyView {
   @HostBinding('@studyViewTransitions') studyViewTransitions = '';
 
-  constructor(public userConfigService: UserConfigService) {}
+  readonly tagline$ = this.userConfigService.tagline$;
 
-  switchAudioMode(): void {}
+  readonly audioMode$ = this.settingsConfigService.audioMode$;
+
+  constructor(
+    private userConfigService: UserConfigService,
+    private settingsConfigService: SettingsConfigService,
+  ) {}
+
+  switchAudioMode(): void {
+    let modes: AudioMode[] = ['on', 'auto', 'off'];
+
+    this.audioMode$.first().subscribe(mode => {
+      let nextMode = modes[(modes.indexOf(mode) + 1) % modes.length];
+      this.settingsConfigService.set('audioMode', nextMode).catch(logger.error);
+    });
+  }
 }

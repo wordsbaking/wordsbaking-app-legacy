@@ -2,7 +2,7 @@
   <wb-page-header>
     <button class="back-button" wbTriggerBack>
       <span class="icon back"></span>
-      <span class="title tagline">{{this.userConfigService.tagline$ | async}}</span>
+      <span class="title tagline">{{tagline$ | async}}</span>
     </button>
     <div class="toolbar" (wbPress)="page.toggleHeaderExtension()">
       <span class="time">00:00</span>
@@ -15,7 +15,7 @@
   <wb-page-header-extension>
     <button class="ghost audio-mode-switch-button" (wbPress)="switchAudioMode()">
       <span class="text">发音</span>
-      <span class="status">off</span>
+      <span class="status">{{audioMode$ | async}}</span>
     </button>
   </wb-page-header-extension>
 

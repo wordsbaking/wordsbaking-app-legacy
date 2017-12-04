@@ -5,6 +5,8 @@ import {SentenceTtsSpeed, StudyOrder, StudyScope} from 'app/core/engine';
 
 import {ConfigGroup} from './config-group';
 
+export type AudioMode = 'on' | 'off' | 'auto';
+
 export interface SettingsRawConfig {
   collectionIDs?: string[];
   studyScopes?: StudyScope[];
@@ -17,6 +19,7 @@ export interface SettingsRawConfig {
   obstinateEnhance?: boolean;
   fixedStack?: boolean;
   showGuide?: boolean;
+  audioMode?: AudioMode;
 }
 
 export interface SettingsConfig {
@@ -31,6 +34,7 @@ export interface SettingsConfig {
   obstinateEnhance: boolean;
   fixedStack: boolean;
   showGuide: boolean;
+  audioMode: AudioMode;
 }
 
 @Injectable()
@@ -49,6 +53,7 @@ export class SettingsConfigService extends ConfigGroup<
   readonly obstinateEnhance$ = this.getObservable('obstinateEnhance');
   readonly fixedStack$ = this.getObservable('fixedStack');
   readonly showGuide$ = this.getObservable('showGuide');
+  readonly audioMode$ = this.getObservable('audioMode');
 
   constructor(syncService: SyncService) {
     super('settings', syncService, syncService.settings);
@@ -89,6 +94,7 @@ export class SettingsConfigService extends ConfigGroup<
     obstinateEnhance = true,
     fixedStack = true,
     showGuide = true,
+    audioMode = 'on',
   }: SettingsRawConfig): SettingsConfig {
     return {
       collectionIDSet: new Set(collectionIDs),
@@ -102,6 +108,7 @@ export class SettingsConfigService extends ConfigGroup<
       obstinateEnhance,
       fixedStack,
       showGuide,
+      audioMode,
     };
   }
 }
