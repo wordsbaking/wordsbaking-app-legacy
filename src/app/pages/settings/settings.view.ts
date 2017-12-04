@@ -91,11 +91,11 @@ export class SettingsView {
   // readonly avatarUrl$ =
 
   constructor(
-    private settingsConfigService: SettingsConfigService,
     private selectionListPopupService: SelectionListPopupService,
     private dialogService: DialogService,
     private userService: UserService,
     private syncService: SyncService,
+    public settingsConfigService: SettingsConfigService,
     public authConfigService: AuthConfigService,
     public userConfigService: UserConfigService,
   ) {}

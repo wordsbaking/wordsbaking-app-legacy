@@ -22,6 +22,8 @@
     > .inner {
       will-change: transform;
       background-color: @color-theme;
+      padding-top: constant(safe-area-inset-top);
+      padding-top: env(safe-area-inset-top);
     }
 
     ::ng-deep wb-page-header,
@@ -58,6 +60,8 @@
 
     ::ng-deep wb-page-footer {
       padding: 10px 12px 12px;
+      margin-bottom: constant(safe-area-inset-bottom);
+      margin-bottom: env(safe-area-inset-bottom);
     }
   }
 }

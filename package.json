@@ -11,7 +11,9 @@
     "lint": "yarn lint:styles && yarn lint:scripts",
     "start": "ng serve --host 0.0.0.0 --hmr -e hmr",
     "build": "ng build -prod",
-    "build-dev": "ng build"
+    "build-dev": "ng build",
+    "release": "rimraf ../wordsbaking-app-cordova/www && cp -r ./bld ../wordsbaking-app-cordova/www",
+    "debug-ios": "yarn build-dev && yarn release && (cd ../wordsbaking-app-cordova/www && cordova run ios)"
   },
   "private": true,
   "dependencies": {
@@ -50,6 +52,7 @@
     "@types/websql": "^0.0.27",
     "codelyzer": "^4.0.1",
     "prettier": "^1.7.4",
+    "rimraf": "^2.6.2",
     "stylelint": "^8.2.0",
     "stylelint-config-standard": "^17.0.0",
     "ts-node": "~3.3.0",
