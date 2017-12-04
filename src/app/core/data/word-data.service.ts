@@ -1,7 +1,5 @@
 import {Injectable} from '@angular/core';
 
-import {Observable} from 'rxjs/Observable';
-
 import * as _ from 'lodash';
 import * as v from 'villa';
 
@@ -52,12 +50,12 @@ export type WordDataDownloadProgressHandler = (
 @Injectable()
 export class WordDataService {
   private inStorageIDSet: Set<string>;
-  private storage$: Observable<DBStorage<string, WordDataItem>>;
+  private storagePromise: Promise<DBStorage<string, WordDataItem>>;
 
   private downloadLock = {};
 
   constructor(private apiService: APIService) {
-    this.storage$ = Observable.defer(async () => {
+    this.storagePromise = (async () => {
       let storage = await DBStorage.create<string, WordDataItem>({
         name: 'default',
         tableName: 'words-data',
@@ -70,7 +68,7 @@ export class WordDataService {
       this.inStorageIDSet = new Set(terms);
 
       return storage;
-    });
+    })();
   }
 
   /**
@@ -80,6 +78,8 @@ export class WordDataService {
     terms: string[],
     progress: WordDataDownloadProgressHandler,
   ): Promise<string[]> {
+    await this.storagePromise;
+
     return v.lock(this.downloadLock, async () => {
       let idSet = new Set(terms);
 
@@ -111,14 +111,13 @@ export class WordDataService {
   // }
 
   async save(item: WordDataItem): Promise<void> {
-    return this.storage$
-      .switchMap(storage => storage.set(item))
-      .do(() => this.inStorageIDSet.add(item.term))
-      .toPromise();
+    let storage = await this.storagePromise;
+    await storage.set(item);
+    this.inStorageIDSet.add(item.term);
   }
 
   async get(terms: string[]): Promise<WordDataItem[]> {
-    let storage = await this.storage$.toPromise();
+    let storage = await this.storagePromise;
 
     let items = await v.map(terms, term => storage.get(term));
 
@@ -156,11 +155,7 @@ export class WordDataService {
     let fetchedItems: WordDataItem[] = [];
 
     for (let chunkedTerms of _.chunk(terms, WORDS_DATA_DOWNLOAD_LIMIT)) {
-      let items = await this.apiService.call<
-        WordDataItem[]
-      >('/words/fetch-data', {
-        terms: chunkedTerms,
-      });
+      let items = await this.apiService.getWordsData(chunkedTerms);
 
       downloaded += items.length;
 
@@ -171,7 +166,7 @@ export class WordDataService {
 
     progress('saving', 0);
 
-    let storage = await this.storage$.toPromise();
+    let storage = await this.storagePromise;
 
     await storage.setMultiple(fetchedItems, (done, total) => {
       progress('saving', Math.floor(done / total * 100));

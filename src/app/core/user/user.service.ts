@@ -52,9 +52,9 @@ export class UserService implements OnDestroy {
     .map(
       () =>
         moment()
-          .hour(-DAY_START_CLOCK)
+          .subtract(DAY_START_CLOCK, 'hour')
           .startOf('day')
-          .hour(DAY_START_CLOCK)
+          .add(DAY_START_CLOCK, 'hour')
           .valueOf() as TimeNumber,
     )
     .distinctUntilChanged()

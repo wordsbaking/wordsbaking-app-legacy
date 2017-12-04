@@ -4,6 +4,7 @@ import Axios from 'axios';
 import ExtendableError from 'extendable-error';
 
 import {AuthConfigService} from 'app/core/config/auth';
+import {WordDataItem} from 'app/core/data';
 
 const apiBaseUrl = '//localhost:1337';
 
@@ -136,6 +137,12 @@ export class APIService {
   async uploadAvatar(avatarData: Blob): Promise<string> {
     return this.call<string>('/update-profile', avatarData, {
       type: 'application/octet-stream',
+    });
+  }
+
+  async getWordsData(terms: string[]): Promise<WordDataItem[]> {
+    return this.call<WordDataItem[]>('/get-words-data', {
+      terms,
     });
   }
 

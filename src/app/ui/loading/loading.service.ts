@@ -53,18 +53,15 @@ export class LoadingService {
   wait<T>(
     process: Promise<T>,
     hint: string,
-    arg3?: any,
-    arg4?: any,
+    container?: ViewContainerRef | LoadingShowOptions,
+    options?: LoadingShowOptions,
   ): LoadingHandler<T> {
-    let container: ViewContainerRef =
-      arg3 && arg3 instanceof ViewContainerRef
-        ? arg3
-        : this.viewContainerService.viewContainerRef;
+    if (!(container instanceof ViewContainerRef)) {
+      options = container;
+      container = this.viewContainerService.viewContainerRef;
+    }
 
-    let options: LoadingShowOptions =
-      (!(arg3 && arg3 instanceof ViewContainerRef) ? arg3 : arg4) || {};
-
-    let loadingHandler = this.mount(hint, container, options);
+    let loadingHandler = this.mount(hint, container, options || {});
     loadingHandler.result = process;
     process.then(loadingHandler.clear, loadingHandler.clear);
 
@@ -77,16 +74,17 @@ export class LoadingService {
     container: ViewContainerRef,
     options?: LoadingShowOptions,
   ): LoadingHandler<void>;
-  show(hint: string, arg2?: any, arg3?: any): LoadingHandler<void> {
-    let container: ViewContainerRef =
-      arg2 && arg2 instanceof ViewContainerRef
-        ? arg2
-        : this.viewContainerService.viewContainerRef;
+  show(
+    hint: string,
+    container?: ViewContainerRef | LoadingShowOptions,
+    options?: LoadingShowOptions,
+  ): LoadingHandler<void> {
+    if (!(container instanceof ViewContainerRef)) {
+      options = container;
+      container = this.viewContainerService.viewContainerRef;
+    }
 
-    let options: LoadingShowOptions =
-      (!(arg2 && arg2 instanceof ViewContainerRef) ? arg2 : arg3) || {};
-
-    return this.mount(hint, container, options);
+    return this.mount(hint, container, options || {});
   }
 
   clearAll(): void {

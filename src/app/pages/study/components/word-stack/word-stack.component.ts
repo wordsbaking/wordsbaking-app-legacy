@@ -1,14 +1,20 @@
 import {
   Component,
   ElementRef,
+  OnDestroy,
+  OnInit,
   QueryList,
   ViewChild,
   ViewChildren,
 } from '@angular/core';
 
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
+import {asap} from 'rxjs/scheduler/asap';
+import {Subscription} from 'rxjs/Subscription';
 
-import {WordInfo} from 'app/core/engine';
+import {LoadingService} from 'app/ui';
+
+import {EngineService, WordInfo} from 'app/core/engine';
 
 import {
   WORD_CARD_HEIGHT,
@@ -28,15 +34,13 @@ import {
   wordCardTransitions,
 } from './word-stack.animations';
 
-import {simulationData} from './simulation-data';
-
 @Component({
   selector: 'wb-study-view-word-stack',
   templateUrl: './word-stack.component.html',
   styleUrls: ['./word-stack.component.less'],
   animations: [notificationCardTransitions, wordCardTransitions],
 })
-export class WordStackComponent {
+export class WordStackComponent implements OnInit, OnDestroy {
   @ViewChild(WordDetailCardComponent)
   wordDetailCardComponent: WordDetailCardComponent;
 
@@ -55,20 +59,25 @@ export class WordStackComponent {
   private wordCardComponentQueryList: QueryList<WordCardComponent>;
 
   private notificationTimerHandle: number;
+  private subscription = new Subscription();
 
-  constructor(ref: ElementRef) {
+  constructor(
+    ref: ElementRef,
+    private engineService: EngineService,
+    private loadingService: LoadingService,
+  ) {
     this.element = ref.nativeElement;
 
     // simulate
-    setTimeout(
-      () =>
-        this.words$.next(simulationData.slice(0, 4).map(data => ({...data}))),
-      1200,
-    );
+    // setTimeout(
+    //   () =>
+    //     this.words$.next(simulationData.slice(0, 4).map(data => ({...data}))),
+    //   1200,
+    // );
 
-    setTimeout(() => {
-      this.showNotification('hello, world');
-    }, 3000);
+    // setTimeout(() => {
+    //   this.showNotification('hello, world');
+    // }, 3000);
   }
 
   get size(): number {
@@ -89,6 +98,33 @@ export class WordStackComponent {
     return this.wordCardComponentQueryList
       .toArray()
       .filter(wordCardComponent => !wordCardComponent.removed);
+  }
+
+  async ngOnInit(): Promise<void> {
+    this.subscription.add(
+      this.engineService.load$.observeOn(asap).subscribe(async () => {
+        let handler = this.loadingService.show('正在加载...');
+
+        await this.engineService.ensureWordsData((state, percentage) => {
+          switch (state) {
+            case 'downloading':
+              handler.setText(`正在下载单词释义 (${percentage}%)...`);
+              break;
+            case 'saving':
+              handler.setText(`正在保存 (${percentage}%)...`);
+              break;
+          }
+        });
+
+        handler.clear();
+
+        await this.stuff();
+      }),
+    );
+  }
+
+  ngOnDestroy(): void {
+    this.subscription.unsubscribe();
   }
 
   add(...newWords: WordInfo[]): void {
@@ -133,8 +169,8 @@ export class WordStackComponent {
     return true;
   }
 
-  stuff(): void {
-    let words = this.words$.value.slice();
+  async stuff(): Promise<void> {
+    let words = this.words$.value.length ? [...this.words$.value] : Array(4);
 
     // tslint:disable-next-line
     for (let i = 0; i < words.length; i++) {
@@ -144,7 +180,7 @@ export class WordStackComponent {
         continue;
       }
 
-      let newWord = this.fetchWord();
+      let newWord = (await this.engineService.fetch(1))[0];
 
       if (!newWord) {
         break;
@@ -270,11 +306,5 @@ export class WordStackComponent {
   hideNotification(): void {
     clearTimeout(this.notificationTimerHandle);
     this.notification$.next(undefined);
-  }
-
-  private fetchWord(): WordInfo | undefined {
-    return {
-      ...simulationData[Math.floor(Math.random() * simulationData.length)],
-    };
   }
 }

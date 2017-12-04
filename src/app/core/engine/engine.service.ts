@@ -165,6 +165,7 @@ interface CandidateInfo {
 @Injectable()
 export class EngineService implements OnDestroy {
   readonly stats$ = new ReplaySubject<StudyStats>();
+  readonly load$ = new ReplaySubject<void>();
 
   /** @internal */
   studyScopeSet = new Set<StudyScope>();
@@ -179,18 +180,17 @@ export class EngineService implements OnDestroy {
 
   private newWordsPriority: number;
   private todayNewGoal: number;
-  private fetchedTermSet: Set<string>;
   private termWithoutDataIDSet: Set<string>;
   private collectionTermsNumber: number;
 
   private candidates: Candidate[];
   private candidateMap: Map<string, Candidate>;
 
-  private candidatesFetchingCache: Candidate[];
+  private fetchedTermSet = new Set<string>();
+  private candidatesFetchingCache: Candidate[] = [];
+  private fetchLock = {};
 
   private newWordTerms: string[];
-
-  private fetchLock = {};
 
   private subscription = new Subscription();
 
@@ -522,8 +522,7 @@ export class EngineService implements OnDestroy {
     this.todayStartAt = todayStartAt;
     // todayStart = argTodayStart;
     this.todayEndAt = moment(todayStartAt)
-      .startOf('day')
-      .day(1)
+      .add(1, 'day')
       .valueOf() as TimeNumber;
 
     this.studyScopeSet = studyScopeSet;
@@ -553,7 +552,7 @@ export class EngineService implements OnDestroy {
     let newWordTerms: string[];
 
     if (studyScopeSet.has(StudyScope.selected)) {
-      newWordTerms = collectionTerms.filter(term => candidateMap.has(term));
+      newWordTerms = collectionTerms.filter(term => !candidateMap.has(term));
 
       switch (studyOrder) {
         case StudyOrder.letterAscending:
@@ -577,7 +576,14 @@ export class EngineService implements OnDestroy {
 
     this.newWordTerms = newWordTerms;
 
+    this.loadedTerms = _.union(
+      collectionTerms,
+      Array.from(recordItemMap.keys()),
+    );
+
     this.loadStats();
+
+    this.load$.next(undefined);
 
     // fetchedTermHash = {};
 
