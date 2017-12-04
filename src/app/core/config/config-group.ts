@@ -1,5 +1,6 @@
 import {OnDestroy} from '@angular/core';
 
+import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import {Observable} from 'rxjs/Observable';
 import {Subject} from 'rxjs/Subject';
 import {Subscription} from 'rxjs/Subscription';
@@ -17,6 +18,7 @@ export abstract class ConfigGroup<
   TRaw extends object = Partial<TExposed>
 > implements OnDestroy {
   readonly storage: DBStorage<string, any> | undefined;
+  private rawConfigDict$: BehaviorSubject<TRaw> | undefined;
 
   readonly config$: Observable<TExposed>;
 
@@ -58,13 +60,12 @@ export abstract class ConfigGroup<
       );
     } else {
       this.storage = configStorageDict[name];
+      this.rawConfigDict$ = new BehaviorSubject(initialRawConfigDict[
+        name
+      ] as TRaw);
 
-      this.config$ = this.storage.change$
-        .switchMap(async () => (this.storage!.getAllAsDict() as any) as TRaw)
-        .startWith(initialRawConfigDict[name] as TRaw)
-        .map(raw => {
-          return this.transformRaw(raw);
-        })
+      this.config$ = this.rawConfigDict$
+        .map(raw => this.transformRaw(raw))
         .shareReplay(1);
     }
   }
@@ -81,6 +82,9 @@ export abstract class ConfigGroup<
       await this.syncService!.update(this.syncCategory, name, value);
       this.syncSchedule$.next();
     } else {
+      let rawConfigDict = this.rawConfigDict$!.value;
+      rawConfigDict[name] = value;
+      this.rawConfigDict$!.next(rawConfigDict);
       await this.storage!.set(name, value);
     }
   }
