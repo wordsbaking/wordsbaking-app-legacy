@@ -3,6 +3,8 @@ import {Component, OnDestroy} from '@angular/core';
 import {Observable} from 'rxjs/Observable';
 import {Subscription} from 'rxjs/Subscription';
 
+import {LoadingService} from 'app/ui';
+
 import {SettingsConfigService} from 'app/core/config';
 import {AppDataService, SyncService} from 'app/core/data';
 import {CollectionInfo} from 'app/core/engine';
@@ -39,6 +41,7 @@ export class CollectionSelectorComponent implements OnDestroy {
     private appDataService: AppDataService,
     private settingsConfigService: SettingsConfigService,
     private syncService: SyncService,
+    private loadingService: LoadingService,
   ) {}
 
   ngOnDestroy() {
@@ -73,5 +76,7 @@ export class CollectionSelectorComponent implements OnDestroy {
     await this.settingsConfigService.set('collectionIDs', [
       selectedCollection.id,
     ]);
+
+    await this.loadingService.wait(this.syncService.sync(), '正在同步...');
   }
 }
