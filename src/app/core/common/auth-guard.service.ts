@@ -30,25 +30,16 @@ export class AuthGuardService
   }
 
   private checkSigned(): Observable<boolean> {
-    return (
-      this.authConfigService.apiKey$
-        // .switchMap(apiKey => {
-        //   if (!apiKey) {
-        //     return this.authConfigService.apiKey$.delay(100);
-        //   } else {
-        //     return Observable.of(apiKey);
-        //   }
-        // })
-        .map(apiKey => {
-          let signed = !!apiKey;
+    return this.authConfigService.apiKey$
+      .map(apiKey => {
+        let signed = !!apiKey;
 
-          if (!signed) {
-            this.navigationService.navigate(['/sign-in']).catch(logger.error);
-          }
+        if (!signed) {
+          this.navigationService.navigate(['/sign-in']).catch(logger.error);
+        }
 
-          return signed;
-        })
-        .first()
-    );
+        return signed;
+      })
+      .first();
   }
 }
