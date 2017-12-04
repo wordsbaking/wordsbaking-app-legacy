@@ -14,6 +14,8 @@ import {
   TouchStartDelegateEvent,
 } from 'app/lib/touch-delegate';
 
+import * as logger from 'logger';
+
 import {WordCardComponentBase} from '../common/word-card-component-base';
 import {WordCardComponent} from '../word-card/word-card.component';
 import {WordDetailCardComponent} from '../word-detail-card/word-detail-card.component';
@@ -224,7 +226,7 @@ export class WordStackInteractiveDirective implements OnDestroy {
           wordStack.hideWordDetail();
           setTimeout(() => wordStack.stuff(), 240);
         } else {
-          wordStack.stuff();
+          wordStack.stuff().catch(logger.error);
         }
       },
     );
@@ -317,7 +319,7 @@ export class WordStackInteractiveDirective implements OnDestroy {
       .remove()
       .then(() => {
         this.wordStack.remove(targetWordCardComponent.word);
-        this.wordStack.stuff();
+        this.wordStack.stuff().catch(logger.error);
       })
       .catch(() => undefined);
   }

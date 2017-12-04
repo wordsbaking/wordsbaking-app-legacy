@@ -146,7 +146,7 @@ export class WordStackComponent implements OnInit, OnDestroy {
     this.words$.next(words);
   }
 
-  remove(word: WordInfo, hold = true): boolean {
+  remove(word: WordInfo, hold?: boolean): boolean {
     let words = this.words$.value;
     return this.removeByIndex(words.indexOf(word), hold);
   }
