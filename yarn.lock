@@ -3114,9 +3114,9 @@ mem@^1.1.0:
   dependencies:
     mimic-fn "^1.0.0"
 
-memorize-decorator@^0.2.0:
-  version "0.2.0"
-  resolved "http://registry.npm.taobao.org/memorize-decorator/download/memorize-decorator-0.2.0.tgz#ed7896bad5bfbe3818dcbffa462d62904f64b007"
+memorize-decorator@^0.2.1:
+  version "0.2.1"
+  resolved "http://registry.npm.taobao.org/memorize-decorator/download/memorize-decorator-0.2.1.tgz#159035e513353432017e71e9806da1da0811efd7"
   dependencies:
     asap "^2.0.6"
     multikey-map "^0.2.0"
