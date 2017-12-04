@@ -6,7 +6,7 @@ import ExtendableError from 'extendable-error';
 import {AuthConfigService} from 'app/core/config/auth';
 import {WordDataItem} from 'app/core/data';
 
-const apiBaseUrl = '//localhost:1337';
+const apiBaseUrl = 'http://10.0.9.131:1337';
 
 interface APIErrorData {
   code: string;
@@ -124,7 +124,6 @@ export class APIService {
       {email, password},
       {auth: false},
     );
-
     await Promise.all([
       this.authConfigService.set('apiKey', apiKey),
       this.authConfigService.set('userId', userId),

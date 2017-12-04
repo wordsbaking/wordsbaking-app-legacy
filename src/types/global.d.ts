@@ -1,5 +1,9 @@
 declare var module: any;
 
+interface Window {
+  cordova: any;
+}
+
 interface Dict<T> {
   [key: string]: T;
 }

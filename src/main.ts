@@ -57,6 +57,8 @@ if (environment.production) {
 
 _preload()
   .then(async () => {
+    await waitCordovaFrameworkReady();
+
     if (environment.hmr && module['hot']) {
       await hmrBootstrap(module, bootstrap);
     } else {
@@ -65,6 +67,23 @@ _preload()
 
     function bootstrap() {
       return platformBrowserDynamic().bootstrapModule(AppModule, []);
+    }
+
+    function waitCordovaFrameworkReady(): Promise<void> {
+      if (!window.cordova) {
+        return Promise.resolve();
+      }
+
+      return new Promise<void>(resolve => {
+        document.addEventListener(
+          'deviceready',
+          () => {
+            document.body.classList.add(window.cordova.platformId);
+            resolve();
+          },
+          false,
+        );
+      });
     }
   })
   .catch(logger.error);

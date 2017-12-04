@@ -363,12 +363,15 @@ values (
     let db = DBStorage.dbMap.get(name);
 
     if (!db) {
-      db = (window.sqlitePlugin || window).openDatabase(
-        name,
-        '1.0',
-        name,
-        50 * 1024 * 1024,
-      );
+      if (window.sqlitePlugin) {
+        db = window.sqlitePlugin.openDatabase({
+          name,
+          androidDatabaseImplementation: 2,
+          location: 'default',
+        });
+      } else {
+        db = window.openDatabase(name, '1.0', name, 50 * 1024 * 1024);
+      }
     }
 
     await new Promise<void>((resolve, reject) => {

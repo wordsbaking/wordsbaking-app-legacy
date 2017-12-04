@@ -123,6 +123,6 @@ export class UserService implements OnDestroy {
 
     this.loadingService.show('退出登录!');
 
-    window.location.href = '/sign-in';
+    window.location.href = 'index.html#/sign-in';
   }
 }

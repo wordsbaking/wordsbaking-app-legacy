@@ -1,3 +1,5 @@
 interface Window {
-  sqlitePlugin?: WindowDatabase;
+  sqlitePlugin?: {
+    openDatabase(options: any): Database;
+  };
 }

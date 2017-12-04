@@ -64,6 +64,8 @@ export class AppView {
 
     this.router.events.subscribe(event => {
       if (event instanceof NavigationEnd) {
+        document.body.classList.add('ready');
+
         isSplashScreenPage = event.url === '/';
       }
 
@@ -75,9 +77,11 @@ export class AppView {
         navigationUrl = event.url;
         clearTimeout(navigationLoadingTimerHandle);
 
-        navigationLoadingTimerHandle = setTimeout(() => {
-          navigationLoadingHandler = this.loadingService.show('加载中...');
-        }, firstPage ? 600 : 100);
+        if (!firstPage) {
+          navigationLoadingTimerHandle = setTimeout(() => {
+            navigationLoadingHandler = this.loadingService.show('加载中...');
+          }, 100);
+        }
 
         firstPage = false;
       } else if (
