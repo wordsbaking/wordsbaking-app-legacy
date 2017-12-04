@@ -6,6 +6,7 @@
     "types": ["websql"],
     "module": "es2015",
     "moduleResolution": "node",
+    "importHelpers": true,
     "strict": true,
     "noImplicitReturns": true,
     "noEmitOnError": true,

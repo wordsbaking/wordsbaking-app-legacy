@@ -37,6 +37,7 @@
     "memorize-decorator": "^0.2.0",
     "moment": "^2.19.2",
     "rxjs": "^5.4.3",
+    "tslib": "^1.8.0",
     "villa": "^0.3.1",
     "web-animations-js": "^2.3.1",
     "zone.js": "^0.8.14"
