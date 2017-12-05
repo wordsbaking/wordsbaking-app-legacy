@@ -16,8 +16,6 @@ import {
   TouchStartDelegateEvent,
 } from 'app/lib/touch-delegate';
 
-import * as logger from 'logger';
-
 import {WordCardComponentBase} from '../common/word-card-component-base';
 import {WordCardComponent} from '../word-card/word-card.component';
 import {WordDetailCardComponent} from '../word-detail-card/word-detail-card.component';
