@@ -41,8 +41,8 @@ export class FreeDirective implements OnInit, OnDestroy {
 
     this.freeEvent.emit(event);
 
-    if (this.stop) {
-      event.detail.stopPropagation();
+    if (this.stop && event.detail.touch.isEnd) {
+      event.detail.stopPropagation(true);
     }
   }
 
