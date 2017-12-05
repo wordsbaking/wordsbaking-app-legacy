@@ -28,12 +28,12 @@
       background: url('./assets/screen.png') no-repeat center #a4c400;
       background-size: cover;
       z-index: 2;
-      /* transition: opacity 0.2s linear; */
+      transition: opacity 0.2s linear;
     }
 
     body.ready::after {
-      /* opacity: 0; */
-      display: none;
+      opacity: 0;
+      pointer-events: none;
     }
   </style>
 </head>
