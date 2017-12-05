@@ -11,6 +11,7 @@ interface Dict<T> {
 interface RouteConfigurationData {
   name: string;
   preventLoadingHint?: boolean;
+  hideStatusBar?: boolean;
 }
 
 type TypedString<T extends string> = string & T;

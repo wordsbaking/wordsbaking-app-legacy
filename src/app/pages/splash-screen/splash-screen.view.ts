@@ -14,7 +14,13 @@ import {splashScreenTransitions} from './splash-screen.animations';
   animations: [splashScreenTransitions],
 })
 export class SplashScreenView {
-  @HostBinding('@splashScreenTransitions') splashScreenTransitions = '';
+  @HostBinding('@splashScreenTransitions')
+  splashScreenTransitionsState = navigator.splashscreen ? 'disable' : 'enable';
+
+  @HostBinding('class.hidden')
+  get hiddenSplashScreen(): boolean {
+    return !!navigator.splashscreen;
+  }
 
   constructor(
     private authConfigService: AuthConfigService,
@@ -29,7 +35,7 @@ export class SplashScreenView {
       this.authConfigService.account$.first().toPromise(),
     ]);
 
-    await new Promise<void>(resolve => setTimeout(resolve, 600));
+    await new Promise<void>(resolve => setTimeout(resolve, 200));
     await this.router.navigate(
       apiKey
         ? ['/glance']

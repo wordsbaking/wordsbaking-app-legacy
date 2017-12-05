@@ -1,5 +1,7 @@
+interface CordovaSqlitePluginStatic {
+  openDatabase(options: any): Database;
+}
+
 interface Window {
-  sqlitePlugin?: {
-    openDatabase(options: any): Database;
-  };
+  sqlitePlugin?: CordovaSqlitePluginStatic;
 }

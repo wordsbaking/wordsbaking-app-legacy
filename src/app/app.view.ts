@@ -53,28 +53,57 @@ export class AppView {
       .filter(err => !!err)
       .subscribe(() => toastService.show('同步失败'));
 
-    this.mountPageLoadingHint();
+    this.handleRoutingEvent();
   }
 
-  private mountPageLoadingHint(): void {
+  private handleRoutingEvent(): void {
     let navigationUrl: string | undefined;
     let navigationLoadingHandler: LoadingHandler<void> | undefined;
     let navigationLoadingTimerHandle: number;
     let routeConfigurationData: RouteConfigurationData | undefined;
+    let hidCordovaSplashScreen = false;
+    let hidSplashScreen = false;
+    let hidStatusBar = true;
 
     this.router.events.subscribe(event => {
       if (event instanceof NavigationEnd) {
-        if (
-          !routeConfigurationData ||
-          routeConfigurationData.name === 'splash-screen'
-        ) {
+        let pageName = routeConfigurationData && routeConfigurationData.name;
+        let hideStatusBar =
+          routeConfigurationData && routeConfigurationData.hideStatusBar;
+
+        if (!pageName || pageName === 'splash-screen') {
           document.body.classList.add('hide-splash-screen');
+          hideStatusBar = true;
+          hidSplashScreen = true;
         } else {
           document.body.classList.add('ready');
-          setTimeout(
-            () => document.body.classList.add('hide-splash-screen'),
-            400,
-          );
+
+          if (!hidSplashScreen) {
+            hidSplashScreen = true;
+            setTimeout(
+              () => document.body.classList.add('hide-splash-screen'),
+              400,
+            );
+          }
+
+          if (navigator.splashscreen && !hidCordovaSplashScreen) {
+            hidCordovaSplashScreen = true;
+            navigator.splashscreen.hide();
+          }
+        }
+
+        if (
+          window.cordova &&
+          window.StatusBar &&
+          hideStatusBar !== hidStatusBar
+        ) {
+          if (hideStatusBar) {
+            window.StatusBar.hide();
+            hidStatusBar = true;
+          } else if (!hideStatusBar) {
+            window.StatusBar.show();
+            hidStatusBar = false;
+          }
         }
       }
 
