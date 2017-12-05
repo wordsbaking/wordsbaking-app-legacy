@@ -122,7 +122,7 @@ export class WordCardComponent extends WordCardComponentBase
 
   private respondSideYToDown(
     offset: number,
-    startTime: number,
+    _startTime: number,
     isEnd: boolean,
     progress: ProgressCallback | undefined,
     complete: CompleteCallback | undefined,

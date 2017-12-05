@@ -184,11 +184,11 @@ export abstract class WordCardComponentBase {
   }
 
   onSlideY(
-    offset: number,
-    startTime: number,
-    isEnd: boolean,
-    progress: ProgressCallback | undefined,
-    complete: CompleteCallback | undefined,
+    _offset: number,
+    _startTime: number,
+    _isEnd: boolean,
+    _progress: ProgressCallback | undefined,
+    _complete: CompleteCallback | undefined,
   ): void {
     if (this.animating) {
       return;
@@ -201,10 +201,10 @@ export abstract class WordCardComponentBase {
 
   private onSlideXToLeft(
     diffX: number,
-    startTime: number,
+    _startTime: number,
     isEnd: boolean,
     progress: ProgressCallback | undefined,
-    complete: CompleteCallback | undefined,
+    _complete: CompleteCallback | undefined,
   ): void {
     let maxWidth = this.removalConfirmButtonsElement.offsetWidth;
     let maxOffset = -maxWidth;
