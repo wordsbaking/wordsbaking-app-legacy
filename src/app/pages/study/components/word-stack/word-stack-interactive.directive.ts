@@ -4,6 +4,8 @@ import {Subscription} from 'rxjs/Subscription';
 
 import * as $ from 'jquery';
 
+import * as logger from 'logger';
+
 import {
   PolylineDelegateEvent,
   PressDelegateEvent,
@@ -224,7 +226,7 @@ export class WordStackInteractiveDirective implements OnDestroy {
           wordStack.hideWordDetail();
           setTimeout(() => wordStack.stuff(), 240);
         } else {
-          wordStack.stuff();
+          wordStack.stuff().catch(logger.error);
         }
       },
     );
@@ -317,7 +319,7 @@ export class WordStackInteractiveDirective implements OnDestroy {
       .remove()
       .then(() => {
         this.wordStack.remove(targetWordCardComponent.word);
-        this.wordStack.stuff();
+        this.wordStack.stuff().catch(logger.error);
       })
       .catch(() => undefined);
   }
