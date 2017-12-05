@@ -8,6 +8,11 @@ interface Dict<T> {
   [key: string]: T;
 }
 
+interface RouteConfigurationData {
+  name: string;
+  preventLoadingHint?: boolean;
+}
+
 type TypedString<T extends string> = string & T;
 
 type EmailString = TypedString<'__email'>;

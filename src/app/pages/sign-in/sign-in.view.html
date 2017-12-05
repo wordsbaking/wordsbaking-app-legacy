@@ -8,7 +8,7 @@
       <div class="form-item">
         <label>
           <span class="label-text">邮箱</span>
-          <input formControlName="email" type="text" required/>
+          <input formControlName="email" [value]="signedAccount$ | async" type="text" required/>
         </label>
       </div>
 

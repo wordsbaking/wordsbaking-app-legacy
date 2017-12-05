@@ -18,6 +18,11 @@ import {AppView} from 'app/app.view';
 
 import {SplashScreenView} from 'app/pages/splash-screen/splash-screen.view';
 
+import {
+  AuthGuardService,
+  WelcomePageGuardService,
+} from './app-router-guard-services';
+
 @NgModule({
   imports: [
     BrowserModule,
@@ -35,5 +40,6 @@ import {SplashScreenView} from 'app/pages/splash-screen/splash-screen.view';
   ],
   declarations: [AppView, SplashScreenView],
   bootstrap: [AppView],
+  providers: [AuthGuardService, WelcomePageGuardService],
 })
 export class AppModule {}

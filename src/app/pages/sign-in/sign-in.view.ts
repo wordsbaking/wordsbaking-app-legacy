@@ -6,6 +6,7 @@ import {Router} from '@angular/router';
 import {LoadingService, ToastService} from 'app/ui';
 
 import {APIService} from 'app/core/common';
+import {AuthConfigService} from 'app/core/config/auth';
 import {pageTransitions} from 'app/core/ui';
 
 const signInViewTransition = trigger('signInViewTransition', [
@@ -23,9 +24,14 @@ export class SignInView implements OnInit {
 
   @HostBinding('@signInViewTransition') signInViewTransition = '';
 
+  signedAccount$ = this.authConfigService.account$.map(
+    account => account || '',
+  );
+
   constructor(
     private formBuilder: FormBuilder,
     private apiService: APIService,
+    private authConfigService: AuthConfigService,
     private toastService: ToastService,
     private loadingService: LoadingService,
     private router: Router,
@@ -35,6 +41,12 @@ export class SignInView implements OnInit {
     this.form = this.formBuilder.group({
       email: ['', [Validators.email]],
       password: ['', [Validators.required]],
+    });
+
+    this.authConfigService.account$.subscribe(account => {
+      if (!this.form.controls.email.value) {
+        this.form.controls.email.setValue(account);
+      }
     });
   }
 

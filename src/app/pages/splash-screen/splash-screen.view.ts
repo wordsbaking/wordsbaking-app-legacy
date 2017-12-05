@@ -24,9 +24,20 @@ export class SplashScreenView {
   }
 
   async initialize(): Promise<void> {
-    let apiKey = await this.authConfigService.apiKey$.first().toPromise();
+    let [apiKey, account] = await Promise.all([
+      this.authConfigService.apiKey$.first().toPromise(),
+      this.authConfigService.account$.first().toPromise(),
+    ]);
 
     await new Promise<void>(resolve => setTimeout(resolve, 600));
-    await this.router.navigate(apiKey ? ['/glance'] : ['/sign-in']);
+    await this.router.navigate(
+      apiKey
+        ? ['/glance']
+        : [
+            localStorage.getItem('MET_CIBEI') || account
+              ? '/sign-in'
+              : '/welcome',
+          ],
+    );
   }
 }

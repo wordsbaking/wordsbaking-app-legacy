@@ -43,3 +43,37 @@ export class AuthGuardService
       .first();
   }
 }
+
+@Injectable()
+export class WelcomePageGuardService implements CanLoad, CanActivate {
+  constructor(
+    private authConfigService: AuthConfigService,
+    private navigationService: NavigationService,
+  ) {}
+
+  canActivate(): Observable<boolean> {
+    return this.showWelcome();
+  }
+
+  canLoad(): Observable<boolean> {
+    return this.showWelcome();
+  }
+
+  private showWelcome(): Observable<boolean> {
+    if (localStorage.getItem('MET_CIBEI')) {
+      this.navigationService.navigate(['/glance']).catch(logger.error);
+      return Observable.of(false);
+    }
+
+    return this.authConfigService.account$
+      .map(account => {
+        if (account) {
+          this.navigationService.navigate(['/sign-in']).catch(logger.error);
+          return false;
+        }
+
+        return true;
+      })
+      .first();
+  }
+}

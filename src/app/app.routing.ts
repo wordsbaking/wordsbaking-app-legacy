@@ -1,14 +1,25 @@
 import {RouterModule, Routes} from '@angular/router';
 
-import {AuthGuardService} from 'app/core/common';
-
 import {SplashScreenView} from 'app/pages/splash-screen/splash-screen.view';
+
+import {
+  AuthGuardService,
+  WelcomePageGuardService,
+} from './app-router-guard-services';
 
 const routes: Routes = [
   {
     path: '',
     pathMatch: 'full',
     component: SplashScreenView,
+    data: {name: 'splash', preventLoadingHint: true},
+  },
+  {
+    path: 'welcome',
+    loadChildren: './pages/welcome/welcome.module#WelcomeModule',
+    data: {name: 'welcome', preventLoadingHint: true},
+    canLoad: [WelcomePageGuardService],
+    canActivate: [WelcomePageGuardService],
   },
   {
     path: 'glance',
@@ -16,7 +27,7 @@ const routes: Routes = [
     canLoad: [AuthGuardService],
     canActivate: [AuthGuardService],
     canActivateChild: [AuthGuardService],
-    data: {target: 'glance'},
+    data: {name: 'glance', preventLoadingHint: true},
   },
   {
     path: 'study',
@@ -24,7 +35,7 @@ const routes: Routes = [
     canLoad: [AuthGuardService],
     canActivate: [AuthGuardService],
     canActivateChild: [AuthGuardService],
-    data: {target: 'study'},
+    data: {name: 'study'},
   },
   {
     path: 'settings',
@@ -32,17 +43,17 @@ const routes: Routes = [
     canLoad: [AuthGuardService],
     canActivate: [AuthGuardService],
     canActivateChild: [AuthGuardService],
-    data: {target: 'settings'},
+    data: {name: 'settings'},
   },
   {
     path: 'sign-in',
     loadChildren: './pages/sign-in/sign-in.module#SignInModule',
-    data: {target: 'sign-in'},
+    data: {name: 'sign-in'},
   },
   {
     path: 'sign-up',
     loadChildren: './pages/sign-up/sign-up.module#SignUpModule',
-    data: {target: 'sign-up'},
+    data: {name: 'sign-up'},
   },
   {
     path: 'recycle-bin',
@@ -50,7 +61,7 @@ const routes: Routes = [
     canLoad: [AuthGuardService],
     canActivate: [AuthGuardService],
     canActivateChild: [AuthGuardService],
-    data: {target: 'recycle-bin'},
+    data: {name: 'recycle-bin'},
   },
   {
     path: 'user-profile',
@@ -58,7 +69,7 @@ const routes: Routes = [
     canLoad: [AuthGuardService],
     canActivate: [AuthGuardService],
     canActivateChild: [AuthGuardService],
-    data: {target: 'user-profile'},
+    data: {name: 'user-profile'},
   },
   {
     path: '**',

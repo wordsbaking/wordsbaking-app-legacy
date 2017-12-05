@@ -1,0 +1,91 @@
+@import '~styles/common.less';
+
+:host {
+  position: relative;
+  display: block;
+}
+
+:host.leave {
+  .title,
+  .slide-line {
+    transition: @transition-transform;
+    transition: all 0.2s ease-out;
+    opacity: 0;
+  }
+
+  .title {
+    transform: translate3d(-50%, 0, 0) scale(0.9);
+    transition-delay: 0.2s;
+  }
+
+  .slide-line {
+    transform: translate3d(-100%, 0, 0);
+  }
+}
+
+.title {
+  position: absolute;
+  top: 28%;
+  left: 50%;
+  letter-spacing: 4px;
+  transform: translate3d(-50%, 0, 0);
+  font-size: 40px;
+  font-weight: lighter;
+}
+
+.slide-line {
+  position: absolute;
+  bottom: 22%;
+  margin-bottom: -15px;
+  width: 100%;
+  line-height: 60px;
+  font-size: @size-text-larger;
+  font-weight: lighter;
+  color: @color-text-xl;
+  text-align: center;
+
+  .hint {
+    display: block;
+    animation: swinging 4s ease-in-out infinite;
+    animation-delay: -1s;
+    will-change: transform, opacity;
+  }
+
+  &.hover .hint {
+    animation: none;
+  }
+}
+
+@keyframes swinging {
+  0% {
+    transform: translateX(0);
+  }
+
+  50% {
+    transform: translateX(0);
+  }
+
+  82% {
+    transform: translateX(-20px);
+  }
+
+  85% {
+    transform: translateX(14px);
+  }
+
+  88% {
+    transform: translateX(-10px);
+  }
+
+  91% {
+    transform: translateX(7px);
+  }
+
+  94% {
+    transform: translateX(-4px);
+  }
+
+  97% {
+    transform: translateX(2px);
+  }
+}

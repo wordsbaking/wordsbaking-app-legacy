@@ -8,6 +8,7 @@ import {
   NavigationCancel,
   NavigationEnd,
   NavigationStart,
+  RouteConfigLoadStart,
   Router,
   RouterOutlet,
 } from '@angular/router';
@@ -35,7 +36,7 @@ export class AppView {
 
   @HostBinding('@routerTransitions')
   get routerTransitionsState(): string {
-    return this.outlet.activatedRouteData.target;
+    return this.outlet.activatedRouteData.name;
   }
 
   constructor(
@@ -59,31 +60,42 @@ export class AppView {
     let navigationUrl: string | undefined;
     let navigationLoadingHandler: LoadingHandler<void> | undefined;
     let navigationLoadingTimerHandle: number;
-    let firstPage = true;
-    let isSplashScreenPage = false;
+    let routeConfigurationData: RouteConfigurationData | undefined;
 
     this.router.events.subscribe(event => {
       if (event instanceof NavigationEnd) {
-        document.body.classList.add('ready');
+        if (
+          !routeConfigurationData ||
+          routeConfigurationData.name === 'splash-screen'
+        ) {
+          document.body.classList.add('hide-splash-screen');
+        } else {
+          document.body.classList.add('ready');
+          setTimeout(
+            () => document.body.classList.add('hide-splash-screen'),
+            400,
+          );
+        }
+      }
 
-        isSplashScreenPage = event.url === '/';
+      let previousRouteConfigurationData = routeConfigurationData;
+
+      if (event instanceof RouteConfigLoadStart) {
+        routeConfigurationData = event.route.data as RouteConfigurationData;
       }
 
       if (event instanceof NavigationStart) {
-        if (isSplashScreenPage) {
-          return;
-        }
-
         navigationUrl = event.url;
         clearTimeout(navigationLoadingTimerHandle);
 
-        if (!firstPage) {
+        if (
+          previousRouteConfigurationData &&
+          !previousRouteConfigurationData.preventLoadingHint
+        ) {
           navigationLoadingTimerHandle = setTimeout(() => {
             navigationLoadingHandler = this.loadingService.show('加载中...');
           }, 100);
         }
-
-        firstPage = false;
       } else if (
         (event instanceof NavigationEnd || event instanceof NavigationCancel) &&
         navigationUrl === event.url

@@ -14,6 +14,7 @@ import {APIService} from 'app/core/common';
 import {UserConfigService} from 'app/core/config';
 import {AuthConfigService} from 'app/core/config/auth';
 import {SyncService} from 'app/core/data';
+import {NavigationService} from 'app/core/navigation';
 
 const DAY_START_CLOCK = 4; // A new day start at 4 AM.
 const STUDY_ACTIVE_TIMEOUT = ms('30s');
@@ -71,6 +72,7 @@ export class UserService implements OnDestroy {
     private apiService: APIService,
     private loadingService: LoadingService,
     private authConfigService: AuthConfigService,
+    private navigationService: NavigationService,
   ) {
     this.subscription.add(
       this.studyHeartBeat$
@@ -118,11 +120,19 @@ export class UserService implements OnDestroy {
 
   async signOut(): Promise<void> {
     this.loadingService.show('注销中...');
-    await this.resetStorage();
-    await this.apiService.signOut();
+
+    let [account] = await Promise.all([
+      this.authConfigService.account$.first().toPromise(),
+      this.resetStorage(),
+      this.apiService.signOut(),
+    ]);
+
+    await this.authConfigService.set('account', account);
 
     this.loadingService.show('退出登录!');
 
-    window.location.href = 'index.html#/sign-in';
+    setTimeout(() => {
+      window.location.href = 'index.html';
+    }, 1000);
   }
 }
