@@ -14,7 +14,7 @@
     "build-dev": "ng build",
     "release": "rimraf ../wordsbaking-app-cordova/www && cp -r ./bld ../wordsbaking-app-cordova/www",
     "debug-ios": "yarn build-dev && yarn release && (cd ../wordsbaking-app-cordova/www && cordova run ios)",
-    "debug-android": "yarn build-dev && yarn release && (cd ../wordsbaking-app-cordova/www && cordova run android --)"
+    "debug-android": "yarn build-dev && yarn release && (cd ../wordsbaking-app-cordova/www && cordova run android)"
   },
   "private": true,
   "dependencies": {
