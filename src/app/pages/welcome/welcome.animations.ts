@@ -21,7 +21,7 @@ export const welcomeTransitions = trigger('welcomeTransitions', [
       animationElementQuery(
         '.title',
         animate(
-          '0.4s linear',
+          '0.6s 400ms linear',
           style({
             transform: 'translate3d(-50%, 0, 0) scale(1)',
             opacity: 1,
@@ -31,7 +31,7 @@ export const welcomeTransitions = trigger('welcomeTransitions', [
       animationElementQuery(
         '.slide-line',
         animate(
-          '0.4s 400ms linear',
+          '0.6s 1000ms linear',
           style({
             opacity: 1,
           }),
