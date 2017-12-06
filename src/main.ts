@@ -42,6 +42,8 @@ import 'rxjs/add/operator/takeUntil';
 import 'rxjs/add/operator/toPromise';
 import 'rxjs/add/operator/zip';
 
+import './env';
+
 import * as logger from 'logger';
 
 import {AppModule} from './app/app.module';
@@ -52,6 +54,7 @@ import {hmrBootstrap} from './hmr';
 import {_preload} from './app/preload';
 
 if (environment.production) {
+  console.log('天呐!');
   enableProdMode();
 }
 

@@ -1,5 +1,15 @@
 declare var module: any;
 
+declare var VERSION: string | undefined;
+declare var ENV: Partial<Environment> | undefined;
+
+interface Environment {
+  production: boolean;
+  hmr: boolean;
+  aliyunOSSUserContentBaseUrl: string;
+  apiBaseUrl: string;
+}
+
 interface Window {
   cordova: any;
 }

@@ -10,8 +10,8 @@
     "lint:styles": "stylelint src/**/*.less",
     "lint": "yarn lint:styles && yarn lint:scripts",
     "start": "ng serve --host 0.0.0.0 --hmr -e hmr",
-    "build": "ng build -prod",
-    "build-dev": "ng build",
+    "build": "ng build -prod && node scripts/post-build.js",
+    "build-dev": "ng build && node scripts/post-build.js",
     "release": "rimraf ../wordsbaking-app-cordova/www && cp -r ./bld ../wordsbaking-app-cordova/www",
     "debug-ios": "yarn build-dev && yarn release && (cd ../wordsbaking-app-cordova/www && cordova run ios)",
     "debug-android": "yarn build-dev && yarn release && (cd ../wordsbaking-app-cordova/www && cordova run android)"
@@ -53,6 +53,7 @@
     "@types/moment": "^2.13.0",
     "@types/websql": "^0.0.27",
     "codelyzer": "^4.0.1",
+    "dotenv": "^4.0.0",
     "prettier": "^1.7.4",
     "rimraf": "^2.6.2",
     "stylelint": "^8.2.0",

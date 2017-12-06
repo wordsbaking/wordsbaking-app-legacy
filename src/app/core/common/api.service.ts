@@ -6,7 +6,9 @@ import ExtendableError from 'extendable-error';
 import {AuthConfigService} from 'app/core/config/auth';
 import {WordDataItem} from 'app/core/data';
 
-const apiBaseUrl = 'http://localhost:1337';
+import {environment} from '../../../environments/environment';
+
+const apiBaseUrl = environment.apiBaseUrl;
 
 interface APIErrorData {
   code: string;
