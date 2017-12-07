@@ -54,7 +54,6 @@ import {hmrBootstrap} from './hmr';
 import {_preload} from './app/preload';
 
 if (environment.production) {
-  console.log('天呐!');
   enableProdMode();
 }
 
@@ -81,7 +80,7 @@ _preload()
         document.addEventListener(
           'deviceready',
           () => {
-            document.body.classList.add(window.cordova.platformId);
+            document.body.classList.add(window.cordova!.platformId);
             resolve();
           },
           false,

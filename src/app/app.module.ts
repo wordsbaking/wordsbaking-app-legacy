@@ -18,6 +18,10 @@ import {AppView} from 'app/app.view';
 
 import {SplashScreenView} from 'app/pages/splash-screen/splash-screen.view';
 
+import {BrowserRoutingService} from './platform/browser';
+import {RoutingService} from './platform/common';
+import {CordovaRoutingService} from './platform/cordova';
+
 import {
   AuthGuardService,
   WelcomePageGuardService,
@@ -40,6 +44,13 @@ import {
   ],
   declarations: [AppView, SplashScreenView],
   bootstrap: [AppView],
-  providers: [AuthGuardService, WelcomePageGuardService],
+  providers: [
+    AuthGuardService,
+    WelcomePageGuardService,
+    {
+      provide: RoutingService,
+      useClass: window.cordova ? CordovaRoutingService : BrowserRoutingService,
+    },
+  ],
 })
 export class AppModule {}

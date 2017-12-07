@@ -39,6 +39,14 @@ export class LoadingService {
     private viewContainerService: ViewContainerService,
   ) {}
 
+  get active(): boolean {
+    return !!this.loadingInfoSet.size;
+  }
+
+  get hasFullScreenLoading(): boolean {
+    return !!this.latestFullScreenLoadingInfo;
+  }
+
   wait<T>(
     process: Promise<T>,
     hint: string,
@@ -90,6 +98,12 @@ export class LoadingService {
   clearAll(): void {
     for (let info of this.loadingInfoSet) {
       this.clear(info);
+    }
+  }
+
+  clearFullScreenLoading(): void {
+    if (this.hasFullScreenLoading) {
+      this.clear(this.latestFullScreenLoadingInfo!);
     }
   }
 

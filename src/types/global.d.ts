@@ -10,10 +10,6 @@ interface Environment {
   apiBaseUrl: string;
 }
 
-interface Window {
-  cordova: any;
-}
-
 interface Dict<T> {
   [key: string]: T;
 }
@@ -21,7 +17,8 @@ interface Dict<T> {
 interface RouteConfigurationData {
   name: string;
   preventLoadingHint?: boolean;
-  hideStatusBar?: boolean;
+  hideStatusBar?: boolean; // for cordova app
+  preventBackHistory?: boolean; // for cordova android app
 }
 
 type TypedString<T extends string> = string & T;

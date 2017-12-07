@@ -1,26 +1,22 @@
 import {
   Component,
   HostBinding,
+  NgZone,
   ViewChild,
   ViewContainerRef,
 } from '@angular/core';
-import {
-  NavigationCancel,
-  NavigationEnd,
-  NavigationStart,
-  RouteConfigLoadStart,
-  Router,
-  RouterOutlet,
-} from '@angular/router';
+
+import {RouterOutlet} from '@angular/router';
 
 import {
-  LoadingHandler,
   LoadingService,
+  PopupService,
   ToastService,
   ViewContainerService,
 } from 'app/ui';
 
 import {SyncService} from 'app/core/data';
+import {RoutingService} from 'app/platform/common';
 
 import {routerTransitions} from './app-router.animations';
 
@@ -39,13 +35,18 @@ export class AppView {
     return this.outlet.activatedRouteData.name;
   }
 
+  private routeConfigurationData: RouteConfigurationData | undefined;
+  private latestPreventBackButtonTime: number;
+
   constructor(
     viewContainerRef: ViewContainerRef,
     viewContainerService: ViewContainerService,
     syncService: SyncService,
-    toastService: ToastService,
-    private router: Router,
+    routingService: RoutingService,
+    private toastService: ToastService,
     private loadingService: LoadingService,
+    private popupService: PopupService,
+    private zone: NgZone,
   ) {
     viewContainerService.viewContainerRef = viewContainerRef;
 
@@ -53,89 +54,50 @@ export class AppView {
       .filter(err => !!err)
       .subscribe(() => toastService.show('同步失败'));
 
-    this.handleRoutingEvent();
+    routingService.init();
+
+    if (window.cordova) {
+      document.addEventListener(
+        'backbutton',
+        this.handleBackButtonPress.bind(this),
+        false,
+      );
+    }
   }
 
-  private handleRoutingEvent(): void {
-    let navigationUrl: string | undefined;
-    let navigationLoadingHandler: LoadingHandler<void> | undefined;
-    let navigationLoadingTimerHandle: number;
-    let routeConfigurationData: RouteConfigurationData | undefined;
-    let hidCordovaSplashScreen = false;
-    let hidSplashScreen = false;
-    let hidStatusBar = true;
+  private handleBackButtonPress(event: Event): void {
+    let {routeConfigurationData} = this;
+    let preventBackHistory =
+      routeConfigurationData && routeConfigurationData.preventBackHistory;
+    let cordova = window.cordova!;
+    let app = navigator.app!;
 
-    this.router.events.subscribe(event => {
-      if (event instanceof NavigationEnd) {
-        let pageName = routeConfigurationData && routeConfigurationData.name;
-        let hideStatusBar =
-          routeConfigurationData && routeConfigurationData.hideStatusBar;
+    if (cordova.platformId !== 'android') {
+      return;
+    }
 
-        if (!pageName || pageName === 'splash-screen') {
-          document.body.classList.add('hide-splash-screen');
-          hideStatusBar = true;
-          hidSplashScreen = true;
-        } else {
-          document.body.classList.add('ready');
+    event.preventDefault();
 
-          if (!hidSplashScreen) {
-            hidSplashScreen = true;
-            setTimeout(
-              () => document.body.classList.add('hide-splash-screen'),
-              400,
-            );
-          }
+    if (this.popupService.active) {
+      this.popupService.clearAll();
+      return;
+    }
 
-          if (navigator.splashscreen && !hidCordovaSplashScreen) {
-            hidCordovaSplashScreen = true;
-            navigator.splashscreen.hide();
-          }
-        }
+    if (this.loadingService.hasFullScreenLoading) {
+      this.loadingService.clearFullScreenLoading();
+      return;
+    }
 
-        if (
-          window.cordova &&
-          window.StatusBar &&
-          hideStatusBar !== hidStatusBar
-        ) {
-          if (hideStatusBar) {
-            window.StatusBar.hide();
-            hidStatusBar = true;
-          } else if (!hideStatusBar) {
-            window.StatusBar.show();
-            hidStatusBar = false;
-          }
-        }
+    if (preventBackHistory) {
+      if (Date.now() - this.latestPreventBackButtonTime <= 3000) {
+        app.exitApp();
+      } else {
+        this.zone.run(() => this.toastService.show('再按一次退出!'));
       }
 
-      let previousRouteConfigurationData = routeConfigurationData;
-
-      if (event instanceof RouteConfigLoadStart) {
-        routeConfigurationData = event.route.data as RouteConfigurationData;
-      }
-
-      if (event instanceof NavigationStart) {
-        navigationUrl = event.url;
-        clearTimeout(navigationLoadingTimerHandle);
-
-        if (
-          previousRouteConfigurationData &&
-          !previousRouteConfigurationData.preventLoadingHint
-        ) {
-          navigationLoadingTimerHandle = setTimeout(() => {
-            navigationLoadingHandler = this.loadingService.show('加载中...');
-          }, 100);
-        }
-      } else if (
-        (event instanceof NavigationEnd || event instanceof NavigationCancel) &&
-        navigationUrl === event.url
-      ) {
-        clearTimeout(navigationLoadingTimerHandle);
-
-        if (navigationLoadingHandler) {
-          navigationLoadingHandler.clear();
-          navigationLoadingHandler = undefined;
-        }
-      }
-    });
+      this.latestPreventBackButtonTime = Date.now();
+    } else {
+      app.backHistory();
+    }
   }
 }
