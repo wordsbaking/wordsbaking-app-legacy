@@ -18,9 +18,9 @@ import {AppView} from 'app/app.view';
 
 import {SplashScreenView} from 'app/pages/splash-screen/splash-screen.view';
 
-import {BrowserRoutingService} from './platform/browser';
-import {RoutingService} from './platform/common';
-import {CordovaRoutingService} from './platform/cordova';
+import {BrowserAppService, BrowserRoutingService} from './platform/browser';
+import {AppService, RoutingService} from './platform/common';
+import {CordovaAppService, CordovaRoutingService} from './platform/cordova';
 
 import {
   AuthGuardService,
@@ -50,6 +50,10 @@ import {
     {
       provide: RoutingService,
       useClass: window.cordova ? CordovaRoutingService : BrowserRoutingService,
+    },
+    {
+      provide: AppService,
+      useClass: window.cordova ? CordovaAppService : BrowserAppService,
     },
   ],
 })
