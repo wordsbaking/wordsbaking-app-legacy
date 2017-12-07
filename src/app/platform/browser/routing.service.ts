@@ -1,7 +1,7 @@
 import {Injectable} from '@angular/core';
 import {Router} from '@angular/router';
 
-import {LoadingService} from 'app/ui';
+import {LoadingService, ToastService} from 'app/ui';
 
 import {RoutingService} from '../common';
 
@@ -9,8 +9,12 @@ import {RoutingService} from '../common';
 export class BrowserRoutingService extends RoutingService {
   hidSplashScreen = false;
 
-  constructor(router: Router, loadingService: LoadingService) {
-    super(router, loadingService);
+  constructor(
+    router: Router,
+    loadingService: LoadingService,
+    toastService: ToastService,
+  ) {
+    super(router, loadingService, toastService);
   }
 
   onNavigationEnd(): void {

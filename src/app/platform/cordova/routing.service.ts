@@ -1,7 +1,7 @@
 import {Injectable} from '@angular/core';
 import {Router} from '@angular/router';
 
-import {LoadingService} from 'app/ui';
+import {LoadingService, ToastService} from 'app/ui';
 
 import {RoutingService} from '../common';
 
@@ -10,8 +10,12 @@ export class CordovaRoutingService extends RoutingService {
   hidStatusBar = false;
   hidSplashScreen = false;
 
-  constructor(router: Router, loadingService: LoadingService) {
-    super(router, loadingService);
+  constructor(
+    router: Router,
+    loadingService: LoadingService,
+    toastService: ToastService,
+  ) {
+    super(router, loadingService, toastService);
     document.body.classList.add('hide-splash-screen');
   }
 
