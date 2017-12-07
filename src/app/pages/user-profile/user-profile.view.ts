@@ -30,6 +30,8 @@ export class UserProfileView implements OnInit {
   form: FormGroup;
   @HostBinding('@userProfileViewTransitions') userProfileViewTransitions = '';
 
+  private saving = false;
+
   readonly avatarPreviewUrl$ = new BehaviorSubject<string | undefined>(
     undefined,
   );
@@ -87,6 +89,20 @@ export class UserProfileView implements OnInit {
   }
 
   async save(): Promise<void> {
+    if (this.saving) {
+      return;
+    }
+
+    this.saving = true;
+
+    try {
+      await this._save();
+    } catch (err) {}
+
+    this.saving = false;
+  }
+
+  private async _save(): Promise<void> {
     let form = this.form;
 
     if (form.invalid) {
@@ -116,6 +132,8 @@ export class UserProfileView implements OnInit {
     } = form.controls;
 
     if (this.avatarFile) {
+      this.loadingService.show('上传头像中...');
+
       let imageCompressor = new ImageCompressor();
 
       avatarData = await imageCompressor.compress(this.avatarFile, {
@@ -129,10 +147,7 @@ export class UserProfileView implements OnInit {
       });
 
       try {
-        let avatar = await this.loadingService.wait<string>(
-          this.apiService.uploadAvatar(avatarData),
-          '上传头像中...',
-        ).result;
+        let avatar = await this.apiService.uploadAvatar(avatarData);
 
         syncPromises.push(this.userConfigService.set('avatar', avatar));
       } catch (e) {

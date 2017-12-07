@@ -1,22 +1,24 @@
 import {Injectable, NgZone} from '@angular/core';
 
-import {AppService} from '../common';
+import {AppService, RoutingService} from '../common';
 
 import {LoadingService, PopupService, ToastService} from 'app/ui';
 
 @Injectable()
 export class CordovaAppService extends AppService {
-  private routeConfigurationData: RouteConfigurationData | undefined;
   private latestPreventBackButtonTime: number;
 
   constructor(
     private toastService: ToastService,
     private loadingService: LoadingService,
     private popupService: PopupService,
+    private routingService: RoutingService,
     private zone: NgZone,
   ) {
     super();
+  }
 
+  init(): void {
     document.addEventListener(
       'backbutton',
       this.handleBackButtonPress.bind(this),
@@ -24,10 +26,8 @@ export class CordovaAppService extends AppService {
     );
   }
 
-  init(): void {}
-
   private handleBackButtonPress(event: Event): void {
-    let {routeConfigurationData} = this;
+    let routeConfigurationData = this.routingService.routeConfigurationData;
     let preventBackHistory =
       routeConfigurationData && routeConfigurationData.preventBackHistory;
     let cordova = window.cordova!;

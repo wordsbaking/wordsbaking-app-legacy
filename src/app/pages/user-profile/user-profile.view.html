@@ -14,7 +14,8 @@
             formControlName="avatar"
             type="file"
             name="avatar"
-            accept=".jpg, .png"
+            accept="image/*"
+            capture="capture"
             (change)="onAvatarFileChange(fileInput.files)" />
         </div>
       </div>
