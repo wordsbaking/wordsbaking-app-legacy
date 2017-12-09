@@ -12,9 +12,12 @@
     "start": "ng serve --host 0.0.0.0 --hmr -e hmr",
     "build": "ng build -prod && node scripts/post-build.js",
     "build-dev": "ng build && node scripts/post-build.js",
+    "build-hybird": "ng build -prod -e hybird-prod && node scripts/post-build.js",
     "release": "rimraf ../wordsbaking-app-cordova/www && cp -r ./bld ../wordsbaking-app-cordova/www",
-    "debug-ios": "yarn build-dev && yarn release && (cd ../wordsbaking-app-cordova/www && cordova run ios)",
-    "debug-android": "yarn build-dev && yarn release && (cd ../wordsbaking-app-cordova/www && cordova run android)"
+    "run:android": "cd ../wordsbaking-app-cordova/www && cordova run android",
+    "run:ios": "cd ../wordsbaking-app-cordova/www && cordova run ios",
+    "debug-ios": "yarn build-dev && yarn release && yarn run:ios",
+    "debug-android": "yarn build-dev && yarn release && yarn run:android"
   },
   "private": true,
   "dependencies": {

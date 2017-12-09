@@ -29,7 +29,7 @@ export class StudyView {
   readonly audioMode$ = this.settingsConfigService.audioMode$;
 
   constructor(
-    private userConfigService: UserConfigService,
+    public userConfigService: UserConfigService,
     private settingsConfigService: SettingsConfigService,
   ) {}
 

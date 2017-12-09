@@ -3,5 +3,5 @@ export const environment: Environment = {
   hmr: false,
   aliyunOSSUserContentBaseUrl: '/',
   apiBaseUrl: '/',
-  hybirdApp: false,
+  hybirdApp: true,
 };

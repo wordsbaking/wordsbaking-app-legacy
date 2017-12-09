@@ -19,7 +19,8 @@
       "environments": {
         "dev": "environments/environment.ts",
         "prod": "environments/environment.prod.ts",
-        "hmr": "environments/environment.hmr.ts"
+        "hmr": "environments/environment.hmr.ts",
+        "hybird-prod": "environments/environment.hybird-prod.ts"
       }
     }
   ],

@@ -18,6 +18,7 @@ import {AppView} from 'app/app.view';
 
 import {SplashScreenView} from 'app/pages/splash-screen/splash-screen.view';
 
+import {environment} from '../environments/environment';
 import {BrowserAppService, BrowserRoutingService} from './platform/browser';
 import {AppService, RoutingService} from './platform/common';
 import {CordovaAppService, CordovaRoutingService} from './platform/cordova';
@@ -49,11 +50,13 @@ import {
     WelcomePageGuardService,
     {
       provide: RoutingService,
-      useClass: window.cordova ? CordovaRoutingService : BrowserRoutingService,
+      useClass: environment.hybirdApp
+        ? CordovaRoutingService
+        : BrowserRoutingService,
     },
     {
       provide: AppService,
-      useClass: window.cordova ? CordovaAppService : BrowserAppService,
+      useClass: environment.hybirdApp ? CordovaAppService : BrowserAppService,
     },
   ],
 })

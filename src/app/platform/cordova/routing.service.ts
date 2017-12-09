@@ -17,14 +17,21 @@ export class CordovaRoutingService extends RoutingService {
   ) {
     super(router, loadingService, toastService);
     document.body.classList.add('hide-splash-screen');
+    console.log('maya');
+  }
+
+  onRouteConfigLoadStart(): void {
+    this.entryPage();
+  }
+
+  onActivationStart(): void {
+    this.entryPage();
   }
 
   onNavigationEnd(): void {
     let {routeConfigurationData} = this;
 
     let pageName = routeConfigurationData && routeConfigurationData.name;
-    let hideStatusBar =
-      routeConfigurationData && routeConfigurationData.hideStatusBar;
 
     if (!pageName || pageName === 'splash-screen') {
       this.hidSplashScreen = true;
@@ -34,6 +41,13 @@ export class CordovaRoutingService extends RoutingService {
         setTimeout(() => navigator.splashscreen!.hide(), 400);
       }
     }
+  }
+
+  private entryPage(): void {
+    let {routeConfigurationData} = this;
+
+    let hideStatusBar =
+      routeConfigurationData && routeConfigurationData.hideStatusBar;
 
     if (hideStatusBar !== this.hidStatusBar) {
       if (hideStatusBar) {

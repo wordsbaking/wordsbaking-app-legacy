@@ -4,6 +4,8 @@ import {
   NavigationEnd,
   NavigationError,
   NavigationStart,
+  RouteConfigLoadEnd,
+  RouteConfigLoadStart,
   Router,
 } from '@angular/router';
 
@@ -11,6 +13,8 @@ import {LoadingHandler, LoadingService, ToastService} from 'app/ui';
 
 export type RouteEventType =
   | NavigationStart
+  | RouteConfigLoadStart
+  | RouteConfigLoadEnd
   | ActivationStart
   | NavigationCancel
   | NavigationEnd
@@ -34,6 +38,8 @@ export abstract class RoutingService {
   }
 
   onNavigationStart(_event: NavigationStart): void {}
+  onRouteConfigLoadStart(_event: RouteConfigLoadStart): void {}
+  onRouteConfigLoadEnd(_event: RouteConfigLoadEnd): void {}
   onNavigationEnd(_event: NavigationEnd): void {}
   onActivationStart(_event: ActivationStart): void {}
   onNavigationCancel(_event: NavigationCancel): void {}
@@ -60,6 +66,11 @@ export abstract class RoutingService {
       }
 
       this.onNavigationStart(event);
+    } else if (event instanceof RouteConfigLoadStart) {
+      this.routeConfigurationData = event.route.data as RouteConfigurationData;
+      this.onRouteConfigLoadStart(event);
+    } else if (event instanceof RouteConfigLoadEnd) {
+      this.onRouteConfigLoadEnd(event);
     } else if (event instanceof ActivationStart) {
       this.routeConfigurationData = event.snapshot
         .data as RouteConfigurationData;

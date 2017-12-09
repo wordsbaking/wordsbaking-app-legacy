@@ -8,6 +8,7 @@ interface Environment {
   hmr: boolean;
   aliyunOSSUserContentBaseUrl: string;
   apiBaseUrl: string;
+  hybirdApp: boolean;
 }
 
 interface Dict<T> {

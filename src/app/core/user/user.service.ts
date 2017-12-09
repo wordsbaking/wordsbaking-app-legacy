@@ -14,7 +14,6 @@ import {APIService} from 'app/core/common';
 import {UserConfigService} from 'app/core/config';
 import {AuthConfigService} from 'app/core/config/auth';
 import {SyncService} from 'app/core/data';
-import {NavigationService} from 'app/core/navigation';
 
 const DAY_START_CLOCK = 4; // A new day start at 4 AM.
 const STUDY_ACTIVE_TIMEOUT = ms('30s');
@@ -72,7 +71,6 @@ export class UserService implements OnDestroy {
     private apiService: APIService,
     private loadingService: LoadingService,
     private authConfigService: AuthConfigService,
-    private navigationService: NavigationService,
   ) {
     this.subscription.add(
       this.studyHeartBeat$

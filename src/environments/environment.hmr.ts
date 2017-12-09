@@ -1,7 +1,7 @@
 export const environment: Environment = {
   production: false,
   hmr: true,
-  aliyunOSSUserContentBaseUrl:
-    'http://wordsbaking-dev-user-content.oss-cn-shenzhen.aliyuncs.com',
+  aliyunOSSUserContentBaseUrl: '/',
   apiBaseUrl: '//localhost:1337',
+  hybirdApp: false,
 };
