@@ -1,9 +1,10 @@
 import {EventEmitter, HostBinding} from '@angular/core';
 
+import {SettingsConfigService} from 'app/core/config';
 import {WordDataSentence} from 'app/core/data';
 import {WordInfo} from 'app/core/engine';
-
 import {Easing, animate, momentum} from 'app/lib/animate';
+import {TTSService} from 'app/platform/common';
 
 export type CompleteCallback = () => void;
 export type ProgressCallback = (percentage: number) => void;
@@ -29,6 +30,14 @@ export abstract class WordCardComponentBase {
   expandedRemovalConfirmButtons = false;
   animating = false;
 
+  readonly audioOn$ = this.settingsConfigService.audioMode$
+    .map(audioMode => {
+      return audioMode !== 'off';
+    })
+    .distinctUntilChanged()
+    .publishReplay(1)
+    .refCount();
+
   protected elementStyle: CSSStyleDeclaration;
   protected innerElement: HTMLElement;
   protected innerElementStyle: CSSStyleDeclaration;
@@ -41,6 +50,11 @@ export abstract class WordCardComponentBase {
 
   private state: WordCardState = WordCardState.inactive;
   private latestSlideXOffset = 0;
+
+  constructor(
+    private ttsService: TTSService,
+    private settingsConfigService: SettingsConfigService,
+  ) {}
 
   @HostBinding('class.active')
   get active(): boolean {
@@ -126,6 +140,18 @@ export abstract class WordCardComponentBase {
   get sentence(): WordDataSentence | undefined {
     let {sentences} = this.word;
     return sentences && sentences[0];
+  }
+
+  async playAudio(): Promise<void> {
+    let audioMode = await this.settingsConfigService.audioMode$
+      .first()
+      .toPromise();
+
+    if (audioMode === 'off') {
+      return;
+    }
+
+    return this.ttsService.speak(this.word.term);
   }
 
   remove(): Promise<void> {

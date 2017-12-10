@@ -6,7 +6,10 @@
         <span class="phonetic-symbols" *ngIf="phonetic">{{phonetic}}</span>
       </div>
       <div class="toolbar">
-        <span class="icon audio"></span>
+        <button
+          class="icon audio audio-play-button"
+          *ngIf="audioOn$ | async"
+          (wbPress)="playAudio()"></button>
       </div>
     </div>
 

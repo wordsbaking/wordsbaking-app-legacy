@@ -7,7 +7,11 @@ import {
   Input,
 } from '@angular/core';
 
+import * as logger from 'logger';
+
+import {SettingsConfigService} from 'app/core/config';
 import {WordInfo} from 'app/core/engine';
+import {TTSService} from 'app/platform/common';
 
 import {
   CompleteCallback,
@@ -31,10 +35,24 @@ export class WordDetailCardComponent extends WordCardComponentBase
 
   @HostBinding('@wordDetailCardTransitions') wordDetailCardTransitions = true;
 
-  constructor(ref: ElementRef) {
-    super();
+  constructor(
+    ref: ElementRef,
+    ttsService: TTSService,
+    settingsConfigService: SettingsConfigService,
+  ) {
+    super(ttsService, settingsConfigService);
 
     this.element = ref.nativeElement;
+
+    settingsConfigService.audioMode$
+      .first()
+      .toPromise()
+      .then(async audioMode => {
+        if (audioMode === 'auto') {
+          await this.playAudio();
+        }
+      })
+      .catch(logger.error);
   }
 
   onSlideX(

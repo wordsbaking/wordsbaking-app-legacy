@@ -38,6 +38,11 @@
     align-items: center;
     justify-content: space-between;
 
+    .info {
+      width: 90%;
+      overflow: hidden;
+    }
+
     .term {
       font-size: @size-word-item-term-size;
       display: inline-block;
@@ -59,15 +64,21 @@
       }
     }
 
-    .icon.audio {
+    .audio-play-button {
       @size: 20px;
 
-      width: @size;
-      height: @size;
+      width: @size + 10;
+      height: @size + 10;
       font-size: @size;
       color: @color-theme;
-      transform: translateY(-4px);
+      background-color: transparent;
+      padding: 5px;
+      transform: translate3d(8px, -4px, 0);
       transition: opacity linear 0.1s;
+
+      &:active {
+        opacity: 0.4;
+      }
     }
   }
 

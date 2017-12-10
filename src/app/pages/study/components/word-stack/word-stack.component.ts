@@ -67,17 +67,6 @@ export class WordStackComponent implements OnInit, OnDestroy {
     private loadingService: LoadingService,
   ) {
     this.element = ref.nativeElement;
-
-    // simulate
-    // setTimeout(
-    //   () =>
-    //     this.words$.next(simulationData.slice(0, 4).map(data => ({...data}))),
-    //   1200,
-    // );
-
-    // setTimeout(() => {
-    //   this.showNotification('hello, world');
-    // }, 3000);
   }
 
   get size(): number {
@@ -101,6 +90,9 @@ export class WordStackComponent implements OnInit, OnDestroy {
   }
 
   async ngOnInit(): Promise<void> {
+    // 目的让页面过场动画不卡顿
+    await new Promise<void>(resolve => setTimeout(resolve, 800));
+
     this.subscription.add(
       this.engineService.load$.observeOn(asap).subscribe(async () => {
         let handler = this.loadingService.show('正在加载...');

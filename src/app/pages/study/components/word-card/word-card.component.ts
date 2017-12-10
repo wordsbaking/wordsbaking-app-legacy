@@ -11,6 +11,9 @@ import {WordInfo} from 'app/core/engine';
 
 import {Easing, animate} from 'app/lib/animate';
 
+import {SettingsConfigService} from 'app/core/config';
+import {TTSService} from 'app/platform/common';
+
 import {
   CompleteCallback,
   ProgressCallback,
@@ -36,8 +39,12 @@ export class WordCardComponent extends WordCardComponentBase
   protected labelInnerWrapperElement: HTMLElement;
   protected labelInnerWrapperElementStyle: CSSStyleDeclaration;
 
-  constructor(ref: ElementRef) {
-    super();
+  constructor(
+    ref: ElementRef,
+    ttsService: TTSService,
+    settingsConfigService: SettingsConfigService,
+  ) {
+    super(ttsService, settingsConfigService);
     this.element = ref.nativeElement;
   }
 
