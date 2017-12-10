@@ -15,6 +15,6 @@ export const popupTransitions = trigger('popupTransitions', [
   ]),
   transition('fadeInDown => void', [
     style({opacity: 1, transform: 'translateY(0)'}),
-    animate('0.1s ease-out', style({opacity: 0, transform: 'translateY(20%)'})),
+    animate('0.2s ease-out', style({opacity: 0, transform: 'translateY(80%)'})),
   ]),
 ]);
