@@ -1,2 +1,4 @@
-export * from './routing.service';
-export * from './app.service';
+export * from './cordova-routing.service';
+export * from './cordova-app.service';
+export * from './cordova-tts.service';
+export * from './cordova-app.module';

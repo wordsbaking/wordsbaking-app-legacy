@@ -19,14 +19,17 @@ import {AppView} from 'app/app.view';
 import {SplashScreenView} from 'app/pages/splash-screen/splash-screen.view';
 
 import {environment} from '../environments/environment';
-import {BrowserAppService, BrowserRoutingService} from './platform/browser';
-import {AppService, RoutingService} from './platform/common';
-import {CordovaAppService, CordovaRoutingService} from './platform/cordova';
+import {BrowserAppModule} from './platform/browser';
+import {CordovaAppModule} from './platform/cordova';
 
 import {
   AuthGuardService,
   WelcomePageGuardService,
 } from './app-router-guard-services';
+
+const PlatformAppModule = environment.hybirdApp
+  ? CordovaAppModule
+  : BrowserAppModule;
 
 @NgModule({
   imports: [
@@ -42,22 +45,10 @@ import {
     CoreDataModule.forRoot(),
     CoreEngineModule.forRoot(),
     CoreNavigationModule.forRoot(),
+    PlatformAppModule.forRoot(),
   ],
   declarations: [AppView, SplashScreenView],
   bootstrap: [AppView],
-  providers: [
-    AuthGuardService,
-    WelcomePageGuardService,
-    {
-      provide: RoutingService,
-      useClass: environment.hybirdApp
-        ? CordovaRoutingService
-        : BrowserRoutingService,
-    },
-    {
-      provide: AppService,
-      useClass: environment.hybirdApp ? CordovaAppService : BrowserAppService,
-    },
-  ],
+  providers: [AuthGuardService, WelcomePageGuardService],
 })
 export class AppModule {}

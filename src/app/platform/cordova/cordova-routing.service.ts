@@ -17,7 +17,6 @@ export class CordovaRoutingService extends RoutingService {
   ) {
     super(router, loadingService, toastService);
     document.body.classList.add('hide-splash-screen');
-    console.log('maya');
   }
 
   onRouteConfigLoadStart(): void {
