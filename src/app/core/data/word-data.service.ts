@@ -208,20 +208,4 @@ export class WordDataService {
       sentence,
     };
   }
-
-  // static speak(term: string, rate = 1) {
-  //   if (typeof TTS != 'undefined') {
-  //     return new Promise<void>(resolve => {
-  //       TTS.speak(
-  //         {
-  //           text: term,
-  //           rate,
-  //           locale: settings.ttsLocale,
-  //         },
-  //         () => resolve(),
-  //         () => resolve(),
-  //       );
-  //     });
-  //   }
-  // }
 }
