@@ -104,6 +104,9 @@ export class GlanceView implements OnInit {
   ) {}
 
   ngOnInit() {
-    this.syncService.sync().catch(logger.error);
+    // 为了保证页面切入动画流畅, 同步任务拍后处理
+    setTimeout(() => {
+      this.syncService.sync().catch(logger.error);
+    }, 800);
   }
 }
