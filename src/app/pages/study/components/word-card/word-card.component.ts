@@ -82,10 +82,10 @@ export class WordCardComponent extends WordCardComponentBase
       '.label-inner-wrapper',
     ) as HTMLElement;
     this.labelInnerWrapperElementStyle = this.labelInnerWrapperElement.style;
-    this.audioIconElement = element.querySelector(
+    this.audioPlayButtonElement = element.querySelector(
       '.head .icon.audio',
     ) as HTMLElement;
-    this.audioIconElementStyle = this.audioIconElement.style;
+    this.audioPlayButtonElementStyle = this.audioPlayButtonElement.style;
   }
 
   onSlideX(
@@ -137,7 +137,7 @@ export class WordCardComponent extends WordCardComponentBase
     let {
       briefElement,
       briefElementStyle,
-      audioIconElementStyle,
+      audioPlayButtonElementStyle,
       labelInnerWrapperElementStyle,
     } = this;
 
@@ -156,9 +156,9 @@ export class WordCardComponent extends WordCardComponentBase
 
     if (percentage > 0.1) {
       let audioIconOpacity = 1 - Math.min(percentage - 0.1, 0.3) / 0.3;
-      audioIconElementStyle.opacity = audioIconOpacity as any;
+      audioPlayButtonElementStyle.opacity = audioIconOpacity as any;
     } else {
-      audioIconElementStyle.opacity = 1 as any;
+      audioPlayButtonElementStyle.opacity = 1 as any;
     }
 
     let labelInnerWrapperOffset =
@@ -185,10 +185,10 @@ export class WordCardComponent extends WordCardComponentBase
   }
 
   private reset(): void {
-    let {briefElementStyle, audioIconElementStyle} = this;
+    let {briefElementStyle, audioPlayButtonElementStyle} = this;
 
     briefElementStyle.opacity = 0 as any;
     briefElementStyle.height = '0px';
-    audioIconElementStyle.opacity = 1 as any;
+    audioPlayButtonElementStyle.opacity = 1 as any;
   }
 }

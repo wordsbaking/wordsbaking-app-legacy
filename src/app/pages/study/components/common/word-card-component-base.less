@@ -41,6 +41,7 @@
     .info {
       width: 90%;
       overflow: hidden;
+      white-space: nowrap;
     }
 
     .term {
@@ -78,6 +79,10 @@
 
       &:active {
         opacity: 0.4;
+      }
+
+      &.hidden {
+        display: none;
       }
     }
   }

@@ -43,8 +43,8 @@ export abstract class WordCardComponentBase {
   protected innerElementStyle: CSSStyleDeclaration;
   protected contentElement: HTMLElement;
   protected contentElementStyle: CSSStyleDeclaration;
-  protected audioIconElement: HTMLElement;
-  protected audioIconElementStyle: CSSStyleDeclaration;
+  protected audioPlayButtonElement: HTMLElement;
+  protected audioPlayButtonElementStyle: CSSStyleDeclaration;
   protected removalConfirmButtonsElement: HTMLElement;
   protected removalConfirmButtonsElementStyle: CSSStyleDeclaration;
 
@@ -166,8 +166,10 @@ export abstract class WordCardComponentBase {
     this.innerElementStyle = this.innerElement.style;
     this.contentElement = element.querySelector('.content') as HTMLElement;
     this.contentElementStyle = this.contentElement.style;
-    this.audioIconElement = element.querySelector('.icon.audio') as HTMLElement;
-    this.audioIconElementStyle = this.audioIconElement.style;
+    this.audioPlayButtonElement = element.querySelector(
+      '.audio-play-button',
+    ) as HTMLElement;
+    this.audioPlayButtonElementStyle = this.audioPlayButtonElement.style;
     this.removalConfirmButtonsElement = element.querySelector(
       '.removal-confirm-buttons',
     ) as HTMLElement;

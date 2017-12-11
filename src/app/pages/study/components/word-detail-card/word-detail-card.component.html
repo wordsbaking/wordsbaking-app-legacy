@@ -9,7 +9,7 @@
         <div class="toolbar">
           <button
             class="icon audio audio-play-button"
-            *ngIf="audioOn$ | async"
+            [class.hidden]="!(audioOn$ | async)"
             (wbPress)="playAudio()"></button>
         </div>
       </div>

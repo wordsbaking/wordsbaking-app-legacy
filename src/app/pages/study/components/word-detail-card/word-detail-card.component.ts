@@ -5,6 +5,7 @@ import {
   EventEmitter,
   HostBinding,
   Input,
+  OnDestroy,
 } from '@angular/core';
 
 import * as logger from 'logger';
@@ -28,12 +29,14 @@ import {wordDetailCardTransitions} from './word-detail-card.animations';
   animations: [wordDetailCardTransitions],
 })
 export class WordDetailCardComponent extends WordCardComponentBase
-  implements AfterViewInit {
+  implements AfterViewInit, OnDestroy {
   @Input('data') word: WordInfo;
   @Input('active') activeEvent = new EventEmitter<void>();
   @Input('removing') removingEvent = new EventEmitter<void>();
 
   @HostBinding('@wordDetailCardTransitions') wordDetailCardTransitions = true;
+
+  private autoPlayAudioTimerHandle: number;
 
   constructor(
     ref: ElementRef,
@@ -49,7 +52,9 @@ export class WordDetailCardComponent extends WordCardComponentBase
       .toPromise()
       .then(async audioMode => {
         if (audioMode === 'auto') {
-          await this.playAudio();
+          this.autoPlayAudioTimerHandle = setTimeout(() => {
+            this.playAudio().catch(logger.error);
+          }, 400);
         }
       })
       .catch(logger.error);
@@ -67,5 +72,9 @@ export class WordDetailCardComponent extends WordCardComponentBase
 
   ngAfterViewInit(): void {
     this.onViewInit();
+  }
+
+  ngOnDestroy(): void {
+    clearTimeout(this.autoPlayAudioTimerHandle);
   }
 }
