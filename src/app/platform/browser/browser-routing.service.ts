@@ -18,7 +18,7 @@ export class BrowserRoutingService extends RoutingService {
   }
 
   onNavigationEnd(): void {
-    let {routeConfigurationData} = this;
+    let routeConfigurationData = this.routeConfigurationData$.value;
 
     let pageName = routeConfigurationData && routeConfigurationData.name;
 

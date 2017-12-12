@@ -1,4 +1,4 @@
-import {RouterModule, Routes} from '@angular/router';
+import {Routes} from '@angular/router';
 
 import {SplashScreenView} from 'app/pages/splash-screen/splash-screen.view';
 
@@ -7,7 +7,7 @@ import {
   WelcomePageGuardService,
 } from './app-router-guard-services';
 
-const routes: Routes = [
+export const appRoutes: Routes = [
   {
     path: '',
     pathMatch: 'full',
@@ -27,6 +27,7 @@ const routes: Routes = [
       preventLoadingHint: true,
       hideStatusBar: true,
       preventBackHistory: true,
+      preloadPages: ['sign-up'],
     },
     canLoad: [WelcomePageGuardService],
     canActivate: [WelcomePageGuardService],
@@ -34,36 +35,52 @@ const routes: Routes = [
   {
     path: 'glance',
     loadChildren: './pages/glance/glance.module#GlanceModule',
-    canLoad: [AuthGuardService],
+    // canLoad: [AuthGuardService],
     canActivate: [AuthGuardService],
     canActivateChild: [AuthGuardService],
-    data: {name: 'glance', preventLoadingHint: true, preventBackHistory: true},
+    data: {
+      name: 'glance',
+      preventLoadingHint: true,
+      preventBackHistory: true,
+    },
   },
   {
     path: 'study',
     loadChildren: './pages/study/study.module#StudyModule',
-    canLoad: [AuthGuardService],
+    // canLoad: [AuthGuardService],
     canActivate: [AuthGuardService],
     canActivateChild: [AuthGuardService],
-    data: {name: 'study'},
+    data: {
+      name: 'study',
+    },
   },
   {
     path: 'settings',
     loadChildren: './pages/settings/settings.module#SettingsModule',
-    canLoad: [AuthGuardService],
+    // canLoad: [AuthGuardService],
     canActivate: [AuthGuardService],
     canActivateChild: [AuthGuardService],
-    data: {name: 'settings'},
+    data: {
+      name: 'settings',
+    },
   },
   {
     path: 'sign-in',
     loadChildren: './pages/sign-in/sign-in.module#SignInModule',
-    data: {name: 'sign-in', preventBackHistory: true},
+    canLoad: [],
+    data: {
+      name: 'sign-in',
+      preventBackHistory: true,
+    },
   },
   {
     path: 'sign-up',
     loadChildren: './pages/sign-up/sign-up.module#SignUpModule',
-    data: {name: 'sign-up', preventBackHistory: true},
+    canLoad: [],
+    data: {
+      name: 'sign-up',
+      preventBackHistory: true,
+    },
   },
   {
     path: 'recycle-bin',
@@ -86,7 +103,3 @@ const routes: Routes = [
     redirectTo: 'sign-in',
   },
 ];
-
-export const AppRouting = RouterModule.forRoot(routes, {
-  enableTracing: false,
-});

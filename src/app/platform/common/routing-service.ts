@@ -1,13 +1,17 @@
 import {
+  ActivationEnd,
   ActivationStart,
   NavigationCancel,
   NavigationEnd,
   NavigationError,
   NavigationStart,
+  Route,
   RouteConfigLoadEnd,
   RouteConfigLoadStart,
   Router,
 } from '@angular/router';
+
+import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 
 import {LoadingHandler, LoadingService, ToastService} from 'app/ui';
 
@@ -16,12 +20,17 @@ export type RouteEventType =
   | RouteConfigLoadStart
   | RouteConfigLoadEnd
   | ActivationStart
+  | ActivationEnd
   | NavigationCancel
   | NavigationEnd
   | NavigationError;
 
 export abstract class RoutingService {
-  routeConfigurationData: RouteConfigurationData | undefined;
+  routeConfigurationData$ = new BehaviorSubject<
+    RouteConfigurationData | undefined
+  >(undefined);
+
+  activeRoute$ = new BehaviorSubject<Route | undefined>(undefined);
 
   private navigationLoadingTimerHandle: number;
   private navigationLoadingHandler: LoadingHandler<void> | undefined;
@@ -42,12 +51,13 @@ export abstract class RoutingService {
   onRouteConfigLoadEnd(_event: RouteConfigLoadEnd): void {}
   onNavigationEnd(_event: NavigationEnd): void {}
   onActivationStart(_event: ActivationStart): void {}
+  onActivationEnd(_event: ActivationEnd): void {}
   onNavigationCancel(_event: NavigationCancel): void {}
   onNavigationError(_event: NavigationError): void {}
 
   protected handleRouteEvent(event: RouteEventType): void {
-    let {routeConfigurationData} = this;
-    let previousRouteConfigurationData = routeConfigurationData;
+    let {routeConfigurationData$} = this;
+    let previousRouteConfigurationData = routeConfigurationData$.value;
     let navigationEnded =
       event instanceof NavigationEnd ||
       event instanceof NavigationCancel ||
@@ -67,15 +77,18 @@ export abstract class RoutingService {
 
       this.onNavigationStart(event);
     } else if (event instanceof RouteConfigLoadStart) {
-      this.routeConfigurationData = event.route.data as RouteConfigurationData;
+      // this.routeConfigurationData$.next(event.route
+      //   .data as RouteConfigurationData);
       this.onRouteConfigLoadStart(event);
     } else if (event instanceof RouteConfigLoadEnd) {
       this.onRouteConfigLoadEnd(event);
     } else if (event instanceof ActivationStart) {
-      this.routeConfigurationData = event.snapshot
-        .data as RouteConfigurationData;
-
+      this.routeConfigurationData$.next(event.snapshot
+        .data as RouteConfigurationData);
       this.onActivationStart(event);
+    } else if (event instanceof ActivationEnd) {
+      this.activeRoute$.next(event.snapshot.routeConfig as Route);
+      this.onActivationEnd(event);
     } else if (event instanceof NavigationEnd) {
       if (!this.readied) {
         this.readied = true;

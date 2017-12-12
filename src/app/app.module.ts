@@ -3,6 +3,8 @@ import {BrowserModule} from '@angular/platform-browser';
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
 import {RouterModule} from '@angular/router';
 
+import {IdlePreload, IdlePreloadModule} from 'angular-idle-preload';
+
 import {CoreCommonModule} from 'app/core/common';
 import {CoreConfigModule} from 'app/core/config';
 import {CoreDataModule} from 'app/core/data';
@@ -13,7 +15,7 @@ import {CoreUserModule} from 'app/core/user';
 
 import {UIModule} from 'app/ui';
 
-import {AppRouting} from 'app/app.routing';
+import {appRoutes} from 'app/app.routing';
 import {AppView} from 'app/app.view';
 
 import {SplashScreenView} from 'app/pages/splash-screen/splash-screen.view';
@@ -31,13 +33,21 @@ const PlatformAppModule = environment.hybirdApp
   ? CordovaAppModule
   : BrowserAppModule;
 
+(window as any).requestIdleCallback = (load: Function) => {
+  setTimeout(load, 1000);
+};
+
 @NgModule({
   imports: [
     BrowserModule,
     BrowserAnimationsModule,
+    PlatformAppModule.forRoot(),
     RouterModule,
     CoreUIModule,
-    AppRouting,
+    IdlePreloadModule.forRoot(),
+    RouterModule.forRoot(appRoutes, {
+      preloadingStrategy: IdlePreload,
+    }),
     UIModule.forRoot(),
     CoreCommonModule.forRoot(),
     CoreConfigModule.forRoot(),
@@ -45,7 +55,6 @@ const PlatformAppModule = environment.hybirdApp
     CoreDataModule.forRoot(),
     CoreEngineModule.forRoot(),
     CoreNavigationModule.forRoot(),
-    PlatformAppModule.forRoot(),
   ],
   declarations: [AppView, SplashScreenView],
   bootstrap: [AppView],

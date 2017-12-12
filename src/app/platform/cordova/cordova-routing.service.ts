@@ -28,7 +28,7 @@ export class CordovaRoutingService extends RoutingService {
   }
 
   onNavigationEnd(): void {
-    let {routeConfigurationData} = this;
+    let routeConfigurationData = this.routeConfigurationData$.value;
 
     let pageName = routeConfigurationData && routeConfigurationData.name;
 
@@ -43,7 +43,7 @@ export class CordovaRoutingService extends RoutingService {
   }
 
   private entryPage(): void {
-    let {routeConfigurationData} = this;
+    let routeConfigurationData = this.routeConfigurationData$.value;
 
     let hideStatusBar =
       routeConfigurationData && routeConfigurationData.hideStatusBar;

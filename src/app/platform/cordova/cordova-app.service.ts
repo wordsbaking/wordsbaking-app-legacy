@@ -27,7 +27,8 @@ export class CordovaAppService extends AppService {
   }
 
   private handleBackButtonPress(event: Event): void {
-    let routeConfigurationData = this.routingService.routeConfigurationData;
+    let routeConfigurationData = this.routingService.routeConfigurationData$
+      .value;
     let preventBackHistory =
       routeConfigurationData && routeConfigurationData.preventBackHistory;
     let cordova = window.cordova!;
