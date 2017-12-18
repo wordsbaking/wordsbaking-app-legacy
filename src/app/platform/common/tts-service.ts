@@ -1,3 +1,3 @@
 export abstract class TTSService {
-  abstract speak(term: string): Promise<void>;
+  abstract speak(term: string, rate?: number): Promise<void>;
 }

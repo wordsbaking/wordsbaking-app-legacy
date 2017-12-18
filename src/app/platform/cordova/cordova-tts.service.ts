@@ -13,13 +13,11 @@ export class CordovaTTSService extends TTSService {
     super();
   }
 
-  async speak(term: string): Promise<void> {
-    let rate = await this.settingsConfigService.sentenceTtsSpeed$
-      .first()
-      .toPromise();
+  async speak(term: string, rate = 1): Promise<void> {
     let pronunciation = await this.settingsConfigService.pronunciation$
       .first()
       .toPromise();
+
     let TTS = window.TTS!;
 
     return new Promise<void>(resolve => {
