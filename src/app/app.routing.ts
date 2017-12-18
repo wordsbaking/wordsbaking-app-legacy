@@ -57,7 +57,7 @@ export const appRoutes: Routes = [
   {
     path: 'settings',
     loadChildren: './pages/settings/settings.module#SettingsModule',
-    // canLoad: [AuthGuardService],
+    canLoad: [AuthGuardService],
     canActivate: [AuthGuardService],
     canActivateChild: [AuthGuardService],
     data: {

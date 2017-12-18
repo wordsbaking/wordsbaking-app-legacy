@@ -34,7 +34,7 @@ const PlatformAppModule = environment.hybirdApp
   : BrowserAppModule;
 
 (window as any).requestIdleCallback = (load: Function) => {
-  setTimeout(load, 1000);
+  setTimeout(load, 3000);
 };
 
 @NgModule({
