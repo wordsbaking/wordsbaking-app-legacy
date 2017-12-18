@@ -2,6 +2,7 @@ import {
   ComponentFactoryResolver,
   ComponentRef,
   Injectable,
+  OnDestroy,
 } from '@angular/core';
 
 import {ViewContainerService} from '../util';
@@ -23,7 +24,7 @@ export const TOAST_LENGTH_SHORT = 3000;
 export const TOAST_LENGTH_LONG = 6000;
 
 @Injectable()
-export class ToastService {
+export class ToastService implements OnDestroy {
   private toastInfoSet = new Set<ToastInfo>();
 
   constructor(
@@ -67,6 +68,10 @@ export class ToastService {
     for (let toastInfo of this.toastInfoSet) {
       this.clear(toastInfo);
     }
+  }
+
+  ngOnDestroy(): void {
+    this.clearAll();
   }
 
   private clear(toastInfo: ToastInfo): void {

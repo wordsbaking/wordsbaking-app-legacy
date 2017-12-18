@@ -3,6 +3,7 @@ import {
   ComponentRef,
   Injectable,
   NgZone,
+  OnDestroy,
 } from '@angular/core';
 
 import * as $ from 'jquery';
@@ -29,7 +30,7 @@ interface PopupInfo {
 }
 
 @Injectable()
-export class PopupService {
+export class PopupService implements OnDestroy {
   private popupInfoSet = new Set<PopupInfo>();
   private backgroundComponentRef:
     | ComponentRef<PopupBackgroundComponent>
@@ -80,6 +81,10 @@ export class PopupService {
     for (let info of this.popupInfoSet) {
       this.clear(info);
     }
+  }
+
+  ngOnDestroy(): void {
+    this.clearAll();
   }
 
   private show(

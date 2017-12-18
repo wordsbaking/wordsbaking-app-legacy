@@ -2,6 +2,7 @@ import {
   ComponentFactoryResolver,
   ComponentRef,
   Injectable,
+  OnDestroy,
   ViewContainerRef,
 } from '@angular/core';
 
@@ -29,7 +30,7 @@ export interface LoadingInfo {
 }
 
 @Injectable()
-export class LoadingService {
+export class LoadingService implements OnDestroy {
   private loadingInfoSet = new Set<LoadingInfo>();
 
   private latestFullScreenLoadingInfo: LoadingInfo | undefined;
@@ -105,6 +106,10 @@ export class LoadingService {
     if (this.hasFullScreenLoading) {
       this.clear(this.latestFullScreenLoadingInfo!);
     }
+  }
+
+  ngOnDestroy(): void {
+    this.clearAll();
   }
 
   private mount(
