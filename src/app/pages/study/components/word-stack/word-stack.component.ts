@@ -30,6 +30,8 @@ import {
 import {WordCardComponent} from '../word-card/word-card.component';
 import {WordDetailCardComponent} from '../word-detail-card/word-detail-card.component';
 
+import {WordStackService} from './word-stack.service';
+
 import {
   notificationCardTransitions,
   wordCardTransitions,
@@ -40,12 +42,13 @@ import {
   templateUrl: './word-stack.component.html',
   styleUrls: ['./word-stack.component.less'],
   animations: [notificationCardTransitions, wordCardTransitions],
+  providers: [WordStackService],
 })
 export class WordStackComponent implements OnInit, OnDestroy {
   @ViewChild(WordDetailCardComponent)
   wordDetailCardComponent: WordDetailCardComponent;
 
-  words$ = new BehaviorSubject<(WordInfo | undefined)[]>([]);
+  words$ = this.wordStackService.words$;
 
   notification$ = new BehaviorSubject<Notification | undefined>(undefined);
 
@@ -64,6 +67,7 @@ export class WordStackComponent implements OnInit, OnDestroy {
 
   constructor(
     ref: ElementRef,
+    private wordStackService: WordStackService,
     private engineService: EngineService,
     private loadingService: LoadingService,
     private zone: NgZone,
@@ -112,7 +116,7 @@ export class WordStackComponent implements OnInit, OnDestroy {
 
         handler.clear();
 
-        await this.stuff();
+        await this.wordStackService.stuff();
 
         this.zone.run(() => undefined);
       }),
@@ -121,95 +125,6 @@ export class WordStackComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.subscription.unsubscribe();
-  }
-
-  add(...newWords: WordInfo[]): void {
-    let words = this.words$.value.slice();
-    let n = 0;
-
-    for (let newWord of newWords) {
-      for (let i = n; i < words.length; i++) {
-        if (!words[i]) {
-          words[i] = newWord;
-          n++;
-          continue;
-        }
-      }
-
-      words.push(newWord);
-    }
-
-    this.words$.next(words);
-  }
-
-  remove(word: WordInfo, hold?: boolean): boolean {
-    let words = this.words$.value;
-    return this.removeByIndex(words.indexOf(word), hold);
-  }
-
-  removeByIndex(index: number, hold = true): boolean {
-    if (!this.get(index)) {
-      return false;
-    }
-
-    let words = this.words$.value.slice();
-
-    if (hold) {
-      words.splice(index, 1, undefined);
-    } else {
-      words.splice(index, 1);
-    }
-
-    this.words$.next(words);
-
-    return true;
-  }
-
-  async stuff(): Promise<void> {
-    let words = this.words$.value.length ? [...this.words$.value] : Array(4);
-
-    // tslint:disable-next-line
-    for (let i = 0; i < words.length; i++) {
-      let word = words[i];
-
-      if (word) {
-        continue;
-      }
-
-      let newWord = (await this.engineService.fetch(1))[0];
-
-      if (!newWord) {
-        break;
-      }
-
-      words[i] = newWord;
-    }
-
-    this.words$.next(words);
-
-    this.clean();
-  }
-
-  clean(): void {
-    let words = this.words$.value.slice();
-    let n = 0;
-
-    // tslint:disable-next-line
-    for (let i = 0; i < words.length; i++) {
-      let word = words[i];
-
-      if (word) {
-        words[n++] = word;
-      }
-    }
-
-    words.length = n;
-
-    this.words$.next(words);
-  }
-
-  get(index: number): WordInfo | undefined {
-    return this.words$.value[index];
   }
 
   getWordCardComponentByIndex(

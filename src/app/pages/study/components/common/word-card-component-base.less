@@ -76,10 +76,12 @@
       padding: 5px;
       transform: translate3d(8px, -4px, 0);
       transition: opacity linear 0.1s;
+      transition: -webkit-tap-highlight-color linear 0.2s;
+      -webkit-tap-highlight-color: rgba(0, 0, 0, 0.05);
 
-      &:active {
-        opacity: 0.4;
-      }
+      // &:active {
+      //   opacity: 0.4;
+      // }
 
       &.hidden {
         display: none;

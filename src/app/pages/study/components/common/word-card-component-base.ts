@@ -311,10 +311,14 @@ export abstract class WordCardComponentBase {
 
       this.animating = true;
 
+      let slideOutDuration = momentumInfo.destination
+        ? Math.min(momentumInfo.duration, 200)
+        : Math.max(momentumInfo.duration, 200);
+
       animate(
         offset,
         newX,
-        Math.min(momentumInfo.duration, 200),
+        slideOutDuration,
         Easing.circular,
         this.respondSideXToRight.bind(this),
       )

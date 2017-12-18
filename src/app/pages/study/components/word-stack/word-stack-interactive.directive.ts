@@ -20,6 +20,7 @@ import {WordCardComponentBase} from '../common/word-card-component-base';
 import {WordCardComponent} from '../word-card/word-card.component';
 import {WordDetailCardComponent} from '../word-detail-card/word-detail-card.component';
 import {WordStackComponent} from './word-stack.component';
+import {WordStackService} from './word-stack.service';
 
 const SLIDE_Y_CHANGE_TO_SLIDE_X_OFFSET = 30;
 
@@ -37,7 +38,10 @@ export class WordStackInteractiveDirective implements OnDestroy {
 
   private subscriptions: Subscription[] = [];
 
-  constructor(@Host() public wordStack: WordStackComponent) {
+  constructor(
+    @Host() private wordStack: WordStackComponent,
+    private wordStackService: WordStackService,
+  ) {
     this.touchDelegate = new TouchDelegate(wordStack.element, false);
     this.touchDelegate.bind(TouchIdentifier.touchStart);
     this.touchDelegate.bind(TouchIdentifier.touchEnd);
@@ -173,9 +177,9 @@ export class WordStackInteractiveDirective implements OnDestroy {
   @HostListener('td-touch-end', ['$event'])
   onTouchEnd(event: TouchEndDelegateEvent): void {
     if (event.detail.touch.sequences.length > 1) {
-      if (this.slideXStartTime) {
+      if (this.slideXStartTime && this.sliding) {
         this.onSlideX(event);
-      } else if (this.slideYStartTime) {
+      } else if (this.slideYStartTime && this.sliding) {
         this.onPolylineAfterSlideY((event as any) as PolylineDelegateEvent);
       }
 
@@ -197,9 +201,14 @@ export class WordStackInteractiveDirective implements OnDestroy {
       return;
     }
 
-    let {targetWordCardComponent, wordStack, slideXStartTime} = this;
+    let {
+      targetWordCardComponent,
+      wordStack,
+      wordStackService,
+      slideXStartTime,
+    } = this;
 
-    if (!targetWordCardComponent || (!this.sliding && !isEnd)) {
+    if (!targetWordCardComponent || !this.sliding) {
       return;
     }
 
@@ -220,13 +229,13 @@ export class WordStackInteractiveDirective implements OnDestroy {
         }
 
         targetWordCardComponent!.removed = true;
-        wordStack.remove(targetWordCardComponent!.word);
+        wordStackService.remove(targetWordCardComponent!.word);
 
         if (targetWordCardComponent instanceof WordDetailCardComponent) {
           wordStack.hideWordDetail();
-          setTimeout(() => wordStack.stuff(), 240);
+          setTimeout(() => wordStackService.stuff().catch(logger.error), 280);
         } else {
-          wordStack.stuff().catch(logger.error);
+          wordStackService.stuff().catch(logger.error);
         }
       },
     );
@@ -318,8 +327,8 @@ export class WordStackInteractiveDirective implements OnDestroy {
     targetWordCardComponent
       .remove()
       .then(() => {
-        this.wordStack.remove(targetWordCardComponent.word);
-        this.wordStack.stuff().catch(logger.error);
+        this.wordStackService.remove(targetWordCardComponent.word);
+        this.wordStackService.stuff().catch(logger.error);
       })
       .catch(() => undefined);
   }
