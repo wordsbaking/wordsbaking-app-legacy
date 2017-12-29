@@ -1,27 +1,13 @@
 <div class="chart">
-  <div>
-    <div class="none"></div>
-  </div>
-  <div>
-    <div class="none"></div>
-  </div>
-  <div>
-    <div class="none"></div>
-  </div>
-  <div>
-    <div class="none"></div>
-  </div>
-  <div>
-    <div class="none"></div>
-  </div>
-  <div>
-    <div class="none"></div>
-  </div>
-  <div>
-    <div class="none"></div>
+  <div *ngFor="let daily of object?.dailyStudyInfos">
+    <div
+      [class.none]="daily.none"
+      [style.height]="(daily.none ? 0 : daily.total / object?.dailyTotalMax * 100) + '%'"
+      [title]="daily.none ? '没有学习记录' : daily.total">
+    </div>
   </div>
 </div>
 <div class="description">
-  <div class="title">最近7天</div>
-  {{recentAverageInfo || '-'}}
+  <div class="title">最近 {{object?.dailyStudyInfos?.length || 0}}天</div>
+  <div class="info">{{object?.averageDaily ? "平均每天学习 "+(object?.averageDaily)+"个新单词" : "-"}}</div>
 </div>

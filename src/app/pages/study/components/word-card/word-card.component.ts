@@ -144,12 +144,14 @@ export class WordCardComponent extends WordCardComponentBase
     let scrollHeight = briefElement.scrollHeight;
     let percentage = Math.min(offset / scrollHeight, 1);
     let height = Math.min(offset, scrollHeight);
+    let statsSet = new Set<string>();
 
     briefElementStyle.height = `${Math.min(scrollHeight, height)}px`;
 
     if (percentage > 0.5) {
       let briefOpacity = Math.min(percentage - 0.5, 0.32) / 0.32;
       briefElementStyle.opacity = briefOpacity as any;
+      statsSet.add('viewed-briefs');
     } else {
       briefElementStyle.opacity = 0 as any;
     }
@@ -157,6 +159,7 @@ export class WordCardComponent extends WordCardComponentBase
     if (percentage > 0.1) {
       let audioIconOpacity = 1 - Math.min(percentage - 0.1, 0.3) / 0.3;
       audioPlayButtonElementStyle.opacity = audioIconOpacity as any;
+      statsSet.add('hide-audio-play-button');
     } else {
       audioPlayButtonElementStyle.opacity = 1 as any;
     }
@@ -173,14 +176,22 @@ export class WordCardComponent extends WordCardComponentBase
 
     labelInnerWrapperElementStyle.transform = `translate3d(0, ${labelInnerWrapperOffset}%, 0)`;
 
-    if (progress) {
-      progress(percentage);
+    if (labelInnerWrapperOffset === -50) {
+      statsSet.add('show-detail-plus');
     }
 
-    if (isEnd) {
-      if (labelInnerWrapperOffset <= -25 && complete) {
-        complete();
-      }
+    let isComplete = isEnd && labelInnerWrapperOffset === -50;
+
+    if (isComplete) {
+      statsSet.add('complete');
+    }
+
+    if (progress) {
+      progress(percentage, statsSet);
+    }
+
+    if (isComplete && complete) {
+      complete();
     }
   }
 

@@ -156,7 +156,6 @@ export class WordDataService {
 
     for (let chunkedTerms of _.chunk(terms, WORDS_DATA_DOWNLOAD_LIMIT)) {
       let items = await this.apiService.getWordsData(chunkedTerms);
-
       downloaded += items.length;
 
       fetchedItems.push(...items);

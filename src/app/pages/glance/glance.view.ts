@@ -1,21 +1,25 @@
 import {trigger} from '@angular/animations';
 import {Component, HostBinding, OnInit} from '@angular/core';
 
+import * as v from 'villa';
+
 import {Observable} from 'rxjs/Observable';
 
-import * as logger from 'logger';
-
-import {fadeTransitions} from 'app/ui/common';
-
 import {SettingsConfigService, UserConfigService} from 'app/core/config';
-import {SyncService} from 'app/core/data';
-import {EngineService} from 'app/core/engine';
+import {SyncItem, SyncService} from 'app/core/data';
+import {EngineService, StudyStats} from 'app/core/engine';
 import {pageTransitions} from 'app/core/ui';
-import {UserService} from 'app/core/user';
+import {fadeTransitions} from 'app/ui/common';
+import {generateStudyStatsID} from 'app/util/helpers';
+
+import {ONE_DAY_MILLISECONDS, RECENT_DAYS_LIMIT} from 'app/constants';
+import {DailyStudyInfo, RecentStudyInfo} from './components';
 
 const glanceViewTransitions = trigger('glanceViewTransitions', [
   ...pageTransitions,
 ]);
+
+type StatisticsItemMap = Map<string, SyncItem<StudyStats>>;
 
 @Component({
   selector: 'wb-view.glance-view',
@@ -89,9 +93,69 @@ export class GlanceView implements OnInit {
     .publishReplay(1)
     .refCount();
 
-  todayStudyTimeInMinutes$ = this.userService.todayStudyTime$
-    .map(time => Math.round(time / 60 / 1000).toString())
+  todayStudyTimeInMinutes$ = this.engineService.todayStudyTime$
+    .map(time => Math.round(time / 60).toString())
     .startWith('-')
+    .publishReplay(1)
+    .refCount();
+
+  recentStudyInfo$ = this.syncService.statistics.itemMap$
+    .combineLatest(this.settingsConfigService.dailyStudyPlan$)
+    .map<
+      [StatisticsItemMap, number],
+      RecentStudyInfo
+    >(([map, dailyStudyPlan]) => {
+      let lastRecentDate = new Date();
+
+      lastRecentDate.setHours(0);
+      lastRecentDate.setMinutes(0);
+      lastRecentDate.setSeconds(0);
+      lastRecentDate.setMilliseconds(0);
+
+      let dailyNewSum = 0;
+      let dailyTotalMax = dailyStudyPlan;
+      let hasDailyData = false;
+      let dailyStudyInfos: DailyStudyInfo[] = [];
+
+      for (let offset = RECENT_DAYS_LIMIT - 1; offset >= 0; offset--) {
+        let date = new Date(
+          lastRecentDate.getTime() - offset * ONE_DAY_MILLISECONDS,
+        );
+        let studyStatsId = generateStudyStatsID(date);
+        let studyStatsSyncItem = map.get(studyStatsId);
+
+        if (studyStatsSyncItem && studyStatsSyncItem.data) {
+          let studyStats = studyStatsSyncItem.data;
+
+          hasDailyData = true;
+          dailyNewSum += studyStats.todayNew;
+
+          let total = studyStats.todayNew + studyStats.todayReviewed;
+
+          if (total > dailyTotalMax) {
+            dailyTotalMax = total;
+          }
+
+          dailyStudyInfos.push({
+            none: false,
+            total,
+            date,
+          });
+        } else {
+          dailyStudyInfos.push({
+            none: true,
+            total: 0,
+            date,
+          });
+        }
+      }
+
+      return {
+        dailyStudyInfos,
+        dailyTotalMax,
+        averageDaily: Math.round(dailyNewSum / RECENT_DAYS_LIMIT),
+      };
+    })
     .publishReplay(1)
     .refCount();
 
@@ -99,14 +163,12 @@ export class GlanceView implements OnInit {
     public syncService: SyncService,
     public userConfigService: UserConfigService,
     private engineService: EngineService,
-    private userService: UserService,
     private settingsConfigService: SettingsConfigService,
   ) {}
 
-  ngOnInit() {
+  async ngOnInit(): Promise<void> {
     // 为了保证页面切入动画流畅, 同步任务拍后处理
-    setTimeout(() => {
-      this.syncService.sync().catch(logger.error);
-    }, 800);
+    await v.sleep(800);
+    await this.syncService.sync();
   }
 }

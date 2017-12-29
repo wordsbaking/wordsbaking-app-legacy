@@ -7,7 +7,7 @@ import {Easing, animate, momentum} from 'app/lib/animate';
 import {TTSService} from 'app/platform/common';
 
 export type CompleteCallback = () => void;
-export type ProgressCallback = (percentage: number) => void;
+export type ProgressCallback = (percentage: number, stats: Set<string>) => void;
 
 export enum WordCardState {
   active,
@@ -246,7 +246,7 @@ export abstract class WordCardComponentBase {
     this.respondSideXToLeft(percentage);
 
     if (progress) {
-      progress(percentage);
+      progress(percentage, new Set());
     }
 
     if (isEnd) {
@@ -296,7 +296,7 @@ export abstract class WordCardComponentBase {
     this.removalConfirmButtonsElementStyle.opacity = 0 as any;
 
     if (progress) {
-      progress(percentage);
+      progress(percentage, new Set());
     }
 
     if (isEnd && offset > 0) {
@@ -314,6 +314,10 @@ export abstract class WordCardComponentBase {
       let slideOutDuration = momentumInfo.destination
         ? Math.min(momentumInfo.duration, 200)
         : Math.max(momentumInfo.duration, 200);
+
+      if (offset / WORD_CARD_WIDTH > 0.8 && newX) {
+        slideOutDuration = 60;
+      }
 
       animate(
         offset,

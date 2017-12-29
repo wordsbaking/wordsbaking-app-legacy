@@ -16,11 +16,19 @@ import {
   TouchStartDelegateEvent,
 } from 'app/lib/touch-delegate';
 
+import {VIEW_BRIEFS_UNKNOWN_LIMIT} from 'app/constants';
+import {EngineService, MemorizingStatus} from 'app/core/engine';
+import {UserService} from 'app/core/user';
+
 import {WordCardComponentBase} from '../common/word-card-component-base';
 import {WordCardComponent} from '../word-card/word-card.component';
 import {WordDetailCardComponent} from '../word-detail-card/word-detail-card.component';
 import {WordStackComponent} from './word-stack.component';
 import {WordStackService} from './word-stack.service';
+
+interface WordCardStatus {
+  viewedbriefs: boolean;
+}
 
 const SLIDE_Y_CHANGE_TO_SLIDE_X_OFFSET = 30;
 
@@ -35,12 +43,17 @@ export class WordStackInteractiveDirective implements OnDestroy {
   private slideXStartTime = 0;
   private slideYStartTime = 0;
   private preventTapEvent = false;
-
+  private viewedBriefs = false;
+  private viewedDetails = false;
+  private briefsViewTime = 0;
   private subscriptions: Subscription[] = [];
+  private wordCardStatusMap = new Map<string, WordCardStatus>();
 
   constructor(
     @Host() private wordStack: WordStackComponent,
+    private userService: UserService,
     private wordStackService: WordStackService,
+    private engineService: EngineService,
   ) {
     this.touchDelegate = new TouchDelegate(wordStack.element, false);
     this.touchDelegate.bind(TouchIdentifier.touchStart);
@@ -102,7 +115,13 @@ export class WordStackInteractiveDirective implements OnDestroy {
 
   @HostListener('td-touch-start', ['$event'])
   onTouchStart(event: TouchStartDelegateEvent): void {
-    if (event.detail.touch.sequences.length > 1) {
+    let eventData = event.detail;
+
+    if (eventData.originalEvent.type === 'mouseup') {
+      return;
+    }
+
+    if (eventData.touch.sequences.length > 1) {
       return;
     }
 
@@ -167,6 +186,15 @@ export class WordStackInteractiveDirective implements OnDestroy {
 
     targetWordCardComponent.active = true;
 
+    if (
+      this.targetWordCardComponent &&
+      this.targetWordCardComponent.word.term !==
+        targetWordCardComponent.word.term
+    ) {
+      this.viewedBriefs = false;
+      this.briefsViewTime = 0;
+    }
+
     this.targetWordCardComponent = targetWordCardComponent;
     this.locked = true;
     this.sliding = true;
@@ -176,6 +204,14 @@ export class WordStackInteractiveDirective implements OnDestroy {
 
   @HostListener('td-touch-end', ['$event'])
   onTouchEnd(event: TouchEndDelegateEvent): void {
+    let eventData = event.detail;
+
+    if (eventData.originalEvent.type === 'mouseup') {
+      return;
+    }
+
+    this.userService.triggerStudyHeartBeat();
+
     if (event.detail.touch.sequences.length > 1) {
       if (this.slideXStartTime && this.sliding) {
         this.onSlideX(event);
@@ -237,6 +273,8 @@ export class WordStackInteractiveDirective implements OnDestroy {
         } else {
           wordStackService.stuff().catch(logger.error);
         }
+
+        this.submit(targetWordCardComponent!.word.term).catch(logger.error);
       },
     );
 
@@ -278,6 +316,7 @@ export class WordStackInteractiveDirective implements OnDestroy {
       if (!slideYStartTime) {
         this.slideYStartTime = slideYStartTime = Date.now();
         this.slideXStartTime = 0;
+
         targetWordCardComponent.element.classList.add('slide-y');
       }
 
@@ -285,7 +324,7 @@ export class WordStackInteractiveDirective implements OnDestroy {
         diffY,
         slideYStartTime,
         isEnd,
-        percentage => {
+        (percentage, statsSet) => {
           for (let wordCardComponent of wordCardComponents) {
             if (
               wordCardComponent &&
@@ -297,8 +336,13 @@ export class WordStackInteractiveDirective implements OnDestroy {
               ) as any;
             }
           }
+
+          if (!this.viewedBriefs && statsSet.has('viewed-briefs')) {
+            this.viewedBriefs = true;
+          }
         },
         () => {
+          this.briefsViewTime += touchData.touch.timeLasting;
           wordStack.showWordDetail(targetWordCardComponent!.word);
         },
       );
@@ -321,6 +365,39 @@ export class WordStackInteractiveDirective implements OnDestroy {
     }
   }
 
+  private async submit(
+    term: string,
+    removedToRecycleBin = false,
+  ): Promise<void> {
+    let status: MemorizingStatus;
+
+    if (removedToRecycleBin) {
+      status = MemorizingStatus.removed;
+    } else if (
+      this.viewedBriefs &&
+      this.briefsViewTime >= VIEW_BRIEFS_UNKNOWN_LIMIT
+    ) {
+      status = MemorizingStatus.unknown;
+    } else if (this.viewedBriefs) {
+      status = MemorizingStatus.uncertain;
+    } else {
+      status = MemorizingStatus.known;
+    }
+
+    await this.engineService.submit(term, {
+      status,
+    });
+
+    // this.engineService
+    //   .submit(this.term, {
+    //     status,
+    //   })
+    //   .then(stats => {
+    //     user.updateTodayStudyStats(stats);
+    //     updateStats(stats);
+    //   });
+  }
+
   private triggerRemoveWordCardComponent(
     targetWordCardComponent: WordCardComponent,
   ): void {
@@ -329,6 +406,9 @@ export class WordStackInteractiveDirective implements OnDestroy {
       .then(() => {
         this.wordStackService.remove(targetWordCardComponent.word);
         this.wordStackService.stuff().catch(logger.error);
+        this.submit(targetWordCardComponent.word.term, true).catch(
+          logger.error,
+        );
       })
       .catch(() => undefined);
   }

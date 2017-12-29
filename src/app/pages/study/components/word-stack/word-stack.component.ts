@@ -9,6 +9,8 @@ import {
   ViewChildren,
 } from '@angular/core';
 
+import * as v from 'villa';
+
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import {asap} from 'rxjs/scheduler/asap';
 import {Subscription} from 'rxjs/Subscription';
@@ -97,7 +99,7 @@ export class WordStackComponent implements OnInit, OnDestroy {
 
   async ngOnInit(): Promise<void> {
     // 目的让页面过场动画不卡顿
-    await new Promise<void>(resolve => setTimeout(resolve, 1000));
+    await v.sleep(1000);
 
     this.subscription.add(
       this.engineService.load$.observeOn(asap).subscribe(async () => {

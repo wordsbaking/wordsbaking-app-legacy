@@ -1,65 +1,21 @@
 import {Injectable, OnDestroy} from '@angular/core';
 
-import {Observable} from 'rxjs/Observable';
 import {ReplaySubject} from 'rxjs/ReplaySubject';
 import {Subject} from 'rxjs/Subject';
 import {Subscription} from 'rxjs/Subscription';
 
-import * as moment from 'moment';
-import * as ms from 'ms';
-
 import {LoadingService} from 'app/ui';
 
+import {STUDY_ACTIVE_TIMEOUT} from 'app/constants';
 import {APIService} from 'app/core/common';
 import {UserConfigService} from 'app/core/config';
 import {AuthConfigService} from 'app/core/config/auth';
 import {SyncService} from 'app/core/data';
-
-const DAY_START_CLOCK = 4; // A new day start at 4 AM.
-const STUDY_ACTIVE_TIMEOUT = ms('30s');
+import {EngineService} from 'app/core/engine';
 
 @Injectable()
 export class UserService implements OnDestroy {
   readonly studyHeartBeat$ = new Subject<void>();
-
-  private oneMinInterval$ = Observable.interval(ms('1m'))
-    .startWith(0)
-    .publishReplay(1)
-    .refCount();
-
-  private studyTimeID$ = this.oneMinInterval$
-    .map(() => `study-time-${moment().format('YYYYMMDD')}`)
-    .distinctUntilChanged()
-    .publishReplay(1)
-    .refCount();
-
-  private studyStatsID$ = this.oneMinInterval$
-    .map(() => `study-stats-${moment().format('YYYYMMDD')}`)
-    .distinctUntilChanged()
-    .publishReplay(1)
-    .refCount();
-
-  readonly todayStudyTime$ = this.syncService.statistics.itemMap$
-    .combineLatest(this.studyTimeID$)
-    .map(([map, id]) => {
-      let item = map.get(id);
-      return item ? item.data as number : 0;
-    })
-    .publishReplay(1)
-    .refCount();
-
-  readonly todayStartAt$ = this.oneMinInterval$
-    .map(
-      () =>
-        moment()
-          .subtract(DAY_START_CLOCK, 'hour')
-          .startOf('day')
-          .add(DAY_START_CLOCK, 'hour')
-          .valueOf() as TimeNumber,
-    )
-    .distinctUntilChanged()
-    .publishReplay(1)
-    .refCount();
 
   readonly studiedCollectionFinishedMap$: ReplaySubject<Map<string, boolean>>;
 
@@ -71,12 +27,14 @@ export class UserService implements OnDestroy {
     private apiService: APIService,
     private loadingService: LoadingService,
     private authConfigService: AuthConfigService,
+    private engineService: EngineService,
   ) {
     this.subscription.add(
       this.studyHeartBeat$
         .switchMap(() => this.userConfigService.lastActiveAt$.first())
         .switchMap(async lastActiveAt => {
           let now = Date.now();
+
           let duration = Math.max(
             Math.min(
               Math.floor((now - lastActiveAt) / 1000),
@@ -89,7 +47,9 @@ export class UserService implements OnDestroy {
 
           await syncService.update(syncService.user, 'lastActiveAt', now);
 
-          let studyTimeID = await this.studyStatsID$.first().toPromise();
+          let studyTimeID = await this.engineService.studyTimeID$
+            .first()
+            .toPromise();
 
           await syncService.accumulate(
             syncService.statistics,

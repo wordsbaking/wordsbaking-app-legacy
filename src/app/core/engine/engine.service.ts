@@ -9,6 +9,7 @@ import * as moment from 'moment';
 import * as ms from 'ms';
 import * as v from 'villa';
 
+import {DAY_START_CLOCK} from 'app/constants';
 import {SettingsConfig, SettingsConfigService} from 'app/core/config';
 import {
   CollectionData,
@@ -19,7 +20,7 @@ import {
   WordDataLoadingStatus,
   WordDataService,
 } from 'app/core/data';
-import {UserService} from 'app/core/user';
+import {generateStudyStatsID, generateStudyTimeID} from 'app/util/helpers';
 
 const FETCH_CACHE_SIZE = 20;
 const FETCH_NEW_LIMIT = Math.ceil(FETCH_CACHE_SIZE / 5);
@@ -124,7 +125,7 @@ export interface StudyRecordData {
   w?: boolean;
 }
 
-const enum MemorizingStatus {
+export const enum MemorizingStatus {
   removed = 0,
   known = 1,
   uncertain = 2,
@@ -133,6 +134,11 @@ const enum MemorizingStatus {
   // sKnown = 6,
   // sUncertain = 7,
   // sUnknown = 8
+}
+
+export interface CollectionInfo {
+  name: string;
+  id: string;
 }
 
 interface RemovedTermsInfo {
@@ -165,7 +171,48 @@ interface CandidateInfo {
 @Injectable()
 export class EngineService implements OnDestroy {
   readonly stats$ = new ReplaySubject<StudyStats>();
+
   readonly load$ = new ReplaySubject<void>();
+
+  readonly oneMinInterval$ = Observable.interval(ms('1m'))
+    .startWith(0)
+    .publishReplay(1)
+    .refCount();
+
+  readonly studyTimeID$ = this.oneMinInterval$
+    .map(() => generateStudyTimeID())
+    .distinctUntilChanged()
+    .publishReplay(1)
+    .refCount();
+
+  readonly studyStatsID$ = this.oneMinInterval$
+    .map(() => generateStudyStatsID())
+    .distinctUntilChanged()
+    .publishReplay(1)
+    .refCount();
+
+  readonly todayStudyTime$ = this.syncService.statistics.itemMap$
+    .combineLatest(this.studyTimeID$)
+    .map(([map, id]) => {
+      let item = map.get(id);
+
+      return item ? item.data as number : 0;
+    })
+    .publishReplay(1)
+    .refCount();
+
+  readonly todayStartAt$ = this.oneMinInterval$
+    .map(
+      () =>
+        moment()
+          .subtract(DAY_START_CLOCK, 'hour')
+          .startOf('day')
+          .add(DAY_START_CLOCK, 'hour')
+          .valueOf() as TimeNumber,
+    )
+    .distinctUntilChanged()
+    .publishReplay(1)
+    .refCount();
 
   /** @internal */
   studyScopeSet = new Set<StudyScope>();
@@ -196,13 +243,12 @@ export class EngineService implements OnDestroy {
 
   constructor(
     private wordDataService: WordDataService,
-    private userService: UserService,
     private syncService: SyncService,
     settingsConfigService: SettingsConfigService,
   ) {
     this.subscription.add(
       Observable.combineLatest(
-        this.userService.todayStartAt$,
+        this.todayStartAt$,
         settingsConfigService.collectionIDSet$,
         settingsConfigService.studyScopeSet$,
         settingsConfigService.dailyStudyPlan$,
@@ -246,6 +292,14 @@ export class EngineService implements OnDestroy {
           },
         ),
     );
+
+    this.subscription.add(
+      this.stats$.subscribe(async stats => {
+        let studyStatsID = await this.studyStatsID$.first().toPromise();
+
+        await syncService.update(syncService.statistics, studyStatsID, stats);
+      }),
+    );
   }
 
   ngOnDestroy(): void {
@@ -281,7 +335,6 @@ export class EngineService implements OnDestroy {
     progress: WordDataDownloadProgressHandler,
   ): Promise<WordDataLoadingStatus> {
     let loadedTerms = this.loadedTerms;
-
     let missingIDs = await this.wordDataService.ensure(loadedTerms, progress);
 
     let loadedRatio = 1 - missingIDs.length / loadedTerms.length;
@@ -295,7 +348,7 @@ export class EngineService implements OnDestroy {
           : WordDataLoadingStatus.none;
   }
 
-  async submit(term: string, data: SubmitData): Promise<void> {
+  async submit(term: string, data: SubmitData): Promise<StudyStats> {
     let now = Date.now();
 
     let candidate = this.candidateMap.get(term);
@@ -361,6 +414,8 @@ export class EngineService implements OnDestroy {
     this.fetchedTermSet.delete(term);
 
     await this.updateRecord(term, candidate.data);
+
+    return stats;
 
     function updateCandidate(candidate: Candidate): void {
       if (typeof data.wordsbook === 'boolean') {

@@ -18,6 +18,7 @@
       <span class="icon more"></span>
     </div>
   </wb-page-header>
+
   <wb-page-header-extension>
     <button wbPressLink="/settings" class="ghost">设置</button>
   </wb-page-header-extension>
@@ -58,7 +59,7 @@
     </div>
 
     <div class="content-bottom">
-      <wb-glance-view-recent-study></wb-glance-view-recent-study>
+      <wb-glance-view-recent-study [data]="recentStudyInfo$ | async"></wb-glance-view-recent-study>
     </div>
   </wb-page-content>
 
