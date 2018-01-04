@@ -10,6 +10,8 @@ const MAX_WORD_ITEM_COUNT = 4;
 export class WordStackService {
   readonly words$ = new BehaviorSubject<(WordInfo | undefined)[]>([]);
 
+  private fetchedWords = false;
+
   constructor(private engineService: EngineService) {}
 
   remove(word: WordInfo, hold?: boolean): boolean {
@@ -35,9 +37,11 @@ export class WordStackService {
     return true;
   }
 
-  async stuff(): Promise<void> {
+  async fill(): Promise<void> {
     let words = this.words$.value;
     let newWords = Array(MAX_WORD_ITEM_COUNT);
+    let fetchedWords = this.fetchedWords;
+    this.fetchedWords = true;
 
     // tslint:disable-next-line
     for (let i = 0; i < MAX_WORD_ITEM_COUNT; i++) {
@@ -48,7 +52,9 @@ export class WordStackService {
         continue;
       }
 
-      let newWord = (await this.engineService.fetch(1))[0];
+      let newWord = (await this.engineService.fetch(1, !fetchedWords))[0];
+
+      fetchedWords = true;
 
       if (!newWord) {
         break;

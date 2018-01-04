@@ -3,6 +3,7 @@ import {Directive, Host, HostListener, OnDestroy} from '@angular/core';
 import {Subscription} from 'rxjs/Subscription';
 
 import * as $ from 'jquery';
+import * as v from 'villa';
 
 import * as logger from 'logger';
 
@@ -259,7 +260,7 @@ export class WordStackInteractiveDirective implements OnDestroy {
       slideXStartTime,
       isEnd,
       undefined,
-      () => {
+      async () => {
         if (touchData.diffX <= 0) {
           return;
         }
@@ -267,14 +268,13 @@ export class WordStackInteractiveDirective implements OnDestroy {
         targetWordCardComponent!.removed = true;
         wordStackService.remove(targetWordCardComponent!.word);
 
+        await this.submit(targetWordCardComponent!.word.term);
+
         if (targetWordCardComponent instanceof WordDetailCardComponent) {
           wordStack.hideWordDetail();
-          setTimeout(() => wordStackService.stuff().catch(logger.error), 280);
-        } else {
-          wordStackService.stuff().catch(logger.error);
+          await v.sleep(280);
         }
-
-        this.submit(targetWordCardComponent!.word.term).catch(logger.error);
+        await wordStackService.fill();
       },
     );
 
@@ -319,7 +319,6 @@ export class WordStackInteractiveDirective implements OnDestroy {
 
         targetWordCardComponent.element.classList.add('slide-y');
       }
-
       targetWordCardComponent.onSlideY(
         diffY,
         slideYStartTime,
@@ -403,14 +402,13 @@ export class WordStackInteractiveDirective implements OnDestroy {
   ): void {
     targetWordCardComponent
       .remove()
-      .then(() => {
+      .then(async () => {
         this.wordStackService.remove(targetWordCardComponent.word);
-        this.wordStackService.stuff().catch(logger.error);
-        this.submit(targetWordCardComponent.word.term, true).catch(
-          logger.error,
-        );
+
+        await this.submit(targetWordCardComponent.word.term, true);
+        await this.wordStackService.fill();
       })
-      .catch(() => undefined);
+      .catch(logger.error);
   }
 
   private triggerShowWordDetail(

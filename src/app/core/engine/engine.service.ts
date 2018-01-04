@@ -22,8 +22,8 @@ import {
 } from 'app/core/data';
 import {generateStudyStatsID, generateStudyTimeID} from 'app/util/helpers';
 
-const FETCH_CACHE_SIZE = 20;
-const FETCH_NEW_LIMIT = Math.ceil(FETCH_CACHE_SIZE / 5);
+const FETCH_CACHE_SIZE = 24;
+const FETCH_NEW_LIMIT = 4;
 
 const SHORT_SPAN_LIMIT = ms('15m');
 const MIDDLE_SPAN_LIMIT = ms('6h');
@@ -170,9 +170,9 @@ interface CandidateInfo {
 
 @Injectable()
 export class EngineService implements OnDestroy {
-  readonly stats$ = new ReplaySubject<StudyStats>();
+  readonly stats$ = new ReplaySubject<StudyStats>(1);
 
-  readonly load$ = new ReplaySubject<void>();
+  readonly load$ = new ReplaySubject<void>(1);
 
   readonly oneMinInterval$ = Observable.interval(ms('1m'))
     .startWith(0)
@@ -229,6 +229,7 @@ export class EngineService implements OnDestroy {
   private todayNewGoal: number;
   private termWithoutDataIDSet: Set<string>;
   private collectionTermsNumber: number;
+  private studyOrder: StudyOrder;
 
   private candidates: Candidate[];
   private candidateMap: Map<string, Candidate>;
@@ -255,6 +256,7 @@ export class EngineService implements OnDestroy {
         settingsConfigService.newWordsPriority$,
         settingsConfigService.studyOrder$,
       )
+        .debounceTime(100)
         .distinctUntilChanged(_.isEqual)
         .switchMap(
           (
@@ -358,6 +360,8 @@ export class EngineService implements OnDestroy {
       candidate = new Candidate(this, term);
       this.candidateMap.set(term, candidate);
       candidates.unshift(candidate);
+      // tslint:disable-next-line:no-console
+      console.error('Unexpected undefined candidate.');
     }
 
     let stats = await this.stats$.first().toPromise();
@@ -539,7 +543,7 @@ export class EngineService implements OnDestroy {
     //     newWordsPriority,
     //     studyOrder,
     //   },
-    // ] = await Observable.combineLatest(
+
     //   this.syncService.records.itemMap$,
     //   this.syncService.collections.itemMap$,
     //   // this.userService.studiedCollectionFinishedMap$,
@@ -586,8 +590,14 @@ export class EngineService implements OnDestroy {
 
     this.newWordsPriority = newWordsPriority;
 
+    this.studyOrder = studyOrder;
+
     let candidates = (this.candidates = [] as Candidate[]);
     let candidateMap = (this.candidateMap = new Map<string, Candidate>());
+
+    this.collectionTermsNumber = collectionTerms.length;
+
+    this.collectionTermSet = new Set<string>(collectionTerms);
 
     for (let {id, data} of recordItemMap.values()) {
       let candidate = new Candidate(this, id, data);
@@ -598,43 +608,14 @@ export class EngineService implements OnDestroy {
 
     candidates.sort(compareByPlannedTime);
 
-    this.collectionTermSet = new Set<string>(collectionTerms);
-
-    this.collectionTermsNumber = collectionTerms.length;
-
     this.termWithoutDataIDSet = new Set<string>();
-
-    let newWordTerms: string[];
-
-    if (studyScopeSet.has(StudyScope.selected)) {
-      newWordTerms = collectionTerms.filter(term => !candidateMap.has(term));
-
-      switch (studyOrder) {
-        case StudyOrder.letterAscending:
-          newWordTerms.sort(
-            (a, b) => (a.toLowerCase() > b.toLowerCase() ? 1 : -1),
-          );
-          break;
-        case StudyOrder.letterDescending:
-          newWordTerms.sort(
-            (a, b) => (a.toLowerCase() < b.toLowerCase() ? 1 : -1),
-          );
-          break;
-        case StudyOrder.random:
-        default:
-          newWordTerms = _.shuffle(newWordTerms);
-          break;
-      }
-    } else {
-      newWordTerms = [];
-    }
-
-    this.newWordTerms = newWordTerms;
 
     this.loadedTerms = _.union(
       collectionTerms,
       Array.from(recordItemMap.keys()),
     );
+
+    this.initializeNewWordTerms();
 
     this.loadStats();
 
@@ -670,6 +651,7 @@ export class EngineService implements OnDestroy {
 
     for (let candidate of this.candidates) {
       let singleStats = getSingleStats(candidate);
+
       for (let key of STATS_KEYS) {
         stats[key] += singleStats[key];
       }
@@ -697,6 +679,7 @@ export class EngineService implements OnDestroy {
     let candidatesFetchingCache = this.candidatesFetchingCache;
 
     if (reset) {
+      this.initializeNewWordTerms();
       fetchedIDSet.clear();
       candidatesFetchingCache.length = 0;
     }
@@ -749,6 +732,7 @@ export class EngineService implements OnDestroy {
       if (
         fetchedIDSet.has(term) ||
         termWithoutDataIDSet.has(term) ||
+        candidate.new ||
         !candidate.inStudyScope
       ) {
         continue;
@@ -780,12 +764,11 @@ export class EngineService implements OnDestroy {
         let newWordsNumber = Math.min(
           FETCH_CACHE_SIZE - results.length,
           newWordTerms.length,
+          FETCH_NEW_LIMIT,
         );
 
         if (goalGap > 0) {
           // assert index != NEW_WORDS_PRIORITY_FINAL
-          newWordsNumber = Math.min(newWordsNumber, FETCH_NEW_LIMIT);
-
           if (newWordsNumber >= goalGap) {
             newWordsNumber = goalGap;
             goalGap = 0;
@@ -798,9 +781,14 @@ export class EngineService implements OnDestroy {
         let newWordCandidates: Candidate[] = await v.map(
           newWordTerms.splice(0, newWordsNumber),
           async id => {
-            let candidate: Candidate = new Candidate(this, id);
-            candidateMap.set(id, candidate);
-            await this.updateRecord(id, candidate.data);
+            let candidate = this.candidateMap.get(id);
+
+            if (!candidate) {
+              candidate = new Candidate(this, id);
+              candidateMap.set(id, candidate);
+              await this.updateRecord(id, candidate.data);
+            }
+
             return candidate;
           },
         );
@@ -818,6 +806,38 @@ export class EngineService implements OnDestroy {
     }
 
     return this._fetch(count, false, true);
+  }
+
+  private initializeNewWordTerms(): void {
+    let newWordTerms: string[];
+    if (this.studyScopeSet.has(StudyScope.selected)) {
+      let candidateMap = this.candidateMap;
+      newWordTerms = Array.from(this.collectionTermSet).filter(term => {
+        let candidate = candidateMap.get(term);
+        return !candidate || candidate.new;
+      });
+
+      switch (this.studyOrder) {
+        case StudyOrder.letterAscending:
+          newWordTerms.sort(
+            (a, b) => (a.toLowerCase() > b.toLowerCase() ? 1 : -1),
+          );
+          break;
+        case StudyOrder.letterDescending:
+          newWordTerms.sort(
+            (a, b) => (a.toLowerCase() < b.toLowerCase() ? 1 : -1),
+          );
+          break;
+        case StudyOrder.random:
+        default:
+          newWordTerms = _.shuffle(newWordTerms);
+          break;
+      }
+    } else {
+      newWordTerms = [];
+    }
+
+    this.newWordTerms = newWordTerms;
   }
 
   private async updateRecord(id: string, data: StudyRecordData): Promise<void> {
@@ -867,6 +887,10 @@ class Candidate {
     let data = this.data;
     data.r = data.r.replace(/0/g, '');
     this.update();
+  }
+
+  get new(): boolean {
+    return !this.data.r;
   }
 
   get marked(): boolean {

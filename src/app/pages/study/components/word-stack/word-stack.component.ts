@@ -17,6 +17,7 @@ import {Subscription} from 'rxjs/Subscription';
 
 import {LoadingService} from 'app/ui';
 
+import {SettingsConfigService} from 'app/core/config';
 import {EngineService, WordInfo} from 'app/core/engine';
 
 import {
@@ -61,6 +62,8 @@ export class WordStackComponent implements OnInit, OnDestroy {
 
   activeWord$ = new BehaviorSubject<WordInfo | undefined>(undefined);
 
+  guideMode = false;
+
   @ViewChildren(WordCardComponent)
   private wordCardComponentQueryList: QueryList<WordCardComponent>;
 
@@ -71,6 +74,7 @@ export class WordStackComponent implements OnInit, OnDestroy {
     ref: ElementRef,
     private wordStackService: WordStackService,
     private engineService: EngineService,
+    private settingsConfigService: SettingsConfigService,
     private loadingService: LoadingService,
     private zone: NgZone,
   ) {
@@ -102,26 +106,37 @@ export class WordStackComponent implements OnInit, OnDestroy {
     await v.sleep(1000);
 
     this.subscription.add(
-      this.engineService.load$.observeOn(asap).subscribe(async () => {
-        let handler = this.loadingService.show('正在加载...');
+      this.engineService.load$
+        .observeOn(asap)
+        .first()
+        .subscribe(async () => {
+          let handler = this.loadingService.show('正在加载...');
 
-        await this.engineService.ensureWordsData((state, percentage) => {
-          switch (state) {
-            case 'downloading':
-              handler.setText(`正在下载单词释义 (${percentage}%)...`);
-              break;
-            case 'saving':
-              handler.setText(`正在保存 (${percentage}%)...`);
-              break;
+          await this.engineService.ensureWordsData((state, percentage) => {
+            switch (state) {
+              case 'downloading':
+                handler.setText(`正在下载单词释义 (${percentage}%)...`);
+                break;
+              case 'saving':
+                handler.setText(`正在保存 (${percentage}%)...`);
+                break;
+            }
+          });
+
+          handler.clear();
+
+          let showGuide = await this.settingsConfigService.showGuide$
+            .first()
+            .toPromise();
+
+          if (showGuide && false) {
+            // this.guideMode = true;
+          } else {
+            await this.wordStackService.fill();
           }
-        });
 
-        handler.clear();
-
-        await this.wordStackService.stuff();
-
-        this.zone.run(() => undefined);
-      }),
+          this.zone.run(() => undefined);
+        }),
     );
   }
 
@@ -200,7 +215,7 @@ export class WordStackComponent implements OnInit, OnDestroy {
 
   showNotification(
     message: string,
-    duration = 3000,
+    duration = 0,
     status = NotificationStatus.info,
   ): void {
     clearTimeout(this.notificationTimerHandle);
@@ -210,10 +225,12 @@ export class WordStackComponent implements OnInit, OnDestroy {
       status,
     });
 
-    this.notificationTimerHandle = setTimeout(
-      () => this.hideNotification(),
-      duration,
-    );
+    if (duration) {
+      this.notificationTimerHandle = setTimeout(
+        () => this.hideNotification(),
+        duration,
+      );
+    }
   }
 
   hideNotification(): void {
