@@ -14,6 +14,18 @@ export class WordStackService {
 
   constructor(private engineService: EngineService) {}
 
+  add(word: WordInfo) {
+    let words = this.words$.value.slice();
+
+    if (words.length >= MAX_WORD_ITEM_COUNT) {
+      words.shift();
+    }
+
+    words.push(word);
+
+    this.words$.next(words);
+  }
+
   remove(word: WordInfo, hold?: boolean): boolean {
     let words = this.words$.value;
     return this.removeByIndex(words.indexOf(word), hold);
@@ -66,6 +78,10 @@ export class WordStackService {
     this.words$.next(newWords);
 
     this.clean();
+  }
+
+  empty(): void {
+    this.words$.next([]);
   }
 
   clean(): void {

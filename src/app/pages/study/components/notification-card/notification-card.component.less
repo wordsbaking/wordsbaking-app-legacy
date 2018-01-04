@@ -16,13 +16,20 @@
 
   .text {
     color: @color-fg;
+  }
 
+  .text ::ng-deep {
     p {
-      margin: 8px 0;
+      margin: 10px 0 15px;
+      line-height: 22px;
     }
 
     p:first-child {
       margin: 0;
+    }
+
+    p:last-child {
+      margin-bottom: 0;
     }
   }
 

@@ -24,7 +24,7 @@ import {UserService} from 'app/core/user';
 import {WordCardComponentBase} from '../common/word-card-component-base';
 import {WordCardComponent} from '../word-card/word-card.component';
 import {WordDetailCardComponent} from '../word-detail-card/word-detail-card.component';
-import {WordStackComponent} from './word-stack.component';
+import {GuideStatus, WordStackComponent} from './word-stack.component';
 import {WordStackService} from './word-stack.service';
 
 interface WordCardStatus {
@@ -77,12 +77,18 @@ export class WordStackInteractiveDirective implements OnDestroy {
 
   @HostListener('td-press', ['$event'])
   onTap(event: PressDelegateEvent): void {
+    let guideStatus = this.wordStack.guideStatus;
+
     // TODO: unreliable
     if (event.detail.originalEvent.type === 'mouseup') {
       return;
     }
 
     if (this.preventTapEvent) {
+      return;
+    }
+
+    if (guideStatus === GuideStatus.sliddenToRight) {
       return;
     }
 
@@ -109,6 +115,14 @@ export class WordStackInteractiveDirective implements OnDestroy {
       targetWordCardComponent &&
       targetWordCardComponent instanceof WordCardComponent
     ) {
+      if (
+        guideStatus === GuideStatus.started ||
+        guideStatus === GuideStatus.viewedTermBriefs ||
+        guideStatus === GuideStatus.canceledViewTermDetail
+      ) {
+        this.wordStack.guideStatus = GuideStatus.viewedTermDetail;
+      }
+
       this.triggerShowWordDetail(targetWordCardComponent);
       return;
     }
@@ -230,20 +244,25 @@ export class WordStackInteractiveDirective implements OnDestroy {
   onSlideX(event: SlideXDelegateEvent): void {
     let touchData = event.detail;
     let isEnd = touchData.touch.isEnd;
+    let wordStack = this.wordStack;
+    let guideStatus = wordStack.guideStatus;
 
     event.preventDefault();
     event.detail.originalEvent.preventDefault();
+
+    if (
+      guideStatus !== GuideStatus.none &&
+      guideStatus !== GuideStatus.slidingToRight &&
+      guideStatus !== GuideStatus.sliddenToRight
+    ) {
+      return;
+    }
 
     if (touchData.touch.sequences.length > 1 && !isEnd) {
       return;
     }
 
-    let {
-      targetWordCardComponent,
-      wordStack,
-      wordStackService,
-      slideXStartTime,
-    } = this;
+    let {targetWordCardComponent, wordStackService, slideXStartTime} = this;
 
     if (!targetWordCardComponent || !this.sliding) {
       return;
@@ -255,13 +274,24 @@ export class WordStackInteractiveDirective implements OnDestroy {
       targetWordCardComponent.element.classList.add('slide-x');
     }
 
+    let diffX = touchData.diffX;
+
+    if (
+      wordStack.guiding &&
+      (guideStatus === GuideStatus.slidingToRight ||
+        guideStatus === GuideStatus.sliddenToRight) &&
+      diffX < 0
+    ) {
+      diffX = 0;
+    }
+
     targetWordCardComponent.onSlideX(
-      touchData.diffX,
+      diffX,
       slideXStartTime,
       isEnd,
       undefined,
       async () => {
-        if (touchData.diffX <= 0) {
+        if (diffX <= 0) {
           return;
         }
 
@@ -274,7 +304,16 @@ export class WordStackInteractiveDirective implements OnDestroy {
           wordStack.hideWordDetail();
           await v.sleep(280);
         }
-        await wordStackService.fill();
+
+        if (!wordStack.guideMode) {
+          await wordStackService.fill();
+        } else {
+          if (guideStatus === GuideStatus.sliddenToRight) {
+            wordStack.guideStatus = GuideStatus.sliddenToRightAgain;
+          } else {
+            wordStack.guideStatus = GuideStatus.sliddenToRight;
+          }
+        }
       },
     );
 
@@ -296,7 +335,11 @@ export class WordStackInteractiveDirective implements OnDestroy {
     }
 
     let {targetWordCardComponent, wordStack, slideYStartTime} = this;
-    let {wordCardComponents} = wordStack;
+    let {wordCardComponents, guideStatus} = wordStack;
+
+    if (guideStatus === GuideStatus.sliddenToRight) {
+      return;
+    }
 
     if (!targetWordCardComponent || (!this.sliding && !isEnd)) {
       return;
@@ -319,6 +362,7 @@ export class WordStackInteractiveDirective implements OnDestroy {
 
         targetWordCardComponent.element.classList.add('slide-y');
       }
+
       targetWordCardComponent.onSlideY(
         diffY,
         slideYStartTime,
@@ -339,10 +383,22 @@ export class WordStackInteractiveDirective implements OnDestroy {
           if (!this.viewedBriefs && statsSet.has('viewed-briefs')) {
             this.viewedBriefs = true;
           }
+
+          if (
+            guideStatus === GuideStatus.started ||
+            guideStatus === GuideStatus.viewedTermBriefs ||
+            guideStatus === GuideStatus.canceledViewTermDetail
+          ) {
+            wordStack.guideStatus = GuideStatus.viewedTermBriefs;
+          }
         },
         () => {
           this.briefsViewTime += touchData.touch.timeLasting;
           wordStack.showWordDetail(targetWordCardComponent!.word);
+
+          if (guideStatus === GuideStatus.viewedTermBriefs) {
+            wordStack.guideStatus = GuideStatus.viewedTermDetail;
+          }
         },
       );
     }
@@ -350,6 +406,10 @@ export class WordStackInteractiveDirective implements OnDestroy {
     if (isEnd) {
       for (let wordCardComponent of wordCardComponents) {
         wordCardComponent.element.style.opacity = 1 as any;
+      }
+
+      if (wordStack.guideStatus === GuideStatus.viewedTermBriefs) {
+        wordStack.guideStatus = GuideStatus.canceledViewTermDetail;
       }
 
       this.reset();
@@ -368,6 +428,10 @@ export class WordStackInteractiveDirective implements OnDestroy {
     term: string,
     removedToRecycleBin = false,
   ): Promise<void> {
+    if (this.wordStack.guideMode) {
+      return;
+    }
+
     let status: MemorizingStatus;
 
     if (removedToRecycleBin) {
@@ -432,13 +496,19 @@ export class WordStackInteractiveDirective implements OnDestroy {
   }
 
   private triggerHideWordDetail(): void {
-    this.wordStack.hideWordDetail();
+    let {wordStack} = this;
+
+    wordStack.hideWordDetail();
 
     if (this.targetWordCardComponent) {
       this.targetWordCardComponent.active = false;
     }
 
     this.targetWordCardComponent = undefined;
+
+    if (wordStack.guideStatus === GuideStatus.viewedTermDetail) {
+      wordStack.guideStatus = GuideStatus.slidingToRight;
+    }
   }
 
   private resolveWordCardComponent(

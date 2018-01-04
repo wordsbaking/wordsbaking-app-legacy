@@ -1,4 +1,5 @@
 import {Component, Input} from '@angular/core';
+import {DomSanitizer, SafeHtml} from '@angular/platform-browser';
 
 export enum NotificationStatus {
   info,
@@ -17,6 +18,12 @@ export interface Notification {
 })
 export class NotificationCardComponent {
   @Input('data') notification: Notification;
+
+  constructor(private sanitizer: DomSanitizer) {}
+
+  get message(): SafeHtml {
+    return this.sanitizer.bypassSecurityTrustHtml(this.notification.message);
+  }
 
   get classes() {
     let {notification: {status}} = this;

@@ -1,12 +1,12 @@
 <div class="word-list-wrapper" [style.height]="wordListWrapperHeight">
   <ng-container *ngFor="let card of words$ | async; let index=index;" >
     <wb-study-view-word-card
-    *ngIf="card"
-    [@wordCardTransitions]="!!enabledWordCardTransitions"
-    [data]="card"
-    [style.top]="calculateWordCardTopPosition(index)">
-  </wb-study-view-word-card>
-</ng-container>
+      *ngIf="card"
+      [@wordCardTransitions]="!!enabledWordCardTransitions"
+      [data]="card"
+      [style.top]="calculateWordCardTopPosition(index)">
+    </wb-study-view-word-card>
+  </ng-container>
 </div>
 
 <wb-study-view-word-detail-card #wordDetailCard
@@ -19,3 +19,18 @@
   [@notificationCardTransitions]="!!enabledNotificationCardTransitions"
   [data]="notification$ | async">
 </wb-study-view-notification-card>
+
+<div class="guide-navbar" *ngIf="guideMode">
+  <button class="ghost dark-text"
+    *ngIf="!guiding"
+    (wbPress)="skipGuide()">跳过</button>
+
+  <button
+    *ngIf="!guiding"
+    (wbPress)="startGuide()">开始向导</button>
+
+  <span *ngIf="guiding"></span>
+  <button
+    *ngIf="continueGuideButtonVisibility"
+    (wbPress)="continueGuide()">继续</button>
+</div>
