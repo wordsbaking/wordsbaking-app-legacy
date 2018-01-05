@@ -52,6 +52,9 @@ export const enum GuideStatus {
   sliddenToRightAgain,
   enteredRemoveWordItemHint,
   enteredRemoveWordItemTraining,
+  removedWordItem,
+  enteredAudioPlaySwitchHint,
+  ended,
 }
 
 @Component({
@@ -128,6 +131,10 @@ export class WordStackComponent implements OnInit, OnDestroy {
     );
   }
 
+  get guideEnded(): boolean {
+    return this.guideStatus === GuideStatus.ended;
+  }
+
   get guideStatus(): GuideStatus {
     return this.currentGuideStatus;
   }
@@ -139,9 +146,13 @@ export class WordStackComponent implements OnInit, OnDestroy {
   }
 
   get continueGuideButtonVisibility(): boolean {
+    let guideStatus = this.guideStatus;
+
     return (
-      this.guideStatus === GuideStatus.sliddenToRightAgain ||
-      this.guideStatus === GuideStatus.enteredRemoveWordItemHint
+      guideStatus === GuideStatus.sliddenToRightAgain ||
+      guideStatus === GuideStatus.enteredRemoveWordItemHint ||
+      guideStatus === GuideStatus.removedWordItem ||
+      guideStatus === GuideStatus.enteredAudioPlaySwitchHint
     );
   }
 
@@ -266,6 +277,12 @@ export class WordStackComponent implements OnInit, OnDestroy {
       case GuideStatus.enteredRemoveWordItemHint:
         this.guideStatus = GuideStatus.enteredRemoveWordItemTraining;
         break;
+      case GuideStatus.removedWordItem:
+        this.guideStatus = GuideStatus.enteredAudioPlaySwitchHint;
+        break;
+      case GuideStatus.enteredAudioPlaySwitchHint:
+        this.guideStatus = GuideStatus.ended;
+        break;
     }
   }
 
@@ -275,8 +292,20 @@ export class WordStackComponent implements OnInit, OnDestroy {
     this.initializeWords();
   }
 
-  startGuide() {
+  showGuideAgain(): void {
+    this.guideStatus = GuideStatus.entered;
+  }
+
+  startGuide(): void {
     this.guideStatus = GuideStatus.started;
+  }
+
+  async startStudy(): Promise<void> {
+    await this.settingsConfigService.set('showGuide', false);
+
+    this.guideStatus = GuideStatus.none;
+
+    this.initializeWords();
   }
 
   private initializeWords(): void {
@@ -454,6 +483,20 @@ export class WordStackComponent implements OnInit, OnDestroy {
           obstinate: false,
           needRemoveConfirm: false,
         });
+        break;
+      case GuideStatus.removedWordItem:
+        this.showNotification(`
+          <p>就是这样~ 但请一定不要滥用回收站哦! 回收站并不是为记住的单词准备的, 而是为对你来说非常非常简单, 到挂掉都不会忘的单词准备的!</p>
+          <p>一般情况下记住了单词请直接右滑, 词焙会自动安排复习, 并逐渐延长复习间隔至几个月~</p>
+        `);
+        break;
+      case GuideStatus.enteredAudioPlaySwitchHint:
+        this.showNotification('另外, 点击右上方 (也就是时间与头像附近) 可以打开折叠的快捷开关~');
+        break;
+      case GuideStatus.ended:
+        this.showNotification(
+          '那基本的使用方法就是这样啦, 因为做向导太繁琐了, 更多细节可以进入 "设置" 页面下方打开词焙 FAQ 查看. =3=',
+        );
         break;
     }
   }

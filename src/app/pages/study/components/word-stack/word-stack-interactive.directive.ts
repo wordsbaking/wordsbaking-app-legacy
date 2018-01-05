@@ -88,10 +88,6 @@ export class WordStackInteractiveDirective implements OnDestroy {
       return;
     }
 
-    if (guideStatus === GuideStatus.sliddenToRight) {
-      return;
-    }
-
     let $targetElement = $(event.detail.target);
     let targetWordCardComponent = this.resolveWordCardComponent(event.detail
       .target as HTMLElement);
@@ -104,6 +100,14 @@ export class WordStackInteractiveDirective implements OnDestroy {
         this.triggerRemoveWordCardComponent(targetWordCardComponent);
         return;
       }
+    }
+
+    if (
+      guideStatus === GuideStatus.sliddenToRight ||
+      guideStatus === GuideStatus.sliddenToRightAgain ||
+      guideStatus === GuideStatus.enteredRemoveWordItemTraining
+    ) {
+      return;
     }
 
     if (!targetWordCardComponent) {
@@ -253,7 +257,8 @@ export class WordStackInteractiveDirective implements OnDestroy {
     if (
       guideStatus !== GuideStatus.none &&
       guideStatus !== GuideStatus.slidingToRight &&
-      guideStatus !== GuideStatus.sliddenToRight
+      guideStatus !== GuideStatus.sliddenToRight &&
+      guideStatus !== GuideStatus.enteredRemoveWordItemTraining
     ) {
       return;
     }
@@ -283,6 +288,10 @@ export class WordStackInteractiveDirective implements OnDestroy {
       diffX < 0
     ) {
       diffX = 0;
+    }
+
+    if (guideStatus === GuideStatus.enteredRemoveWordItemTraining) {
+      diffX = Math.min(diffX, 0);
     }
 
     targetWordCardComponent.onSlideX(
@@ -337,7 +346,10 @@ export class WordStackInteractiveDirective implements OnDestroy {
     let {targetWordCardComponent, wordStack, slideYStartTime} = this;
     let {wordCardComponents, guideStatus} = wordStack;
 
-    if (guideStatus === GuideStatus.sliddenToRight) {
+    if (
+      guideStatus === GuideStatus.sliddenToRight ||
+      guideStatus === GuideStatus.enteredRemoveWordItemTraining
+    ) {
       return;
     }
 
@@ -470,7 +482,16 @@ export class WordStackInteractiveDirective implements OnDestroy {
         this.wordStackService.remove(targetWordCardComponent.word);
 
         await this.submit(targetWordCardComponent.word.term, true);
-        await this.wordStackService.fill();
+
+        let wordStack = this.wordStack;
+
+        if (!wordStack.guiding) {
+          await this.wordStackService.fill();
+        } else if (
+          wordStack.guideStatus === GuideStatus.enteredRemoveWordItemTraining
+        ) {
+          wordStack.guideStatus = GuideStatus.removedWordItem;
+        }
       })
       .catch(logger.error);
   }

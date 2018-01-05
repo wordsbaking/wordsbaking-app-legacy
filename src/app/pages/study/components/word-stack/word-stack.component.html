@@ -29,8 +29,12 @@
     *ngIf="!guiding"
     (wbPress)="startGuide()">开始向导</button>
 
-  <span *ngIf="guiding"></span>
+  <span *ngIf="guiding && !guideEnded"></span>
+
   <button
-    *ngIf="continueGuideButtonVisibility"
-    (wbPress)="continueGuide()">继续</button>
+  *ngIf="continueGuideButtonVisibility"
+  (wbPress)="continueGuide()">继续</button>
+
+  <button class="ghost dark-text" *ngIf="guideEnded" (wbPress)="showGuideAgain()">再来一次</button>
+  <button *ngIf="guideEnded" (wbPress)="startStudy()">开始学习</button>
 </div>
