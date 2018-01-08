@@ -1,6 +1,5 @@
 # Wordsbaking App
 
-
 ## 安装
 
 ```sh

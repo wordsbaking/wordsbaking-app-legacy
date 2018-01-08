@@ -6,12 +6,14 @@
     </button>
 
     <div class="toolbar">
-      <span class="icon more"></span>
+      <button class="more-button" (wbPress)="page.toggleHeaderExtension()">
+        <span class="icon more"></span>
+      </button>
     </div>
   </wb-page-header>
 
   <wb-page-header-extension>
-    <button class="ghost" [disabled]="isEmpty" (wbPress)="recoveryAll()">恢复全部</button>
+    <button class="ghost" [disabled]="isEmpty" (wbPress)="restoreAll()">恢复全部</button>
   </wb-page-header-extension>
 
   <wb-page-content (wbPress)="onContentAreaPressed($event)">

@@ -1,7 +1,8 @@
 import {trigger} from '@angular/animations';
-import {Component, HostBinding, ViewChild} from '@angular/core';
+import {Component, HostBinding, OnDestroy, ViewChild} from '@angular/core';
 
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
+import {Subscription} from 'rxjs/Subscription';
 
 import * as $ from 'jquery';
 
@@ -9,8 +10,9 @@ import * as logger from 'logger';
 
 import {PressDelegateEvent} from 'app/lib/touch-delegate';
 
-import {DialogService} from 'app/ui';
+import {DialogService, LoadingService} from 'app/ui';
 
+import {EngineService} from 'app/core/engine';
 import {PageComponent, pageTransitions} from 'app/core/ui';
 
 const recycleBinTransition = trigger('recycleBinTransition', [
@@ -23,7 +25,7 @@ const recycleBinTransition = trigger('recycleBinTransition', [
   styleUrls: ['./recycle-bin.view.less'],
   animations: [recycleBinTransition],
 })
-export class RecycleBinView {
+export class RecycleBinView implements OnDestroy {
   @ViewChild('page') page: PageComponent;
 
   @HostBinding('@recycleBinTransition') recycleBinTransition = '';
@@ -31,10 +33,19 @@ export class RecycleBinView {
   recentWords$ = new BehaviorSubject<string[] | undefined>(undefined);
   moreWords$ = new BehaviorSubject<string[] | undefined>(undefined);
 
-  constructor(private dialogService: DialogService) {
-    this.recentWords$.next(['amount', 'whenever', 'Sweden', 'tennis']);
+  private subscription = new Subscription();
 
-    this.moreWords$.next(['gradually', 'run away', 'safari', 'house']);
+  constructor(
+    private dialogService: DialogService,
+    private engineService: EngineService,
+    private loadingService: LoadingService,
+  ) {
+    this.engineService.load$.first().subscribe(() => {
+      let removedTermsInfo = this.engineService.getRemovedTermsInfo();
+
+      this.recentWords$.next(Array.from(new Set(removedTermsInfo.recent)));
+      this.moreWords$.next(Array.from(new Set(removedTermsInfo.more)));
+    });
   }
 
   get isEmpty(): boolean {
@@ -49,7 +60,7 @@ export class RecycleBinView {
     return !!moreWords && moreWords.length > 0;
   }
 
-  async recoveryAll(): Promise<void> {
+  async restoreAll(): Promise<void> {
     let confirmed = await this.dialogService.confirm('您确定要恢复回收站中的全部词条吗?');
 
     if (!confirmed) {
@@ -58,15 +69,18 @@ export class RecycleBinView {
 
     this.page.toggleHeaderExtension(false);
 
-    // TODO: recovery all
+    let handler = this.loadingService.show('恢复中...');
+
+    await this.engineService.restoreAll();
 
     this.moreWords$.next(undefined);
     this.recentWords$.next(undefined);
 
+    handler.clear();
     setTimeout(() => this.page.back(), 600);
   }
 
-  async recoveryWord(word: string): Promise<void> {
+  async restoreWord(word: string): Promise<void> {
     if (this.isEmpty) {
       return;
     }
@@ -78,14 +92,26 @@ export class RecycleBinView {
     }
 
     let {recentWords$, moreWords$} = this;
+    let recentWords = recentWords$.value!.slice();
+    let moreWords = moreWords$.value!.slice();
 
-    if (recentWords$.value!.indexOf(word) > -1) {
-      recentWords$.next(this.removeArrayItem(recentWords$.value!, word));
+    if (recentWords.indexOf(word) > -1) {
+      let newRecentWords = this.removeArrayItem(recentWords, word);
+
+      if (moreWords.length) {
+        newRecentWords.push(moreWords.shift()!);
+        moreWords$.next(moreWords);
+      }
+
+      recentWords$.next(newRecentWords);
+      moreWords$.next(moreWords);
     }
 
-    if (this.hasMore && moreWords$.value!.indexOf(word) > -1) {
-      moreWords$.next(this.removeArrayItem(moreWords$.value!, word));
+    if (moreWords.length && moreWords.indexOf(word) > -1) {
+      moreWords$.next(this.removeArrayItem(moreWords, word));
     }
+
+    await this.engineService.restore(word);
   }
 
   onContentAreaPressed(event: PressDelegateEvent): void {
@@ -96,8 +122,12 @@ export class RecycleBinView {
     if ($wordButton.length) {
       let word = $wordButton.text();
 
-      this.recoveryWord(word).catch(logger.error);
+      this.restoreWord(word).catch(logger.error);
     }
+  }
+
+  ngOnDestroy(): void {
+    this.subscription.unsubscribe();
   }
 
   private removeArrayItem(list: string[], target: string): string[] {
