@@ -32,9 +32,13 @@
   <span *ngIf="guiding && !guideEnded"></span>
 
   <button
-  *ngIf="continueGuideButtonVisibility"
-  (wbPress)="continueGuide()">继续</button>
+    *ngIf="continueGuideButtonVisibility"
+    (wbPress)="continueGuide()">继续</button>
 
   <button class="ghost dark-text" *ngIf="guideEnded" (wbPress)="showGuideAgain()">再来一次</button>
   <button *ngIf="guideEnded" (wbPress)="startStudy()">开始学习</button>
+</div>
+
+<div class="progress-bar">
+  <p [style.width]="(todayProgressPercentage$ | async) + '%'"></p>
 </div>

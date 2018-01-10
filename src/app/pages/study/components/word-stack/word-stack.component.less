@@ -28,3 +28,19 @@
   right: 0;
   padding: 15px 20px;
 }
+
+.progress-bar {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  overflow: hidden;
+
+  p {
+    margin: 0;
+    padding: 0;
+    height: 2px;
+    background-color: @color-theme;
+    transition: @transition-width;
+  }
+}

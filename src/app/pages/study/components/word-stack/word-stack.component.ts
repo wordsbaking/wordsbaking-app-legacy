@@ -17,7 +17,7 @@ import {Subscription} from 'rxjs/Subscription';
 
 import {LoadingHandler, LoadingService} from 'app/ui';
 
-import {SettingsConfigService} from 'app/core/config';
+import {SettingsConfigService, UserConfigService} from 'app/core/config';
 import {EngineService, WordInfo} from 'app/core/engine';
 
 import {
@@ -81,6 +81,30 @@ export class WordStackComponent implements OnInit, OnDestroy {
 
   startingGuide = false;
 
+  private dailyStudyPlanAndStats$ = this.settingsConfigService.dailyStudyPlan$
+    .combineLatest(this.engineService.stats$)
+    .publishReplay(1)
+    .refCount();
+
+  private todayDone$ = this.dailyStudyPlanAndStats$
+    .map(
+      ([plan, {todayNew, todayReviewed}]) =>
+        Math.min(todayNew, plan) + todayReviewed,
+    )
+    .publishReplay(1)
+    .refCount();
+
+  private todayGoal$ = this.dailyStudyPlanAndStats$
+    .map(([plan, {todayReviewGoal}]) => plan + todayReviewGoal)
+    .publishReplay(1)
+    .refCount();
+
+  todayProgressPercentage$ = this.todayDone$
+    .combineLatest(this.todayGoal$)
+    .map(([done, goal]) => done / (goal || 1) * 100)
+    .publishReplay(1)
+    .refCount();
+
   @ViewChildren(WordCardComponent)
   private wordCardComponentQueryList: QueryList<WordCardComponent>;
 
@@ -89,15 +113,36 @@ export class WordStackComponent implements OnInit, OnDestroy {
   private currentGuideStatus: GuideStatus = GuideStatus.none;
   private previousGuideStatus: GuideStatus = GuideStatus.none;
 
+  private notifiedTodayGoalFinished = false;
+
   constructor(
     ref: ElementRef,
     private wordStackService: WordStackService,
     private engineService: EngineService,
     private settingsConfigService: SettingsConfigService,
+    private userConfigService: UserConfigService,
     private loadingService: LoadingService,
     private zone: NgZone,
   ) {
     this.element = ref.nativeElement;
+
+    this.subscription.add(
+      this.userConfigService.lastActiveAt$
+        .combineLatest(this.todayProgressPercentage$)
+        .subscribe(([lastActiveAt, percentage]) => {
+          if (
+            Date.now() - lastActiveAt < 300 &&
+            percentage >= 100 &&
+            !this.notifiedTodayGoalFinished
+          ) {
+            this.showNotification('任务完成', 3000);
+          }
+
+          if (percentage >= 100) {
+            this.notifiedTodayGoalFinished = true;
+          }
+        }),
+    );
   }
 
   get size(): number {
