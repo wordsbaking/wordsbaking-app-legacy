@@ -11,6 +11,10 @@
           [class.hidden]="!(audioOn$ | async)"
           (wbPress)="playAudio()"></button>
       </div>
+
+      <div class="flags-wrapper">
+        <span class="new-flag" *ngIf="new"></span>
+      </div>
     </div>
 
     <div class="brief">

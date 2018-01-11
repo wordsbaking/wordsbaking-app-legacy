@@ -24,6 +24,24 @@
   .phonetic-symbols {
     color: @color-text-xl;
   }
+
+  .flags-wrapper {
+    position: absolute;
+    top: 0;
+    left: 0;
+    overflow: hidden;
+    border-radius: 2px 0 0;
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    justify-content: flex-start;
+  }
+
+  .new-flag {
+    border: 0 solid transparent;
+    border-width: 8px 8px 0 0;
+    border-top-color: @color-theme;
+  }
 }
 
 :host.obstinate-word {

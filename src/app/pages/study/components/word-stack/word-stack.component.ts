@@ -307,6 +307,7 @@ export class WordStackComponent implements OnInit, OnDestroy {
       if (wordCardComponent) {
         wordCardComponent.active = false;
         wordCardComponent.obstinate = false;
+        wordCardComponent.new = false;
       }
     }
 
