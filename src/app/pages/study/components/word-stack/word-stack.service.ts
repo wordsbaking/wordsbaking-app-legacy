@@ -61,6 +61,7 @@ export class WordStackService {
 
       if (word) {
         newWords[i] = word;
+
         continue;
       }
 
@@ -73,6 +74,10 @@ export class WordStackService {
       }
 
       newWords[i] = newWord;
+
+      if (i === 0) {
+        newWord.obstinate = true;
+      }
     }
 
     this.words$.next(newWords);

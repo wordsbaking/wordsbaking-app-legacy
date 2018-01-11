@@ -170,8 +170,10 @@ export class WordCardComponent extends WordCardComponentBase
         1,
       ) * -50;
 
-    if (labelInnerWrapperOffset <= -25) {
+    if (labelInnerWrapperOffset <= -25 || this.obstinate) {
       labelInnerWrapperOffset = -50;
+    } else {
+      labelInnerWrapperOffset = 0;
     }
 
     labelInnerWrapperElementStyle.transform = `translate3d(0, ${labelInnerWrapperOffset}%, 0)`;

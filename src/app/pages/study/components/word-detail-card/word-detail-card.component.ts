@@ -8,6 +8,8 @@ import {
   OnDestroy,
 } from '@angular/core';
 
+import * as v from 'villa';
+
 import * as logger from 'logger';
 
 import {SettingsConfigService} from 'app/core/config';
@@ -20,13 +22,19 @@ import {
   WordCardComponentBase,
 } from '../common/word-card-component-base';
 
-import {wordDetailCardTransitions} from './word-detail-card.animations';
+import {
+  wordDetailCardTransitions,
+  wordDetailCardUnlockCountdownTransitions,
+} from './word-detail-card.animations';
 
 @Component({
   selector: 'wb-study-view-word-detail-card',
   templateUrl: './word-detail-card.component.html',
   styleUrls: ['./word-detail-card.component.less'],
-  animations: [wordDetailCardTransitions],
+  animations: [
+    wordDetailCardTransitions,
+    wordDetailCardUnlockCountdownTransitions,
+  ],
 })
 export class WordDetailCardComponent extends WordCardComponentBase
   implements AfterViewInit, OnDestroy {
@@ -35,6 +43,8 @@ export class WordDetailCardComponent extends WordCardComponentBase
   @Input('removing') removingEvent = new EventEmitter<void>();
 
   @HostBinding('@wordDetailCardTransitions') wordDetailCardTransitions = true;
+
+  hideUnlockCountdown = false;
 
   private autoPlayAudioTimerHandle: number;
 
@@ -58,6 +68,16 @@ export class WordDetailCardComponent extends WordCardComponentBase
         }
       })
       .catch(logger.error);
+  }
+
+  get lock(): boolean {
+    return this.hideUnlockCountdown ? false : this.obstinate;
+  }
+
+  async unlock(): Promise<void> {
+    await v.sleep(400);
+
+    this.hideUnlockCountdown = true;
   }
 
   onSlideX(

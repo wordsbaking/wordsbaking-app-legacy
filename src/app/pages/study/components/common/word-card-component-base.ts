@@ -19,6 +19,12 @@ export const WORD_CARD_WIDTH = 320;
 export const WORD_CARD_HEIGHT = 54;
 export const WORD_CARD_SEPARATE = 15;
 
+export interface WordExtraStatus {
+  new?: boolean;
+  marked?: boolean;
+  obstinate?: boolean;
+}
+
 function noop() {}
 
 export abstract class WordCardComponentBase {
@@ -50,6 +56,8 @@ export abstract class WordCardComponentBase {
 
   private state: WordCardState = WordCardState.inactive;
   private latestSlideXOffset = 0;
+
+  private wordProvisionalStatus: WordExtraStatus = {};
 
   constructor(
     private ttsService: TTSService,
@@ -90,18 +98,42 @@ export abstract class WordCardComponentBase {
   }
 
   @HostBinding('class.new-word')
-  get isNewWord(): boolean {
-    return this.word.new;
+  get new(): boolean {
+    if (this.wordProvisionalStatus.new !== undefined) {
+      return this.wordProvisionalStatus.new;
+    } else {
+      return this.word.new;
+    }
+  }
+
+  set new(status: boolean) {
+    this.wordProvisionalStatus.new = status;
   }
 
   @HostBinding('class.marked-word')
-  get isMarkedWord(): boolean {
-    return this.word.marked;
+  get marked(): boolean {
+    if (this.wordProvisionalStatus.marked !== undefined) {
+      return this.wordProvisionalStatus.marked;
+    } else {
+      return this.word.marked;
+    }
+  }
+
+  set marked(status: boolean) {
+    this.wordProvisionalStatus.marked = status;
   }
 
   @HostBinding('class.obstinate-word')
-  get isObstinateWord(): boolean {
-    return this.word.obstinate;
+  get obstinate(): boolean {
+    if (this.wordProvisionalStatus.obstinate !== undefined) {
+      return this.wordProvisionalStatus.obstinate;
+    } else {
+      return this.word.obstinate;
+    }
+  }
+
+  set obstinate(status: boolean) {
+    this.wordProvisionalStatus.obstinate = status;
   }
 
   get term(): string {

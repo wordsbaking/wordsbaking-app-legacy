@@ -45,10 +45,8 @@ export class WordStackInteractiveDirective implements OnDestroy {
   private slideYStartTime = 0;
   private preventTapEvent = false;
   private viewedBriefs = false;
-  private viewedDetails = false;
   private briefsViewTime = 0;
   private subscriptions: Subscription[] = [];
-  private wordCardStatusMap = new Map<string, WordCardStatus>();
 
   constructor(
     @Host() private wordStack: WordStackComponent,
@@ -111,6 +109,13 @@ export class WordStackInteractiveDirective implements OnDestroy {
     }
 
     if (!targetWordCardComponent) {
+      let targetWordDetailCardComponent = this.wordStack
+        .wordDetailCardComponent;
+
+      if (targetWordDetailCardComponent && targetWordDetailCardComponent.lock) {
+        return;
+      }
+
       this.triggerHideWordDetail();
       return;
     }
@@ -364,7 +369,10 @@ export class WordStackInteractiveDirective implements OnDestroy {
 
     let {diffY, diffX} = touchData;
 
-    if (diffX > SLIDE_Y_CHANGE_TO_SLIDE_X_OFFSET) {
+    if (
+      diffX > SLIDE_Y_CHANGE_TO_SLIDE_X_OFFSET &&
+      !targetWordCardComponent.obstinate
+    ) {
       event.detail.diffX -= SLIDE_Y_CHANGE_TO_SLIDE_X_OFFSET;
       this.onSlideX(event);
     } else {
@@ -422,6 +430,12 @@ export class WordStackInteractiveDirective implements OnDestroy {
 
       if (wordStack.guideStatus === GuideStatus.viewedTermBriefs) {
         wordStack.guideStatus = GuideStatus.canceledViewTermDetail;
+      }
+
+      let targetWordCardComponent = this.targetWordCardComponent;
+
+      if (targetWordCardComponent && targetWordCardComponent.obstinate) {
+        wordStack.showWordDetail(targetWordCardComponent.word);
       }
 
       this.reset();

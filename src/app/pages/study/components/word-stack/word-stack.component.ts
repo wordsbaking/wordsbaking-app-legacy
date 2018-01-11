@@ -1,6 +1,7 @@
 import {
   Component,
   ElementRef,
+  HostBinding,
   NgZone,
   OnDestroy,
   OnInit,
@@ -81,6 +82,13 @@ export class WordStackComponent implements OnInit, OnDestroy {
 
   startingGuide = false;
 
+  @HostBinding('class.viewing-obstinate-word')
+  get viewingObstinateWord(): boolean {
+    let activeWord = this.activeWord$.value;
+
+    return !!activeWord && activeWord.obstinate;
+  }
+
   private dailyStudyPlanAndStats$ = this.settingsConfigService.dailyStudyPlan$
     .combineLatest(this.engineService.stats$)
     .publishReplay(1)
@@ -135,7 +143,7 @@ export class WordStackComponent implements OnInit, OnDestroy {
             percentage >= 100 &&
             !this.notifiedTodayGoalFinished
           ) {
-            this.showNotification('任务完成', 3000);
+            this.showNotification('今日任务完成', 3000);
           }
 
           if (percentage >= 100) {
@@ -246,6 +254,18 @@ export class WordStackComponent implements OnInit, OnDestroy {
     return undefined;
   }
 
+  getWordCardComponentByTerm(term: string): WordCardComponentBase | undefined {
+    let wordCardComponents = this.wordCardComponentQueryList.toArray();
+
+    for (let wordCardComponent of wordCardComponents) {
+      if (wordCardComponent.word.term === term && !wordCardComponent.removed) {
+        return wordCardComponent;
+      }
+    }
+
+    return undefined;
+  }
+
   getWordCardComponentByElement(
     element: HTMLElement,
   ): WordCardComponentBase | undefined {
@@ -273,16 +293,20 @@ export class WordStackComponent implements OnInit, OnDestroy {
 
     wordCardComponent.active = true;
 
-    this.activeWord$.next(word);
+    this.activeWord$.next({
+      ...word,
+      obstinate: wordCardComponent.obstinate,
+    });
   }
 
   hideWordDetail(): void {
     let activeWord = this.activeWord$.value;
     if (activeWord) {
-      let wordCardComponent = this.getWordCardComponentByWord(activeWord);
+      let wordCardComponent = this.getWordCardComponentByTerm(activeWord.term);
 
       if (wordCardComponent) {
         wordCardComponent.active = false;
+        wordCardComponent.obstinate = false;
       }
     }
 

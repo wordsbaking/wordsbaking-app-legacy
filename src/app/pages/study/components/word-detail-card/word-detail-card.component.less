@@ -62,3 +62,26 @@
 .removal-confirm-buttons {
   display: none;
 }
+
+.unlock-countdown {
+  position: absolute;
+  height: 2px;
+  top: 0;
+  right: 0;
+  left: 0;
+  overflow: hidden;
+
+  p {
+    display: block;
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    background-color: @color-theme;
+  }
+
+  &.hidden {
+    transition: @transition-opacity, @transition-transform;
+    opacity: 0;
+    transform: translateY(-100%);
+  }
+}

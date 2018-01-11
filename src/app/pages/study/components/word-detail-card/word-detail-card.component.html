@@ -28,4 +28,12 @@
       <button class="danger prevent-slide">太简单了</button>
     </div>
   </div>
+
+  <div class="unlock-countdown"
+    *ngIf="obstinate"
+    [class.hidden]="hideUnlockCountdown">
+    <p
+      [@wordDetailCardUnlockCountdownTransitions]="true"
+      (@wordDetailCardUnlockCountdownTransitions.done)="unlock()"></p>
+  </div>
 </div>
