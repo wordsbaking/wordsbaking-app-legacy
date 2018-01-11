@@ -1,0 +1,24 @@
+@import '~styles/common.less';
+
+:host {
+  display: flex;
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  flex-direction: row;
+  background-color: #333;
+  padding: 8px 15px;
+  color: @color-theme-text;
+}
+
+.content {
+  text-align: center;
+  font-size: @size-text-smaller;
+  word-break: break-all;
+  max-width: 80%;
+}
+
+.action-button {
+  background-color: transparent;
+}

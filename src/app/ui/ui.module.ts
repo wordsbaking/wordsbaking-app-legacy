@@ -6,6 +6,7 @@ import {ViewContainerService} from './util/view-container.service';
 import {DialogModule} from './dialog';
 import {LoadingModule} from './loading';
 import {PopupModule} from './popup';
+import {SnackbarModule} from './snackbar';
 import {ToastModule} from './toast';
 import {TouchModule} from './touch';
 
@@ -21,6 +22,7 @@ import {SwitchComponent} from './switch/switch.component';
     DialogModule,
     LoadingModule,
     ToastModule,
+    SnackbarModule,
   ],
   declarations: [
     SwitchComponent,
@@ -47,6 +49,7 @@ export class UIModule {
         ...DialogModule.forRoot().providers,
         ...LoadingModule.forRoot().providers,
         ...ToastModule.forRoot().providers,
+        ...SnackbarModule.forRoot().providers,
       ],
     };
   }

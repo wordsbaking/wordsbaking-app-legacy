@@ -6,3 +6,4 @@ export * from './popup';
 export * from './dialog';
 export * from './loading';
 export * from './toast';
+export * from './snackbar';
