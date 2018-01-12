@@ -8,6 +8,14 @@
   justify-content: center;
   align-items: center;
   overflow: hidden;
+
+  &:not(.ready) wb-study-view-word-card {
+    opacity: 0;
+  }
+
+  &.guide-mode wb-study-view-word-card {
+    opacity: 1;
+  }
 }
 
 .word-list-wrapper {

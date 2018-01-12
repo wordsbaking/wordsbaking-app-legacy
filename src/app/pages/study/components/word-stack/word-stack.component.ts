@@ -76,11 +76,14 @@ export class WordStackComponent implements OnInit, OnDestroy {
   element: HTMLElement;
 
   enabledWordCardTransitions = false;
+
   enabledNotificationCardTransitions = true;
 
   activeWord$ = new BehaviorSubject<WordInfo | undefined>(undefined);
 
   startingGuide = false;
+
+  @HostBinding('class.ready') ready = false;
 
   @HostBinding('class.viewing-obstinate-word')
   get viewingObstinateWord(): boolean {
@@ -108,8 +111,10 @@ export class WordStackComponent implements OnInit, OnDestroy {
     .refCount();
 
   todayProgressPercentage$ = this.todayDone$
-    .combineLatest(this.todayGoal$)
-    .map(([done, goal]) => done / (goal || 1) * 100)
+    .combineLatest(this.todayGoal$, this.settingsConfigService.showGuide$)
+    .map(
+      ([done, goal, showGuide]) => (showGuide ? 0 : done / (goal || 1) * 100),
+    )
     .publishReplay(1)
     .refCount();
 
@@ -173,6 +178,7 @@ export class WordStackComponent implements OnInit, OnDestroy {
       .filter(wordCardComponent => !wordCardComponent.removed);
   }
 
+  @HostBinding('class.guide-mode')
   get guideMode(): boolean {
     return this.guideStatus !== GuideStatus.none;
   }
@@ -413,7 +419,11 @@ export class WordStackComponent implements OnInit, OnDestroy {
             handler.clear();
           }
 
-          this.zone.run(() => undefined);
+          this.zone.run(() => {
+            setTimeout(() => {
+              this.ready = true;
+            }, 200);
+          });
         }),
     );
   }
@@ -498,7 +508,7 @@ export class WordStackComponent implements OnInit, OnDestroy {
               t: '以后点我可以朗读哟~',
             },
           ],
-          new: true,
+          new: false,
           marked: false,
           obstinate: false,
           needRemoveConfirm: false,
@@ -517,7 +527,7 @@ export class WordStackComponent implements OnInit, OnDestroy {
           briefs: [],
           meanings: [],
           sentences: [],
-          new: true,
+          new: false,
           marked: false,
           obstinate: false,
           needRemoveConfirm: false,
@@ -548,7 +558,7 @@ export class WordStackComponent implements OnInit, OnDestroy {
           briefs: [],
           meanings: [],
           sentences: [],
-          new: true,
+          new: false,
           marked: false,
           obstinate: false,
           needRemoveConfirm: false,

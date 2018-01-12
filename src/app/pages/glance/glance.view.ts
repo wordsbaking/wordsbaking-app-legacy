@@ -1,5 +1,5 @@
 import {trigger} from '@angular/animations';
-import {Component, HostBinding, OnInit} from '@angular/core';
+import {Component, HostBinding, OnInit, ViewChild} from '@angular/core';
 
 import * as v from 'villa';
 
@@ -8,12 +8,18 @@ import {Observable} from 'rxjs/Observable';
 import {SettingsConfigService, UserConfigService} from 'app/core/config';
 import {SyncItem, SyncService} from 'app/core/data';
 import {EngineService, StudyStats} from 'app/core/engine';
+import {NavigationService} from 'app/core/navigation';
 import {pageTransitions} from 'app/core/ui';
+import {ToastService} from 'app/ui';
 import {fadeTransitions} from 'app/ui/common';
 import {generateStudyStatsID} from 'app/util/helpers';
 
 import {ONE_DAY_MILLISECONDS, RECENT_DAYS_LIMIT} from 'app/constants';
-import {DailyStudyInfo, RecentStudyInfo} from './components';
+import {
+  CollectionSelectorComponent,
+  DailyStudyInfo,
+  RecentStudyInfo,
+} from './components';
 
 const glanceViewTransitions = trigger('glanceViewTransitions', [
   ...pageTransitions,
@@ -28,6 +34,9 @@ type StatisticsItemMap = Map<string, SyncItem<StudyStats>>;
   animations: [glanceViewTransitions, fadeTransitions],
 })
 export class GlanceView implements OnInit {
+  @ViewChild('collectionSelector')
+  collectionSelector: CollectionSelectorComponent;
+
   @HostBinding('@glanceViewTransitions') glanceViewTransitions = 'active';
 
   stats$ = this.engineService.stats$;
@@ -164,11 +173,34 @@ export class GlanceView implements OnInit {
     public userConfigService: UserConfigService,
     private engineService: EngineService,
     private settingsConfigService: SettingsConfigService,
+    private toastService: ToastService,
+    private navigationService: NavigationService,
   ) {}
 
   async ngOnInit(): Promise<void> {
     // 为了保证页面切入动画流畅, 同步任务拍后处理
     await v.sleep(800);
     await this.syncService.sync();
+  }
+
+  async startStudy(): Promise<void> {
+    let collectionIdSet = await this.settingsConfigService.collectionIDSet$
+      .first()
+      .toPromise();
+
+    if (collectionIdSet.size === 0) {
+      await this.collectionSelector.showPopup();
+    }
+
+    collectionIdSet = await this.settingsConfigService.collectionIDSet$
+      .first()
+      .toPromise();
+
+    if (collectionIdSet.size === 0) {
+      this.toastService.show('请选择需要学习的词库!');
+      return;
+    }
+
+    await this.navigationService.navigate(['/study']);
   }
 }

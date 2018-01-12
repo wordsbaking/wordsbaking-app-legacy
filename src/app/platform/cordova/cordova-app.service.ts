@@ -19,6 +19,10 @@ export class CordovaAppService extends AppService {
   }
 
   init(): void {
+    let Keyboard = window.Keyboard!;
+
+    Keyboard.shrinkView(false);
+
     document.addEventListener(
       'backbutton',
       this.handleBackButtonPress.bind(this),

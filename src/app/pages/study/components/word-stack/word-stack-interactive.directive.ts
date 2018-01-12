@@ -150,10 +150,6 @@ export class WordStackInteractiveDirective implements OnDestroy {
 
     let {wordStack} = this;
 
-    if (!wordStack.enabledWordCardTransitions) {
-      wordStack.enabledWordCardTransitions = true;
-    }
-
     if (this.locked) {
       return;
     }
@@ -319,7 +315,7 @@ export class WordStackInteractiveDirective implements OnDestroy {
         }
 
         if (!wordStack.guideMode) {
-          await wordStackService.fill();
+          await this.fillWordStack();
         } else {
           if (guideStatus === GuideStatus.sliddenToRight) {
             wordStack.guideStatus = GuideStatus.sliddenToRightAgain;
@@ -447,6 +443,10 @@ export class WordStackInteractiveDirective implements OnDestroy {
     for (let subscription of this.subscriptions) {
       subscription.unsubscribe();
     }
+
+    if (this.restoreRemovedSnackbarHandler) {
+      this.restoreRemovedSnackbarHandler.clear();
+    }
   }
 
   private async submit(
@@ -475,15 +475,6 @@ export class WordStackInteractiveDirective implements OnDestroy {
     await this.engineService.submit(term, {
       status,
     });
-
-    // this.engineService
-    //   .submit(this.term, {
-    //     status,
-    //   })
-    //   .then(stats => {
-    //     user.updateTodayStudyStats(stats);
-    //     updateStats(stats);
-    //   });
   }
 
   private triggerRemoveWordCardComponent(
@@ -499,7 +490,7 @@ export class WordStackInteractiveDirective implements OnDestroy {
         let wordStack = this.wordStack;
 
         if (!wordStack.guiding) {
-          await this.wordStackService.fill();
+          await this.fillWordStack();
         } else if (
           wordStack.guideStatus === GuideStatus.enteredRemoveWordItemTraining
         ) {
@@ -510,20 +501,22 @@ export class WordStackInteractiveDirective implements OnDestroy {
           this.restoreRemovedSnackbarHandler.clear();
         }
 
-        this.restoreRemovedSnackbarHandler = this.snackbarService.show(
-          `已将单词 ${targetWordCardComponent.word.term} 移入回收站`,
-          '撤回',
-          10000,
-        );
+        if (!wordStack.guiding) {
+          this.restoreRemovedSnackbarHandler = this.snackbarService.show(
+            `已将单词 ${targetWordCardComponent.word.term} 移入回收站`,
+            '撤回',
+            6000,
+          );
 
-        try {
-          await this.restoreRemovedSnackbarHandler.result;
-          await this.wordStackService.restoreRecentRemovedWord();
-        } catch (err) {
-          logger.error(err);
+          try {
+            await this.restoreRemovedSnackbarHandler.result;
+            await this.wordStackService.restoreRecentRemovedWord();
+          } catch (err) {
+            logger.error(err);
+          }
+
+          this.restoreRemovedSnackbarHandler = undefined;
         }
-
-        this.restoreRemovedSnackbarHandler = undefined;
       })
       .catch(logger.error);
   }
@@ -576,6 +569,16 @@ export class WordStackInteractiveDirective implements OnDestroy {
     }
 
     return this.wordStack.getWordCardComponentByElement($wordCardElement[0]);
+  }
+
+  private async fillWordStack(): Promise<void> {
+    let {wordStack} = this;
+
+    if (!wordStack.enabledWordCardTransitions) {
+      wordStack.enabledWordCardTransitions = true;
+    }
+
+    await this.wordStackService.fill();
   }
 
   private reset(): void {

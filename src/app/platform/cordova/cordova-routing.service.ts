@@ -32,6 +32,12 @@ export class CordovaRoutingService extends RoutingService {
 
     let pageName = routeConfigurationData && routeConfigurationData.name;
 
+    if (pageName === 'user-profile') {
+      window.Keyboard!.shrinkView(true);
+    } else {
+      window.Keyboard!.shrinkView(false);
+    }
+
     if (!pageName || pageName === 'splash-screen') {
       this.hidSplashScreen = true;
     } else {
