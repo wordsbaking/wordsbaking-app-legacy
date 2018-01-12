@@ -1,11 +1,13 @@
 import {CommonModule} from '@angular/common';
 import {ModuleWithProviders, NgModule} from '@angular/core';
 
+import {TouchModule} from '../touch';
+
 import {SnackbarComponent} from './snackbar.component';
 import {SnackbarService} from './snackbar.service';
 
 @NgModule({
-  imports: [CommonModule],
+  imports: [CommonModule, TouchModule],
   declarations: [SnackbarComponent],
   entryComponents: [SnackbarComponent],
   exports: [],

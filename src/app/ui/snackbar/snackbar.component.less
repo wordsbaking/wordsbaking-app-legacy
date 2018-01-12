@@ -7,18 +7,33 @@
   left: 0;
   right: 0;
   flex-direction: row;
+  justify-content: space-between;
+  align-items: flex-start;
   background-color: #333;
   padding: 8px 15px;
   color: @color-theme-text;
 }
 
 .content {
-  text-align: center;
+  text-align: left;
   font-size: @size-text-smaller;
   word-break: break-all;
-  max-width: 80%;
+  max-width: 85%;
+  line-height: 22px;
+  padding-top: 3px;
 }
 
 .action-button {
   background-color: transparent;
+  font-size: @size-text-smaller;
+  height: 28px;
+  line-height: 28px;
+  border-radius: 0;
+  padding: 0 8px;
+  font-weight: normal;
+  color: @color-theme-f;
+
+  &:active {
+    background-color: rgba(255, 255, 255, 0.08);
+  }
 }
