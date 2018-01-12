@@ -20,16 +20,13 @@ import {
 import {VIEW_BRIEFS_UNKNOWN_LIMIT} from 'app/constants';
 import {EngineService, MemorizingStatus} from 'app/core/engine';
 import {UserService} from 'app/core/user';
+import {SnackbarHandler, SnackbarService} from 'app/ui';
 
 import {WordCardComponentBase} from '../common/word-card-component-base';
 import {WordCardComponent} from '../word-card/word-card.component';
 import {WordDetailCardComponent} from '../word-detail-card/word-detail-card.component';
 import {GuideStatus, WordStackComponent} from './word-stack.component';
 import {WordStackService} from './word-stack.service';
-
-interface WordCardStatus {
-  viewedbriefs: boolean;
-}
 
 const SLIDE_Y_CHANGE_TO_SLIDE_X_OFFSET = 30;
 
@@ -47,12 +44,14 @@ export class WordStackInteractiveDirective implements OnDestroy {
   private viewedBriefs = false;
   private briefsViewTime = 0;
   private subscriptions: Subscription[] = [];
+  private restoreRemovedSnackbarHandler: SnackbarHandler | undefined;
 
   constructor(
     @Host() private wordStack: WordStackComponent,
     private userService: UserService,
     private wordStackService: WordStackService,
     private engineService: EngineService,
+    private snackbarService: SnackbarService,
   ) {
     this.touchDelegate = new TouchDelegate(wordStack.element, false);
     this.touchDelegate.bind(TouchIdentifier.touchStart);
@@ -506,6 +505,25 @@ export class WordStackInteractiveDirective implements OnDestroy {
         ) {
           wordStack.guideStatus = GuideStatus.removedWordItem;
         }
+
+        if (this.restoreRemovedSnackbarHandler) {
+          this.restoreRemovedSnackbarHandler.clear();
+        }
+
+        this.restoreRemovedSnackbarHandler = this.snackbarService.show(
+          `已将单词 ${targetWordCardComponent.word.term} 移入回收站`,
+          '撤回',
+          10000,
+        );
+
+        try {
+          await this.restoreRemovedSnackbarHandler.result;
+          await this.wordStackService.restoreRecentRemovedWord();
+        } catch (err) {
+          logger.error(err);
+        }
+
+        this.restoreRemovedSnackbarHandler = undefined;
       })
       .catch(logger.error);
   }

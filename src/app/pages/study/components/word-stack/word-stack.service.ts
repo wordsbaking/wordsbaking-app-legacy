@@ -12,6 +12,14 @@ export class WordStackService {
 
   private fetchedWords = false;
 
+  private recentFetchedWord$ = new BehaviorSubject<WordInfo | undefined>(
+    undefined,
+  );
+  private recentRemovedWord: WordInfo | undefined;
+  private recentRemovedWordIndex: number | undefined;
+  private needStoreRecentFetchedWord: boolean;
+  private pendingWord: WordInfo | undefined;
+
   constructor(private engineService: EngineService) {}
 
   add(word: WordInfo) {
@@ -28,6 +36,7 @@ export class WordStackService {
 
   remove(word: WordInfo, hold?: boolean): boolean {
     let words = this.words$.value;
+
     return this.removeByIndex(words.indexOf(word), hold);
   }
 
@@ -37,6 +46,7 @@ export class WordStackService {
     }
 
     let words = this.words$.value.slice();
+    let word = words[index]!;
 
     if (hold) {
       words.splice(index, 1, undefined);
@@ -44,18 +54,54 @@ export class WordStackService {
       words.splice(index, 1);
     }
 
+    this.recentRemovedWord = word;
+    this.recentRemovedWordIndex = index;
+
     this.words$.next(words);
 
     return true;
+  }
+
+  async restoreRecentRemovedWord(): Promise<void> {
+    let {recentRemovedWord, recentRemovedWordIndex} = this;
+
+    if (!recentRemovedWord || recentRemovedWordIndex === undefined) {
+      return;
+    }
+
+    let recentFetchedWord = await this.recentFetchedWord$.first().toPromise();
+
+    this.recentRemovedWord = undefined;
+    this.recentRemovedWordIndex = undefined;
+
+    if (!recentFetchedWord) {
+      return;
+    }
+
+    let words = this.words$.value.slice();
+    let recentFetchedWordIndex = words.indexOf(recentFetchedWord);
+
+    if (recentFetchedWordIndex !== recentRemovedWordIndex) {
+      return;
+    }
+
+    this.pendingWord = recentFetchedWord;
+
+    words[recentRemovedWordIndex] = recentRemovedWord;
+
+    this.words$.next(words);
+
+    await this.engineService.restore(recentFetchedWord.term);
   }
 
   async fill(): Promise<void> {
     let words = this.words$.value;
     let newWords = Array(MAX_WORD_ITEM_COUNT);
     let fetchedWords = this.fetchedWords;
+
     this.fetchedWords = true;
 
-    // tslint:disable-next-line
+    // tslint:disable-next-lin
     for (let i = 0; i < MAX_WORD_ITEM_COUNT; i++) {
       let word = words[i];
 
@@ -65,7 +111,13 @@ export class WordStackService {
         continue;
       }
 
-      let newWord = (await this.engineService.fetch(1, !fetchedWords))[0];
+      let newWord = this.pendingWord;
+
+      this.pendingWord = undefined;
+
+      if (!newWord) {
+        newWord = (await this.engineService.fetch(1, !fetchedWords))[0];
+      }
 
       fetchedWords = true;
 
@@ -74,6 +126,8 @@ export class WordStackService {
       }
 
       newWords[i] = newWord;
+
+      this.recentFetchedWord$.next(newWord);
     }
 
     this.words$.next(newWords);
