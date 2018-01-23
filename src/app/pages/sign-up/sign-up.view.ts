@@ -6,6 +6,8 @@ import {Router} from '@angular/router';
 import {LoadingService, ToastService} from 'app/ui';
 
 import {APIService} from 'app/core/common';
+import {AuthConfigService} from 'app/core/config/auth';
+import {NavigationService} from 'app/core/navigation';
 import {pageTransitions} from 'app/core/ui';
 import {UserService} from 'app/core/user';
 
@@ -33,6 +35,8 @@ export class SignUpView implements OnInit {
     private apiService: APIService,
     private toastService: ToastService,
     private loadingService: LoadingService,
+    private authConfigService: AuthConfigService,
+    private navigationService: NavigationService,
     private userService: UserService,
     private router: Router,
     private ref: ElementRef,
@@ -58,6 +62,18 @@ export class SignUpView implements OnInit {
     });
   }
 
+  async switchToSignIn(): Promise<void> {
+    let form = this.form;
+
+    if (!form.get('email')!.errors) {
+      let {email: {value: email}} = form.controls;
+
+      await this.authConfigService.set('account', email);
+    }
+
+    await this.navigationService.navigate(['/sign-in']);
+  }
+
   async signUp(): Promise<void> {
     let form = this.form;
 
@@ -71,10 +87,7 @@ export class SignUpView implements OnInit {
       return;
     }
 
-    let {
-      email: {value: email},
-      password: {value: password},
-    } = this.form.controls;
+    let {email: {value: email}, password: {value: password}} = form.controls;
 
     try {
       await this.userService.resetStorage();

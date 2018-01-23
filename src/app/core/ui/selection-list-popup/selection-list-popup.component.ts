@@ -5,6 +5,7 @@ import {OnComponentFactoryInit} from 'app/ui';
 import {SelectionListPopup} from './selection-list-popup.types';
 
 export interface SelectionListPopupInitOptions<T> {
+  hint: string | undefined;
   items: SelectionListPopup.ListItem<T>[];
   multiple?: boolean;
   onSelected(value: T[]): void;
@@ -20,6 +21,10 @@ export class SelectionListPopupComponent<T>
   options: SelectionListPopupInitOptions<T>;
   items: SelectionListPopup.ListItem<T>[];
   multiple: boolean;
+
+  get hint(): string | undefined {
+    return this.options.hint;
+  }
 
   wbOnComponentFactoryInit(options: SelectionListPopupInitOptions<T>): void {
     this.items = options.items;

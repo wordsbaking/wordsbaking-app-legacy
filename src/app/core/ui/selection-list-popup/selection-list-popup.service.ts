@@ -27,14 +27,41 @@ export class SelectionListPopupService {
 
   show<T>(
     items: SelectionListPopup.ListItem<T>[],
-    options: PopupShowOptions = {},
-  ): Promise<T[] | undefined> {
+    options?: PopupShowOptions,
+  ): Promise<T[] | undefined>;
+  show<T>(
+    hint: string,
+    items: SelectionListPopup.ListItem<T>[],
+    options?: PopupShowOptions,
+  ): Promise<T[] | undefined>;
+  show<T>(arg1: any, arg2?: any, arg3?: any): any {
+    let hint: string | undefined;
+    let items: SelectionListPopup.ListItem<T>[];
+    let options: PopupShowOptions = POPUP_DEFAULT_SHOW_OPTIONS;
+
+    if (arguments.length === 1) {
+      items = arg1;
+    } else if (arguments.length === 2) {
+      if (typeof arg1 === 'string') {
+        hint = arg1;
+        items = arg2;
+      } else {
+        items = arg1;
+        options = arg2 || options;
+      }
+    } else if (arguments.length === 3) {
+      hint = arg1;
+      items = arg2;
+      options = arg3 || options;
+    }
+
     let selectionListPopupComponentFactory = this.resolve.resolveComponentFactory(
       SelectionListPopupComponent,
     );
 
     return new Promise<T[] | undefined>((resolve, reject) => {
       let contentOptions: SelectionListPopupInitOptions<T> = {
+        hint,
         items,
         onSelected: values => {
           resolve(values);

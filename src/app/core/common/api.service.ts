@@ -29,6 +29,14 @@ interface APIErrorResult {
 
 type APIResult = APISuccessResult | APIErrorResult | APIRedirectionResult;
 
+type AccountStatus = 'normal' | 'need-upgrade' | 'upgrading';
+
+export const enum MigrationStatus {
+  migrating,
+  finished,
+  failed,
+}
+
 export type OnProgress = (event: ProgressEvent) => void;
 
 export interface APICallOptions {
@@ -55,9 +63,11 @@ export interface SignUpInfo {
 // /sign-in
 
 export interface SignInInfo {
-  apiKey: string;
   account: string;
-  userId: string;
+  userId?: string;
+  apiKey?: string;
+  accountStatus: AccountStatus;
+  availableDataSourceVersions?: string[];
 }
 
 @Injectable()
@@ -120,17 +130,48 @@ export class APIService {
     ]);
   }
 
-  async signIn(email: string, password: string): Promise<void> {
-    let {apiKey, userId, account} = await this.call<SignInInfo>(
+  async signIn(email: string, password: string): Promise<SignInInfo> {
+    let info = await this.call<SignInInfo>(
       '/sign-in',
       {email, password},
       {auth: false},
     );
+
+    let {apiKey, userId, account, accountStatus} = info;
+
+    if (accountStatus !== 'normal') {
+      return info;
+    }
+
     await Promise.all([
       this.authConfigService.set('apiKey', apiKey),
       this.authConfigService.set('userId', userId),
       this.authConfigService.set('account', account),
     ]);
+
+    return info;
+  }
+
+  async migrateUserData(
+    email: string,
+    password: string,
+    dataSourceVersion: string | undefined,
+  ): Promise<void> {
+    return this.call<void>(
+      '/migrate-user-data',
+      {email, password, dataSourceVersion},
+      {auth: false},
+    );
+  }
+
+  getUserDataMigrationStatus(
+    email: string,
+  ): Promise<MigrationStatus | undefined> {
+    return this.call<MigrationStatus | undefined>(
+      '/user-data-migration-status',
+      {email},
+      {auth: false},
+    );
   }
 
   async signOut(): Promise<void> {}

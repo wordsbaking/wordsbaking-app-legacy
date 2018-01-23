@@ -27,7 +27,7 @@
   </wb-page-content>
 
   <wb-page-footer>
-    <button wbPressLink="/sign-in" class="secondary">登录</button>
+    <button (wbPress)="switchToSignIn()" class="secondary">登录</button>
     <button (wbPress)="signUp()">完成注册</button>
   </wb-page-footer>
 </wb-page>
