@@ -269,23 +269,25 @@ export class EngineService implements OnDestroy {
               studyOrder,
             ],
           ) => {
-            return Observable.combineLatest(
-              this.syncService.records.itemMap$,
-              this.syncService.collections.itemMap$,
-            )
-              .first()
-              .map(([recordItemMap, collectionItemMap]) => [
-                todayStartAt,
-                {
-                  collectionIDSet,
-                  studyScopeSet,
-                  dailyStudyPlan,
-                  newWordsPriority,
-                  studyOrder,
-                },
-                recordItemMap,
-                collectionItemMap,
-              ]);
+            return (
+              Observable.combineLatest(
+                this.syncService.records.itemMap$,
+                this.syncService.collections.itemMap$,
+              )
+                // .first()
+                .map(([recordItemMap, collectionItemMap]) => [
+                  todayStartAt,
+                  {
+                    collectionIDSet,
+                    studyScopeSet,
+                    dailyStudyPlan,
+                    newWordsPriority,
+                    studyOrder,
+                  },
+                  recordItemMap,
+                  collectionItemMap,
+                ])
+            );
           },
         )
         .subscribe(
