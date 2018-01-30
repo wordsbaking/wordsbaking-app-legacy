@@ -12,10 +12,10 @@
           <img class="avatar" [src]="avatarUrl$ | async" />
           <input #fileInput
             formControlName="avatar"
+            name="avatar"
             type="file"
             name="avatar"
             accept="image/*"
-            capture="capture"
             (change)="onAvatarFileChange(fileInput.files)" />
         </div>
       </div>

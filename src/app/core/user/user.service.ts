@@ -4,7 +4,9 @@ import {ReplaySubject} from 'rxjs/ReplaySubject';
 import {Subject} from 'rxjs/Subject';
 import {Subscription} from 'rxjs/Subscription';
 
-import {LoadingService} from 'app/ui';
+import * as v from 'villa';
+
+import {LoadingService, ToastService} from 'app/ui';
 
 import {STUDY_ACTIVE_TIMEOUT} from 'app/constants';
 import {APIService} from 'app/core/common';
@@ -25,6 +27,7 @@ export class UserService implements OnDestroy {
     private userConfigService: UserConfigService,
     private syncService: SyncService,
     private apiService: APIService,
+    private toastService: ToastService,
     private loadingService: LoadingService,
     private authConfigService: AuthConfigService,
     private engineService: EngineService,
@@ -79,18 +82,42 @@ export class UserService implements OnDestroy {
   async signOut(): Promise<void> {
     this.loadingService.show('注销中...');
 
-    let [account] = await Promise.all([
-      this.authConfigService.account$.first().toPromise(),
+    let account = await this.authConfigService.account$.first().toPromise();
+
+    let [exited] = await Promise.all([
+      new Promise<boolean>(resolve => {
+        let timeoutTimerHandle = setTimeout(() => {
+          resolve(false);
+          subscription.unsubscribe();
+        }, 3000);
+
+        let subscription = this.authConfigService.apiKey$.subscribe(apiKey => {
+          if (!apiKey) {
+            clearTimeout(timeoutTimerHandle);
+            resolve(true);
+            subscription.unsubscribe();
+          }
+        });
+      }),
       this.resetStorage(),
       this.apiService.signOut(),
     ]);
 
-    await this.authConfigService.set('account', account);
+    if (!exited) {
+      this.toastService.show('注销失败，请重试!');
+      this.loadingService.clearFullScreenLoading();
+      return;
+    }
 
+    await this.authConfigService.set('account', account);
     this.loadingService.show('退出登录!');
 
-    setTimeout(() => {
-      window.location.href = 'index.html';
-    }, 1000);
+    this.syncService.disabled = true;
+
+    await v.sleep(1000);
+
+    localStorage.removeItem('lastUpdateID');
+
+    window.location.href = 'index.html';
   }
 }

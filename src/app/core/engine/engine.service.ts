@@ -269,30 +269,46 @@ export class EngineService implements OnDestroy {
               studyOrder,
             ],
           ) => {
-            return (
-              Observable.combineLatest(
-                this.syncService.records.itemMap$,
-                this.syncService.collections.itemMap$,
-              )
-                // .first()
-                .map(([recordItemMap, collectionItemMap]) => [
-                  todayStartAt,
-                  {
-                    collectionIDSet,
-                    studyScopeSet,
-                    dailyStudyPlan,
-                    newWordsPriority,
-                    studyOrder,
-                  },
-                  recordItemMap,
-                  collectionItemMap,
-                ])
-            );
+            return Observable.combineLatest(
+              this.syncService.records.itemMap$.first(),
+              this.syncService.collections.itemMap$,
+            )
+              .filter(([, collectionItemMap]) => {
+                if (collectionIDSet.size && !collectionItemMap.size) {
+                  return false;
+                }
+
+                return true;
+              })
+              .map(([recordItemMap, collectionItemMap]) => [
+                todayStartAt,
+                {
+                  collectionIDSet,
+                  studyScopeSet,
+                  dailyStudyPlan,
+                  newWordsPriority,
+                  studyOrder,
+                },
+                recordItemMap,
+                collectionItemMap,
+              ]);
           },
         )
         .subscribe(
           ([todayStartAt, settings, recordItemMap, collectionItemMap]) => {
-            this.load(todayStartAt, settings, recordItemMap, collectionItemMap);
+            this.load(
+              todayStartAt as TimeNumber,
+              settings as Pick<
+                SettingsConfig,
+                | 'collectionIDSet'
+                | 'studyScopeSet'
+                | 'dailyStudyPlan'
+                | 'newWordsPriority'
+                | 'studyOrder'
+              >,
+              recordItemMap as Map<string, SyncItem<StudyRecordData>>,
+              collectionItemMap as Map<string, SyncItem<CollectionData>>,
+            );
           },
         ),
     );

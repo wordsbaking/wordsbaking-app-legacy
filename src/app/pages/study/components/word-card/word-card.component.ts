@@ -192,8 +192,8 @@ export class WordCardComponent extends WordCardComponentBase
       progress(percentage, statsSet);
     }
 
-    if (isComplete && complete) {
-      complete();
+    if (complete) {
+      complete(isComplete);
     }
   }
 

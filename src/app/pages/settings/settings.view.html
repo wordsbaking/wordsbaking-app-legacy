@@ -61,12 +61,12 @@
     </wb-settings-view-settings-group>
 
     <wb-settings-view-settings-group title="使用偏好">
-      <wb-settings-view-settings-item
+      <!-- <wb-settings-view-settings-item
         title="学习提醒"
         [description]="notificationDescription$ | async"
         (wbPress)="toggleNotification()">
         <wb-switch [checked]="settingsConfigService.notification$ | async"></wb-switch>
-      </wb-settings-view-settings-item>
+      </wb-settings-view-settings-item> -->
 
       <wb-settings-view-settings-item
         title="顽固单词加强"
@@ -81,12 +81,12 @@
         (wbPress)="toggleSentenceTtsSpeed()">
       </wb-settings-view-settings-item>
 
-      <wb-settings-view-settings-item
+      <!-- <wb-settings-view-settings-item
         title="固定词条位置"
         [description]="fixedStackDescription$ | async"
         (wbPress)="toggleFixedStack()">
         <wb-switch [checked]="settingsConfigService.fixedStack$ | async"></wb-switch>
-      </wb-settings-view-settings-item>
+      </wb-settings-view-settings-item> -->
     </wb-settings-view-settings-group>
 
     <wb-settings-view-settings-group title="关于词焙">

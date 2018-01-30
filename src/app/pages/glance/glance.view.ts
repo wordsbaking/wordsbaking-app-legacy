@@ -179,7 +179,7 @@ export class GlanceView implements OnInit {
 
   async ngOnInit(): Promise<void> {
     // 为了保证页面切入动画流畅, 同步任务拍后处理
-    await v.sleep(800);
+    await v.sleep(1100);
     await this.syncService.sync();
   }
 

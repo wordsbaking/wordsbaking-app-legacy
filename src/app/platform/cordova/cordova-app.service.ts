@@ -1,5 +1,9 @@
 import {Injectable, NgZone} from '@angular/core';
 
+import * as logger from 'logger';
+
+import {environment} from 'environments/environment';
+
 import {AppService, RoutingService} from '../common';
 
 import {LoadingService, PopupService, ToastService} from 'app/ui';
@@ -28,6 +32,10 @@ export class CordovaAppService extends AppService {
       this.handleBackButtonPress.bind(this),
       false,
     );
+
+    if (environment.debug) {
+      this.loadEruda().catch(logger.error);
+    }
   }
 
   private handleBackButtonPress(event: Event): void {
@@ -65,5 +73,33 @@ export class CordovaAppService extends AppService {
     } else {
       app.backHistory();
     }
+  }
+
+  private loadEruda(): Promise<void> {
+    return new Promise<void>((resolve, reject) => {
+      let loader = document.createElement('SCRIPT');
+
+      loader.onload = () => {
+        (window as any).eruda.init();
+        resolve();
+        reset();
+      };
+
+      loader.onerror = () => {
+        reject();
+        reset();
+      };
+
+      loader.setAttribute('defer', 'defer');
+      loader.setAttribute('async', 'async');
+      loader.setAttribute('src', 'http://cdn.jsdelivr.net/npm/eruda');
+
+      document.getElementsByTagName('head')[0].appendChild(loader);
+
+      function reset() {
+        loader.onload = undefined as any;
+        loader.onerror = undefined as any;
+      }
+    });
   }
 }

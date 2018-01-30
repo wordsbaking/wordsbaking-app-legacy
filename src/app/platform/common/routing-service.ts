@@ -55,7 +55,7 @@ export abstract class RoutingService {
   onNavigationCancel(_event: NavigationCancel): void {}
   onNavigationError(_event: NavigationError): void {}
 
-  protected handleRouteEvent(event: RouteEventType): void {
+  protected handleRouteEvent(event: any): void {
     let {routeConfigurationData$} = this;
     let previousRouteConfigurationData = routeConfigurationData$.value;
     let navigationEnded =

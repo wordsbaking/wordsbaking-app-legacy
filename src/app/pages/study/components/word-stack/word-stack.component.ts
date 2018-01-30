@@ -397,18 +397,20 @@ export class WordStackComponent implements OnInit, OnDestroy {
         .first()
         .subscribe(async () => {
           await this.engineService.ensureWordsData((state, percentage) => {
-            switch (state) {
-              case 'downloading':
-                if (handler) {
-                  handler.setText(`正在下载单词释义 (${percentage}%)...`);
-                }
-                break;
-              case 'saving':
-                if (handler) {
-                  handler.setText(`正在保存 (${percentage}%)...`);
-                }
-                break;
-            }
+            this.zone.run(() => {
+              switch (state) {
+                case 'downloading':
+                  if (handler) {
+                    handler.setText(`正在下载单词释义 (${percentage}%)...`);
+                  }
+                  break;
+                case 'saving':
+                  if (handler) {
+                    handler.setText(`正在保存 (${percentage}%)...`);
+                  }
+                  break;
+              }
+            });
           });
 
           await this.wordStackService.fill();

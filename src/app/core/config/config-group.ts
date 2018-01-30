@@ -94,10 +94,13 @@ export abstract class ConfigGroup<
    * therefore.
    */
   async reset(): Promise<void> {
-    if (this.syncCategory) {
-      await this.syncCategory.reset();
+    let {syncCategory} = this;
+    if (syncCategory) {
+      await syncCategory.reset();
+      syncCategory.itemMap$.next(new Map());
     } else {
       await this.storage!.empty();
+      this.rawConfigDict$!.next({} as TRaw);
     }
   }
 

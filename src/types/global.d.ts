@@ -9,6 +9,8 @@ interface Environment {
   aliyunOSSUserContentBaseUrl: string;
   apiBaseUrl: string;
   hybirdApp: boolean;
+  remoteUrl?: string;
+  debug?: boolean;
 }
 
 interface Dict<T> {

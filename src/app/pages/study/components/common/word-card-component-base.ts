@@ -6,7 +6,7 @@ import {WordInfo} from 'app/core/engine';
 import {Easing, animate, momentum} from 'app/lib/animate';
 import {TTSService} from 'app/platform/common';
 
-export type CompleteCallback = () => void;
+export type CompleteCallback = (forward?: boolean) => void;
 export type ProgressCallback = (percentage: number, stats: Set<string>) => void;
 
 export enum WordCardState {
@@ -174,7 +174,7 @@ export abstract class WordCardComponentBase {
     return sentences && sentences[0];
   }
 
-  async playAudio(): Promise<void> {
+  async reciteTerm(): Promise<void> {
     let audioMode = await this.settingsConfigService.audioMode$
       .first()
       .toPromise();
@@ -184,6 +184,14 @@ export abstract class WordCardComponentBase {
     }
 
     return this.ttsService.speak(this.word.term);
+  }
+
+  async reciteSentence(sentence: string): Promise<void> {
+    let sentenceTtsSpeed = await this.settingsConfigService.sentenceTtsSpeed$
+      .first()
+      .toPromise();
+
+    return this.ttsService.speak(sentence, sentenceTtsSpeed);
   }
 
   remove(): Promise<void> {
@@ -264,7 +272,7 @@ export abstract class WordCardComponentBase {
     _startTime: number,
     isEnd: boolean,
     progress: ProgressCallback | undefined,
-    _complete: CompleteCallback | undefined,
+    complete: CompleteCallback | undefined,
   ): void {
     let maxWidth = this.removalConfirmButtonsElement.offsetWidth;
     let maxOffset = -maxWidth;
@@ -291,6 +299,10 @@ export abstract class WordCardComponentBase {
         this.animating = true;
         this.expandedRemovalConfirmButtons = expanded;
 
+        if (complete) {
+          complete(expanded);
+        }
+
         animate(
           percentage,
           expanded ? 1 : 0,
@@ -308,6 +320,9 @@ export abstract class WordCardComponentBase {
       } else {
         this.latestSlideXOffset = maxOffset;
         this.expandedRemovalConfirmButtons = true;
+        if (complete) {
+          complete(true);
+        }
       }
     }
   }
@@ -351,6 +366,10 @@ export abstract class WordCardComponentBase {
         slideOutDuration = 60;
       }
 
+      if (complete) {
+        complete(newX === WORD_CARD_WIDTH);
+      }
+
       animate(
         offset,
         newX,
@@ -360,9 +379,6 @@ export abstract class WordCardComponentBase {
       )
         .then(() => {
           this.animating = false;
-          if (complete && newX === WORD_CARD_WIDTH) {
-            complete();
-          }
         })
         .catch(noop);
     }

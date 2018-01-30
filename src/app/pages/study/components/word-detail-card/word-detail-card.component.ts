@@ -63,8 +63,8 @@ export class WordDetailCardComponent extends WordCardComponentBase
       .then(async audioMode => {
         if (audioMode === 'auto') {
           this.autoPlayAudioTimerHandle = setTimeout(() => {
-            this.playAudio().catch(logger.error);
-          }, 400);
+            this.reciteTerm().catch(logger.error);
+          }, 800);
         }
       })
       .catch(logger.error);

@@ -215,6 +215,7 @@ export class WordStackInteractiveDirective implements OnDestroy {
     }
 
     this.targetWordCardComponent = targetWordCardComponent;
+
     this.locked = true;
     this.sliding = true;
     this.slideXStartTime = 0;
@@ -299,23 +300,29 @@ export class WordStackInteractiveDirective implements OnDestroy {
       slideXStartTime,
       isEnd,
       undefined,
-      async () => {
+      async forward => {
         if (diffX <= 0) {
           return;
         }
 
-        targetWordCardComponent!.removed = true;
-        wordStackService.remove(targetWordCardComponent!.word);
+        if (!forward) {
+          return;
+        }
 
-        await this.submit(targetWordCardComponent!.word.term);
+        targetWordCardComponent!.removed = true;
+        wordStackService.remove(targetWordCardComponent!.word, false);
 
         if (targetWordCardComponent instanceof WordDetailCardComponent) {
           wordStack.hideWordDetail();
           await v.sleep(280);
+        } else {
+          await v.sleep(210);
         }
 
         if (!wordStack.guideMode) {
           await this.fillWordStack();
+          await v.sleep(80);
+          await this.submit(targetWordCardComponent!.word.term);
         } else {
           if (guideStatus === GuideStatus.sliddenToRight) {
             wordStack.guideStatus = GuideStatus.sliddenToRightAgain;
@@ -407,7 +414,11 @@ export class WordStackInteractiveDirective implements OnDestroy {
             wordStack.guideStatus = GuideStatus.viewedTermBriefs;
           }
         },
-        () => {
+        forward => {
+          if (!forward) {
+            return;
+          }
+
           this.briefsViewTime += touchData.touch.timeLasting;
           wordStack.showWordDetail(targetWordCardComponent!.word);
 
@@ -483,7 +494,7 @@ export class WordStackInteractiveDirective implements OnDestroy {
     targetWordCardComponent
       .remove()
       .then(async () => {
-        this.wordStackService.remove(targetWordCardComponent.word);
+        this.wordStackService.remove(targetWordCardComponent.word, true);
 
         await this.submit(targetWordCardComponent.word.term, true);
 

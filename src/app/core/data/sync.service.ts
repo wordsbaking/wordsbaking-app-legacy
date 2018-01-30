@@ -9,6 +9,7 @@ import {Subscription} from 'rxjs/Subscription';
 
 import * as _ from 'lodash';
 import memorize from 'memorize-decorator';
+import * as moment from 'moment';
 import * as ms from 'ms';
 import * as v from 'villa';
 
@@ -112,6 +113,8 @@ export class SyncService implements CategoryHost, OnDestroy {
 
   readonly syncPending$: Observable<number>;
 
+  disabled = false;
+
   private syncAt: TimeNumber;
   private lastUpdateID = this.createUpdateID();
 
@@ -160,7 +163,7 @@ export class SyncService implements CategoryHost, OnDestroy {
       this.syncBatchSchedule$
         .merge(Observable.interval(AUTO_SYNC_INTERVAL))
         .audit(() =>
-          Observable.race(
+          Observable.race<any>(
             Observable.interval(SYNC_BATCH_TIMEOUT),
             this.syncBatchScheduleFlush$.first(),
           ),
@@ -351,6 +354,7 @@ export class SyncService implements CategoryHost, OnDestroy {
 
   async sync(): Promise<boolean> {
     this.syncBatchScheduleFlush$.next();
+
     return this.aggregateSync();
   }
 
@@ -379,6 +383,10 @@ export class SyncService implements CategoryHost, OnDestroy {
   }
 
   private async _sync(): Promise<boolean> {
+    if (this.disabled) {
+      return false;
+    }
+
     let categoryToIDToUpUpdateDictDict: Dict<Dict<UpUpdate>> = Object.create(
       null,
     );
@@ -419,6 +427,10 @@ export class SyncService implements CategoryHost, OnDestroy {
       syncAt,
       updates: categoryToIDToDownUpdateDictDict,
     } = await this.apiService.call<SyncResult>('/sync', request);
+
+    if (this.disabled) {
+      return false;
+    }
 
     await Promise.all(
       this.categoryNames.map(name =>

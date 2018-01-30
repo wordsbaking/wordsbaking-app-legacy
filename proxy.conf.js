@@ -3,8 +3,19 @@
 const FS = require('fs');
 const Path = require('path');
 const dotenv = require('dotenv');
+let env = dotenv.config().parsed;
 
-let envJSON = JSON.stringify(dotenv.config().parsed);
+for (let key of Object.keys(env)) {
+  let value = env[key];
+
+  if (/^true|false$/i.test(value)) {
+    env[key] = value === 'true';
+  } else if (/^\d+$|^\d*\.\d+/.test(value)) {
+    env[key] = Number(value);
+  }
+}
+
+let envJSON = JSON.stringify(env);
 
 module.exports = {
   '/': {

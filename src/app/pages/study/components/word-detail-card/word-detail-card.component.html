@@ -18,7 +18,7 @@
         <div class="meaning" *ngFor="let meaning of meanings">{{meaning}}</div>
       </div>
 
-      <div class="sentences" *ngIf="sentence">
+      <div class="sentences" *ngIf="sentence" (wbPress)="reciteSentence(sentence.s)">
         <div class="source paragraph">{{sentence.s}}</div>
         <div class="target paragraph">{{sentence.t}}</div>
       </div>
