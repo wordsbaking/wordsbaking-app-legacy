@@ -1,6 +1,6 @@
 {
   "name": "wordsbaking-app",
-  "version": "0.0.0",
+  "version": "1.0.0",
   "scripts": {
     "ng": "ng",
     "tsc": "tsc",
@@ -12,12 +12,14 @@
     "start": "ng serve --host 0.0.0.0 --hmr -e hmr",
     "build": "ng build -prod && node scripts/post-build.js",
     "build-dev": "ng build && node scripts/post-build.js",
-    "build-hybird": "ng build -prod -e hybird-prod && node scripts/post-build.js",
-    "release": "rimraf ../wordsbaking-app-cordova/www && cp -r ./bld ../wordsbaking-app-cordova/www",
+    "build-hybird": "ng build -prod -e hybird-prod -aot false && node scripts/post-build.js",
+    "prepare": "rimraf ../wordsbaking-app-cordova/www && cp -r ./bld ../wordsbaking-app-cordova/www",
     "run:android": "cd ../wordsbaking-app-cordova/www && cordova run android",
     "run:ios": "cd ../wordsbaking-app-cordova/www && cordova run ios",
-    "debug-ios": "yarn build-dev && yarn release && yarn run:ios",
-    "debug-android": "yarn build-dev && yarn release && yarn run:android"
+    "build:android": "cd ../wordsbaking-app-cordova/www && cordova build android --release",
+    "debug-ios": "yarn build-dev && yarn prepare && yarn run:ios",
+    "debug-android": "yarn build-dev && yarn prepare && yarn run:android",
+    "release-android": "yarn build-hybird && yarn prepare && yarn build:android"
   },
   "private": true,
   "dependencies": {

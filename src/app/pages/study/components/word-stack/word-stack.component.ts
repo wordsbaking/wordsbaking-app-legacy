@@ -16,10 +16,14 @@ import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import {asap} from 'rxjs/scheduler/asap';
 import {Subscription} from 'rxjs/Subscription';
 
+import * as logger from 'logger';
+
 import {LoadingHandler, LoadingService} from 'app/ui';
 
 import {SettingsConfigService, UserConfigService} from 'app/core/config';
 import {EngineService, WordInfo} from 'app/core/engine';
+
+import {AppService} from 'app/platform/common';
 
 import {
   WORD_CARD_HEIGHT,
@@ -130,6 +134,7 @@ export class WordStackComponent implements OnInit, OnDestroy {
 
   constructor(
     ref: ElementRef,
+    private appService: AppService,
     private wordStackService: WordStackService,
     private engineService: EngineService,
     private settingsConfigService: SettingsConfigService,
@@ -299,16 +304,35 @@ export class WordStackComponent implements OnInit, OnDestroy {
 
     wordCardComponent.active = true;
 
-    this.activeWord$.next({
+    let tempWord = {
       ...word,
       obstinate: wordCardComponent.obstinate,
+    };
+
+    this.activeWord$.next(tempWord);
+
+    this.appService.addAndroidBackButtonBlocker(() => {
+      if (this.activeWord$.value === tempWord) {
+        this.hideWordDetail().catch(logger.error);
+        return true;
+      }
+
+      return false;
     });
   }
 
-  hideWordDetail(): void {
+  async hideWordDetail(): Promise<void> {
     let activeWord = this.activeWord$.value;
+
     if (activeWord) {
       let wordCardComponent = this.getWordCardComponentByTerm(activeWord.term);
+      let wordDetailCardComponent = this.wordDetailCardComponent;
+
+      if (wordDetailCardComponent) {
+        setTimeout(() => {
+          wordDetailCardComponent.stopRecite().catch(logger.error);
+        }, 600);
+      }
 
       if (wordCardComponent) {
         wordCardComponent.active = false;

@@ -36,6 +36,8 @@ export abstract class WordCardComponentBase {
   expandedRemovalConfirmButtons = false;
   animating = false;
 
+  reciting: string | undefined;
+
   readonly audioOn$ = this.settingsConfigService.audioMode$
     .map(audioMode => {
       return audioMode !== 'off';
@@ -175,23 +177,62 @@ export abstract class WordCardComponentBase {
   }
 
   async reciteTerm(): Promise<void> {
+    let term = this.word.term;
+    this.reciting = term;
+
     let audioMode = await this.settingsConfigService.audioMode$
       .first()
       .toPromise();
 
-    if (audioMode === 'off') {
+    if (audioMode === 'off' || this.reciting !== term) {
       return;
     }
 
-    return this.ttsService.speak(this.word.term);
+    try {
+      await this.ttsService.speak(term);
+    } catch (error) {}
+
+    if (this.reciting === term) {
+      this.reciting = undefined;
+    }
   }
 
   async reciteSentence(sentence: string): Promise<void> {
+    this.reciting = sentence;
+
+    let audioMode = await this.settingsConfigService.audioMode$
+      .first()
+      .toPromise();
+
+    if (audioMode === 'off' || this.reciting !== sentence) {
+      return;
+    }
+
     let sentenceTtsSpeed = await this.settingsConfigService.sentenceTtsSpeed$
       .first()
       .toPromise();
 
-    return this.ttsService.speak(sentence, sentenceTtsSpeed);
+    if (this.reciting !== sentence) {
+      return;
+    }
+
+    try {
+      await this.ttsService.speak(sentence, sentenceTtsSpeed);
+    } catch (error) {}
+
+    if (this.reciting === sentence) {
+      this.reciting = undefined;
+    }
+  }
+
+  async stopRecite(): Promise<void> {
+    if (this.reciting) {
+      try {
+        await this.ttsService.stop();
+      } catch (error) {}
+
+      this.reciting = undefined;
+    }
   }
 
   remove(): Promise<void> {

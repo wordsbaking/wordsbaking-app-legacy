@@ -90,8 +90,10 @@
     </wb-settings-view-settings-group>
 
     <wb-settings-view-settings-group title="关于词焙">
-      <wb-settings-view-settings-item title="建议与反馈" description="提交建议与反馈">
-      </wb-settings-view-settings-item>
+      <a href="mailto:admin@wordsbaking.com" target="_blank">
+        <wb-settings-view-settings-item title="建议与反馈" description="提交建议与反馈">
+        </wb-settings-view-settings-item>
+      </a>
 
       <wb-settings-view-settings-item
         title="使用向导"
@@ -113,7 +115,9 @@
         <span class="text">修改信息</span>
       </wb-selection-list-item>
       <wb-selection-list-item>
-        <span class="text">账号设置</span>
+        <a href="https://wordsbaking.com/account.html" target="_blank">
+          <span class="text">账号设置</span>
+        </a>
       </wb-selection-list-item>
       <wb-selection-list-item (wbPress)="signOut()">
         <span class="text">注销登录</span>

@@ -1,5 +1,10 @@
 import {Location} from '@angular/common';
-import {ChangeDetectionStrategy, Component, ElementRef} from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  ElementRef,
+  NgZone,
+} from '@angular/core';
 
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 
@@ -17,7 +22,11 @@ export class PageComponent {
   headerExtensionExpanded$ = new BehaviorSubject<boolean>(false);
   element: HTMLElement;
 
-  constructor(ref: ElementRef, private location: Location) {
+  constructor(
+    ref: ElementRef,
+    private location: Location,
+    private zone: NgZone,
+  ) {
     this.element = ref.nativeElement;
   }
 
@@ -48,6 +57,10 @@ export class PageComponent {
     }
 
     this.headerExtensionExpanded$.next(expanded);
+
+    if (!expanded && !IS_IPHONE) {
+      this.headerExtensionRendered$.next(false);
+    }
   }
 
   back(): void {

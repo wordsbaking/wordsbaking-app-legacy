@@ -85,20 +85,30 @@ export const pageTransitions = [
 
 export const pageHeaderExtensionTransitions = trigger(
   'pageHeaderExtensionTransitions',
-  [
-    state('folded', style({height: 0})),
-    state('expanded', style({height: '*'})),
-    transition(':enter, folded => expanded', [
-      style({height: 0}),
-      animate('0.2s ease-out', style({height: '*'})),
-    ]),
-    transition('expanded => folded', [
-      style({height: '*'}),
-      animate('0.2s ease-out', style({height: 0})),
-    ]),
-    transition('folded => void', [
-      style({height: 0}),
-      animate(400, style({height: 0})),
-    ]),
-  ],
+  IS_IPHONE
+    ? [
+        state('folded', style({height: 0})),
+        state('expanded', style({height: '*'})),
+        transition(':enter, folded => expanded', [
+          style({height: 0}),
+          animate('0.2s ease-out', style({height: '*'})),
+        ]),
+        transition('expanded => folded', [
+          style({height: '*'}),
+          animate('0.2s ease-out', style({height: 0})),
+        ]),
+        transition('folded => void', [
+          style({height: 0}),
+          animate(400, style({height: 0})),
+        ]),
+      ]
+    : [
+        state('folded', style({height: 0})),
+        state('expanded', style({height: '*'})),
+        transition(':enter, folded => expanded', [
+          style({height: 0}),
+          animate('0.2s ease-out', style({height: '*'})),
+        ]),
+        transition(':leave', [animate('0.2s ease-out', style({height: 0}))]),
+      ],
 );

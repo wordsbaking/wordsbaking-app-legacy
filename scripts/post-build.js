@@ -23,7 +23,7 @@ patchAppIndex(env, versions.app);
 
 function generateVersionsData() {
   return {
-    app: new Date().toISOString(),
+    app: 'dev',
   };
 }
 

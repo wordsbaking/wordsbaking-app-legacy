@@ -57,6 +57,20 @@ export class CordovaAppService extends AppService {
       return;
     }
 
+    if (this.androidBackButtonBlockers.length) {
+      while (true) {
+        let blocker = this.androidBackButtonBlockers.shift();
+
+        // tslint:disable-next-line:no-boolean-literal-compare
+        if (blocker && blocker() !== false) {
+          this.zone.run(() => undefined);
+          return;
+        } else {
+          break;
+        }
+      }
+    }
+
     if (this.loadingService.hasFullScreenLoading) {
       this.loadingService.clearFullScreenLoading();
       return;

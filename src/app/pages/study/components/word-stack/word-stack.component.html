@@ -1,5 +1,5 @@
 <div class="word-list-wrapper" [style.height]="wordListWrapperHeight">
-  <ng-container *ngFor="let card of words$ | async; let index=index; trackBy:trackByTerm" >
+  <ng-container *ngFor="let card of words$ | async; let index=index;" >
     <wb-study-view-word-card
       *ngIf="card"
       [@wordCardTransitions]="enabledWordCardTransitions ? 'default' : 'enter-' + index"

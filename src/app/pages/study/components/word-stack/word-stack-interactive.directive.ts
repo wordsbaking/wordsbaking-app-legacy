@@ -115,7 +115,7 @@ export class WordStackInteractiveDirective implements OnDestroy {
         return;
       }
 
-      this.triggerHideWordDetail();
+      this.triggerHideWordDetail().catch(logger.error);
       return;
     }
 
@@ -313,7 +313,7 @@ export class WordStackInteractiveDirective implements OnDestroy {
         wordStackService.remove(targetWordCardComponent!.word, false);
 
         if (targetWordCardComponent instanceof WordDetailCardComponent) {
-          wordStack.hideWordDetail();
+          wordStack.hideWordDetail().catch(logger.error);
           await v.sleep(280);
         } else {
           await v.sleep(210);
@@ -552,10 +552,16 @@ export class WordStackInteractiveDirective implements OnDestroy {
     this.targetWordCardComponent = targetWordCardComponent;
   }
 
-  private triggerHideWordDetail(): void {
+  private async triggerHideWordDetail(): Promise<void> {
     let {wordStack} = this;
 
-    wordStack.hideWordDetail();
+    this.locked = true;
+
+    try {
+      await wordStack.hideWordDetail();
+    } catch (error) {}
+
+    this.locked = false;
 
     if (this.targetWordCardComponent) {
       this.targetWordCardComponent.active = false;

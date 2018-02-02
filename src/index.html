@@ -8,7 +8,7 @@
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="yes" />
 
-  <title>Wordsbaking</title>
+  <title>词焙背单词</title>
 
   <base href="./">
   <link rel="icon" type="image/x-icon" href="favicon.ico">
@@ -47,6 +47,16 @@
   <script id="app-env">document.write('<script src="dev-env.js">'+ '</' +'scirpt>')</script>
   <script id="app-version">var VERSION = 'dev';</script>
   <script src="cordova.js" defer async></script>
+  <script>
+    (function() {
+      var UA = navigator.userAgent;
+
+      window.IS_ANDROID = /android/i.test(UA);
+      window.IS_IPHONE = /iphone/i.test(UA);
+      window.IS_BROWSER = !/wordsbaking/i.test(UA);
+      window.IS_CORDOVA = /wordsbaking/i.test(UA);
+
+    })();
   </script>
 </body>
 </html>

@@ -1,4 +1,10 @@
+declare var IS_IPHONE: boolean;
+declare var IS_ANDROID: boolean;
+declare var IS_BROWSER: boolean;
+declare var IS_CORDOVA: boolean;
+
 declare var module: any;
+declare var require: any;
 
 declare var VERSION: string | undefined;
 declare var ENV: Partial<Environment> | undefined;
@@ -9,7 +15,6 @@ interface Environment {
   aliyunOSSUserContentBaseUrl: string;
   apiBaseUrl: string;
   hybirdApp: boolean;
-  remoteUrl?: string;
   debug?: boolean;
 }
 

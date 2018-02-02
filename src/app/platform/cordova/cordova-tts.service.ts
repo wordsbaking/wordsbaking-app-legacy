@@ -20,18 +20,16 @@ export class CordovaTTSService extends TTSService {
 
     let TTS = window.TTS!;
 
-    return new Promise<void>(resolve => {
-      this.zone.run(() => {
-        TTS.speak(
-          {
-            text: term,
-            rate,
-            locale: `en-${(pronunciation || 'us').toLocaleUpperCase()}`,
-          },
-          () => resolve(),
-          () => resolve(),
-        );
-      });
+    return TTS.speak({
+      text: term,
+      rate,
+      locale: `en-${(pronunciation || 'us').toLocaleUpperCase()}`,
     });
+  }
+
+  stop(): Promise<void> {
+    let TTS = window.TTS!;
+
+    return TTS.stop();
   }
 }

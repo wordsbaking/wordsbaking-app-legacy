@@ -8,11 +8,8 @@ interface CordovaTTSOptions {
 }
 
 interface CordovaTTSStatic {
-  speak(
-    options: CordovaTTSOptions | string,
-    onfulfilled: () => void,
-    onrejected: (reason: Error) => void,
-  ): void;
+  speak(options: CordovaTTSOptions | string): Promise<void>;
+  stop(): Promise<void>;
 }
 
 interface Window {

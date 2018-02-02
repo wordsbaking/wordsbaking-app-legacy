@@ -5,7 +5,6 @@
 }
 
 wb-page-content {
-  position: relative;
   padding-left: 15px !important;
   padding-right: 15px !important;
   overflow: auto;
@@ -18,6 +17,11 @@ wb-page-content {
     left: 0;
     overflow: hidden;
   }
+}
+
+wb-settings-view-settings-group a {
+  display: block;
+  color: @color-text;
 }
 
 wb-settings-view-settings-item.user-profile-entry {
@@ -61,5 +65,11 @@ wb-settings-view-settings-item.user-profile-entry {
 
   wb-selection-list-item:active {
     background-color: @color-fg-f !important;
+  }
+
+  a {
+    color: @color-text;
+    display: block;
+    width: 100%;
   }
 }

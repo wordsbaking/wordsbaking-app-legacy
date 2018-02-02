@@ -66,16 +66,18 @@ import 'zone.js/dist/zone'; // Included with Angular CLI.
  */
 // import 'intl/locale-data/jsonp/en';
 
-document.addEventListener(
-  'touchmove',
-  event => {
-    if ((event as any).scale !== 1) {
-      event.preventDefault();
-    }
-  },
-  false,
-);
+if (IS_IPHONE) {
+  document.addEventListener(
+    'touchmove',
+    event => {
+      if ((event as any).scale !== 1) {
+        event.preventDefault();
+      }
+    },
+    false,
+  );
 
-document.addEventListener('gesturestart', event => {
-  event.preventDefault();
-});
+  document.addEventListener('gesturestart', event => {
+    event.preventDefault();
+  });
+}
