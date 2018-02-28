@@ -88,6 +88,9 @@ export class SettingsView {
     showGuide => SettingsConfig.ShowGuide.getDescription(showGuide),
   );
 
+  get appVersion(): string {
+    return APP_PROFILE.version.name;
+  }
   // readonly avatarUrl$ =
 
   constructor(
