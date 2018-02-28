@@ -1,45 +1,47 @@
 const FS = require('fs');
 const Path = require('path');
-const dotenv = require('dotenv');
 
-let env = dotenv.config().parsed;
-let versions = generateVersionsData();
+const minimist = require('minimist');
 
-for (let key of Object.keys(env)) {
-  let value = env[key];
+const {resolveVersion} = require('./utils/helpers');
+const loadENV = require('./utils/load-env');
 
-  if (/^true|false$/i.test(value)) {
-    env[key] = value === 'true';
-  } else if (/^\d+$|^\d*\.\d+/.test(value)) {
-    env[key] = Number(value);
-  }
-}
+const argv = minimist(process.argv.slice(2));
 
-patchAppIndex(env, versions.app);
+const IS_PROD = !!argv.prod;
+
+const ENV = loadENV(IS_PROD ? 'prod' : undefined);
+
+let {platform, version} = argv;
+let isBeta = !!argv.beta;
+
+let versionProfile = resolveVersion(version);
+
+patchAppIndex(ENV, platform, {
+  ...versionProfile,
+  beta: isBeta,
+});
 
 /////////////
 // Helpers //
 /////////////
 
-function generateVersionsData() {
-  return {
-    app: 'dev',
-  };
-}
-
-function patchAppIndex(env, version) {
+function patchAppIndex(env, platform, versionProfile) {
   let path = Path.join(__dirname, '../bld/index.html');
 
   let content = FS.readFileSync(path, 'utf-8');
 
   content = content.replace(
-    /<script id="app-env"[^>]*>[^]*?<\/script>/,
-    `<script id="app-env">var ENV = ${JSON.stringify(env)};</script>`,
+    /<script id="env"[^>]*>[^]*?<\/script>/,
+    `<script id="env">var ENV = ${JSON.stringify(env)};</script>`,
   );
 
   content = content.replace(
-    /<script id="app-version"[^>]*>[^]*?<\/script>/,
-    `<script id="app-version">var VERSION = '${version}';</script>`,
+    /<script id="app-profile"[^>]*>[^]*?<\/script>/,
+    `<script id="app-profile">var APP_PROFILE = ${JSON.stringify({
+      platform,
+      version: versionProfile,
+    })};</script>`,
   );
 
   FS.writeFileSync(path, content);

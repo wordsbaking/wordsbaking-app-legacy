@@ -1,0 +1,8 @@
+<h2 class="title">{{version}} 版本更新<b *ngIf="isBeta" class="beta-flag">BETA</b></h2>
+<div class="description">
+  <span class="item" *ngFor="let descriptionItem of descriptionItems">{{descriptionItem}}</span>
+</div>
+<div class="buttons-bar">
+  <button class="ghost dark-text small" (wbPress)="nextTime(w)">稍后再说</button>
+  <a class="button small" href="{{downloadUrl}}" target="_blank" (wbPress)="close()">现在更新</a>
+</div>

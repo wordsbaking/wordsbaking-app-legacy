@@ -6,8 +6,20 @@ declare var IS_CORDOVA: boolean;
 declare var module: any;
 declare var require: any;
 
-declare var VERSION: string | undefined;
+declare var APP_PROFILE: {
+  platform: string;
+  version: AppVersionProfile;
+};
+
 declare var ENV: Partial<Environment> | undefined;
+
+interface AppVersionProfile {
+  name: string;
+  code: number;
+  beta: boolean;
+  description?: string;
+  downloadUrl?: string;
+}
 
 interface Environment {
   production: boolean;

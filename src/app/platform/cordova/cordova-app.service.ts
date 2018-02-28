@@ -1,4 +1,4 @@
-import {Injectable, NgZone} from '@angular/core';
+import {ComponentFactoryResolver, Injectable, NgZone} from '@angular/core';
 
 import * as logger from 'logger';
 
@@ -8,21 +8,30 @@ import {AppService, RoutingService} from '../common';
 
 import {LoadingService, PopupService, ToastService} from 'app/ui';
 
+import {AppVersionCheckerService} from '../../app-version-checker.service';
+
+import {
+  CordovaAppUpdateTipComponent,
+  CordovaAppUpdateTipComponentInitOptions,
+} from './components/cordova-app-update-tip/cordova-app-update-tip.component';
+
 @Injectable()
 export class CordovaAppService extends AppService {
   private latestPreventBackButtonTime: number;
-
   constructor(
     private toastService: ToastService,
     private loadingService: LoadingService,
     private popupService: PopupService,
     private routingService: RoutingService,
+    private appVersionCheckerService: AppVersionCheckerService,
+    private resolve: ComponentFactoryResolver,
     private zone: NgZone,
   ) {
     super();
   }
 
   init(): void {
+    let zone = this.zone;
     let Keyboard = window.Keyboard!;
 
     Keyboard.shrinkView(false);
@@ -36,6 +45,36 @@ export class CordovaAppService extends AppService {
     if (environment.debug) {
       this.loadEruda().catch(logger.error);
     }
+
+    setTimeout(() => this.appVersionCheckerService.open(), 3000);
+
+    this.appVersionCheckerService.latestVersion$
+      .filter(({code}) => code !== APP_PROFILE.version.code)
+      .subscribe(({name: version, beta, description, downloadUrl}) => {
+        let factory = this.resolve.resolveComponentFactory(
+          CordovaAppUpdateTipComponent,
+        );
+
+        let popupHandler = this.popupService.showAsLocation(factory, {
+          background: true,
+          positions: ['center'],
+          animation: 'bounceInUp',
+          clearOnWindowScroll: false,
+          clearOnWindowResize: false,
+          clearOnOutsideClick: true,
+          contentOptions: {
+            clear() {
+              popupHandler.clear();
+            },
+            version,
+            beta,
+            description,
+            downloadUrl,
+          } as CordovaAppUpdateTipComponentInitOptions,
+        });
+
+        this.appVersionCheckerService.close();
+      });
   }
 
   private handleBackButtonPress(event: Event): void {

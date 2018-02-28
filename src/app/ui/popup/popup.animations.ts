@@ -17,4 +17,15 @@ export const popupTransitions = trigger('popupTransitions', [
     style({opacity: 1, transform: 'translateY(0)'}),
     animate('0.2s ease-out', style({opacity: 0, transform: 'translateY(80%)'})),
   ]),
+  transition('* => bounceInUp', [
+    style({opacity: 0, transform: 'translateY(60%)'}),
+    animate(
+      '0.4s cubic-bezier(0.176, 0.885, 0.32, 1.275)',
+      style({opacity: 1, transform: 'translateY(0)'}),
+    ),
+  ]),
+  transition('bounceInUp => void', [
+    style({opacity: 1}),
+    animate('0.2s ease-out', style({opacity: 0})),
+  ]),
 ]);

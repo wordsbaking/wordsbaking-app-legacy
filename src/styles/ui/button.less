@@ -1,6 +1,7 @@
 @import '../common.less';
 
-button {
+button,
+.button {
   height: 36px;
   line-height: 36px;
   margin: 0;
@@ -30,7 +31,8 @@ button {
   }
 }
 
-button.secondary {
+button.secondary,
+.button.secondary {
   background-color: @color-theme-g;
 
   &:active {
@@ -38,7 +40,8 @@ button.secondary {
   }
 }
 
-button.ghost {
+button.ghost,
+.button.ghost {
   background-color: transparent;
   transform: translate(0, 0);
   border-radius: 0;
@@ -53,7 +56,8 @@ button.ghost {
   }
 }
 
-button.danger {
+button.danger,
+.button.danger {
   background-color: mix(@color-alert-bg, #fff, 95%);
 
   &:active {

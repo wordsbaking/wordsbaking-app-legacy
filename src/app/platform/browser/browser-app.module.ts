@@ -1,6 +1,8 @@
 import {CommonModule} from '@angular/common';
 import {ModuleWithProviders, NgModule} from '@angular/core';
 
+import {TouchModule} from 'app/ui';
+
 import {
   AppService,
   PlatformAppModule,
@@ -13,8 +15,7 @@ import {BrowserRoutingService} from './browser-routing.service';
 import {BrowserTTSService} from './browser-tts.service';
 
 @NgModule({
-  imports: [CommonModule],
-  declarations: [],
+  imports: [CommonModule, TouchModule],
 })
 export class BrowserAppModule extends PlatformAppModule {
   static forRoot(): ModuleWithProviders {

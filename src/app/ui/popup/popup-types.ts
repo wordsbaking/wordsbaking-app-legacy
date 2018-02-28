@@ -41,4 +41,4 @@ export interface PopupHandler {
   clear(): void;
 }
 
-export type PopupAnimation = 'fadeIn' | 'fadeInDown';
+export type PopupAnimation = 'fadeIn' | 'fadeInDown' | 'bounceInUp';

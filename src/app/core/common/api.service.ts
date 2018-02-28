@@ -70,6 +70,16 @@ export interface SignInInfo {
   availableDataSourceVersions?: string[];
 }
 
+export interface AppVersionEntry {
+  platform: string;
+  version: string;
+  beta: boolean;
+  publisher: string;
+  description: string;
+  downloadUrl: string;
+  timestamp: number;
+}
+
 @Injectable()
 export class APIService {
   constructor(private authConfigService: AuthConfigService) {}
@@ -186,6 +196,18 @@ export class APIService {
     return this.call<WordDataItem[]>('/get-words-data', {
       terms,
     });
+  }
+
+  async getAppLatestVersionInfo(
+    platform: string,
+  ): Promise<AppVersionEntry | undefined> {
+    return this.call<AppVersionEntry | undefined>(
+      '/latest-app-version',
+      {
+        platform,
+      },
+      {auth: false},
+    );
   }
 
   getUrl(path: string): string {

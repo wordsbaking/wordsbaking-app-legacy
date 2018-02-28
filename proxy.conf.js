@@ -2,18 +2,10 @@
 
 const FS = require('fs');
 const Path = require('path');
-const dotenv = require('dotenv');
-let env = dotenv.config().parsed;
 
-for (let key of Object.keys(env)) {
-  let value = env[key];
+const loadENV = require('./scripts/utils/load-env');
 
-  if (/^true|false$/i.test(value)) {
-    env[key] = value === 'true';
-  } else if (/^\d+$|^\d*\.\d+/.test(value)) {
-    env[key] = Number(value);
-  }
-}
+let env = loadENV();
 
 let envJSON = JSON.stringify(env);
 

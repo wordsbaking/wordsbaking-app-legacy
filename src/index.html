@@ -44,8 +44,8 @@
 
 <body oncontextmenu="return false">
   <wb-root></wb-root>
-  <script id="app-env">document.write('<script src="dev-env.js">'+ '</' +'scirpt>')</script>
-  <script id="app-version">var VERSION = 'dev';</script>
+  <script id="env">document.write('<script src="dev-env.js">'+ '</' +'script>')</script>
+  <script id="app-profile">var APP_PROFILE = {platform: 'devtool', version: {name: 'dev', code: 0, beta: false}};</script>
   <script src="cordova.js" defer async></script>
   <script>
     (function() {
@@ -55,7 +55,6 @@
       window.IS_IPHONE = /iphone/i.test(UA);
       window.IS_BROWSER = !/wordsbaking/i.test(UA);
       window.IS_CORDOVA = /wordsbaking/i.test(UA);
-
     })();
   </script>
 </body>

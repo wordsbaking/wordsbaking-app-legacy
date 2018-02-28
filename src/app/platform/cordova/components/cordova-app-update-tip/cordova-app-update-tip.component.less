@@ -1,0 +1,48 @@
+@import '~styles/common.less';
+
+:host {
+  display: block;
+  min-width: 300px;
+  max-width: 480px;
+  padding: 15px;
+  background: @color-fg;
+}
+
+.title {
+  font-weight: bold;
+  color: @color-text-d;
+  text-align: center;
+  margin-bottom: 15px;
+  padding-bottom: 10px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: @size-text-normal;
+  border-bottom: 1px solid @color-fg-f;
+
+  .beta-flag {
+    background-color: @color-alert-bg;
+    border-radius: 4px;
+    font-size: 10px;
+    color: @color-theme-text;
+    padding: 2px 5px;
+    margin-left: 5px;
+  }
+}
+
+.description {
+  padding: 0 10px 5px;
+
+  .item {
+    display: block;
+    margin-bottom: 3px;
+    font-size: @size-text-smaller;
+  }
+}
+
+.buttons-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 10px;
+}
