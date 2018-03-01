@@ -25,8 +25,8 @@
     "cordova:build:ios": "cd ../wordsbaking-app-cordova/www && cordova build ios --release",
     "run:android": "yarn cordova:run android",
     "run:ios": "yarn cordova:run ios",
-    "debug:ios": "yarn build:hybird && yarn post-build ios && yarn cordova:prepare && yarn run:ios",
-    "debug:android": "yarn build:hybird && yarn post-build android && yarn cordova:prepare && yarn run:android",
+    "debug:ios": "yarn build:hybird && yarn post-build --platform ios && yarn cordova:prepare && yarn run:ios",
+    "debug:android": "yarn build:hybird && yarn post-build --platform android && yarn cordova:prepare && yarn run:android",
     "release": "node scripts/release"
   },
   "private": true,

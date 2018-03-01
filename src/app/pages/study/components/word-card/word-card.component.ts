@@ -83,7 +83,7 @@ export class WordCardComponent extends WordCardComponentBase
     ) as HTMLElement;
     this.labelInnerWrapperElementStyle = this.labelInnerWrapperElement.style;
     this.audioPlayButtonElement = element.querySelector(
-      '.head .icon.audio',
+      '.head .audio-play-button',
     ) as HTMLElement;
     this.audioPlayButtonElementStyle = this.audioPlayButtonElement.style;
   }

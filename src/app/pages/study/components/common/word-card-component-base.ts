@@ -1,5 +1,7 @@
 import {EventEmitter, HostBinding} from '@angular/core';
 
+import * as v from 'villa';
+
 import {SettingsConfigService} from 'app/core/config';
 import {WordDataSentence} from 'app/core/data';
 import {WordInfo} from 'app/core/engine';
@@ -36,12 +38,9 @@ export abstract class WordCardComponentBase {
   expandedRemovalConfirmButtons = false;
   animating = false;
 
-  reciting: string | undefined;
+  reciteText: string | undefined;
 
-  readonly audioOn$ = this.settingsConfigService.audioMode$
-    .map(audioMode => {
-      return audioMode !== 'off';
-    })
+  readonly audioMode$ = this.settingsConfigService.audioMode$
     .distinctUntilChanged()
     .publishReplay(1)
     .refCount();
@@ -65,6 +64,11 @@ export abstract class WordCardComponentBase {
     private ttsService: TTSService,
     private settingsConfigService: SettingsConfigService,
   ) {}
+
+  @HostBinding('class.reciting')
+  get reciting(): boolean {
+    return !!this.reciteText;
+  }
 
   @HostBinding('class.active')
   get active(): boolean {
@@ -178,13 +182,13 @@ export abstract class WordCardComponentBase {
 
   async reciteTerm(): Promise<void> {
     let term = this.word.term;
-    this.reciting = term;
+    this.reciteText = term;
 
     let audioMode = await this.settingsConfigService.audioMode$
       .first()
       .toPromise();
 
-    if (audioMode === 'off' || this.reciting !== term) {
+    if (audioMode === 'off' || this.reciteText !== term) {
       return;
     }
 
@@ -192,19 +196,20 @@ export abstract class WordCardComponentBase {
       await this.ttsService.speak(term);
     } catch (error) {}
 
-    if (this.reciting === term) {
-      this.reciting = undefined;
+    if (this.reciteText === term) {
+      await v.sleep(400);
+      this.reciteText = undefined;
     }
   }
 
   async reciteSentence(sentence: string): Promise<void> {
-    this.reciting = sentence;
+    this.reciteText = sentence;
 
     let audioMode = await this.settingsConfigService.audioMode$
       .first()
       .toPromise();
 
-    if (audioMode === 'off' || this.reciting !== sentence) {
+    if (audioMode === 'off' || this.reciteText !== sentence) {
       return;
     }
 
@@ -212,7 +217,7 @@ export abstract class WordCardComponentBase {
       .first()
       .toPromise();
 
-    if (this.reciting !== sentence) {
+    if (this.reciteText !== sentence) {
       return;
     }
 
@@ -220,18 +225,19 @@ export abstract class WordCardComponentBase {
       await this.ttsService.speak(sentence, sentenceTtsSpeed);
     } catch (error) {}
 
-    if (this.reciting === sentence) {
-      this.reciting = undefined;
+    if (this.reciteText === sentence) {
+      await v.sleep(400);
+      this.reciteText = undefined;
     }
   }
 
   async stopRecite(): Promise<void> {
-    if (this.reciting) {
+    if (this.reciteText) {
       try {
         await this.ttsService.stop();
       } catch (error) {}
 
-      this.reciting = undefined;
+      this.reciteText = undefined;
     }
   }
 

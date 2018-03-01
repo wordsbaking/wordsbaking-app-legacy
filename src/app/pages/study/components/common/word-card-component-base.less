@@ -10,13 +10,8 @@
     z-index: 2;
   }
 
-  &.new-word,
-  &.marked-word {
-    > .inner .head {
-      .phonetic-symbols {
-        color: @color-theme-d;
-      }
-    }
+  &.reciting > .inner .head .audio-play-button .icon-sprint {
+    animation: 0.8s AudioIconPlayingAnimation steps(1, end) infinite;
   }
 
   > .inner,
@@ -53,10 +48,9 @@
     .phonetic-symbols {
       position: relative;
       display: inline-block;
-      top: -1px;
       font-size: @size-word-phonetic-symbols-size;
       font-family: Arial;
-      color: @color-text-xl;
+      color: @color-theme-d;
       margin-left: 5px;
 
       &::before,
@@ -66,25 +60,45 @@
     }
 
     .audio-play-button {
-      @size: 20px;
+      @size: 24px;
+      @wrapper-size: @size + 22;
 
-      width: @size + 10;
-      height: @size + 10;
-      font-size: @size;
+      width: @wrapper-size;
+      height: @wrapper-size;
       color: @color-theme;
+      padding: 0;
       background-color: transparent;
-      padding: 5px;
-      transform: translate3d(8px, -4px, 0);
-      transition: opacity linear 0.1s;
-      transition: -webkit-tap-highlight-color linear 0.2s;
+      transform: translate3d(12px, 0, 0);
+      transition: opacity linear 0.1s, width ease 0.2s height ease 0.2s,
+        font-size ease 0.2s;
+      // transition: -webkit-tap-highlight-color linear 0.2s;
       -webkit-tap-highlight-color: rgba(0, 0, 0, 0.05);
 
-      // &:active {
-      //   opacity: 0.4;
-      // }
-
-      &.hidden {
+      &.off {
         display: none;
+        pointer-events: none;
+      }
+
+      .audio-icon {
+        display: block;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+      }
+
+      .icon-sprint {
+        display: flex;
+        align-items: center;
+        font-size: 0;
+        height: 100%;
+        transform: translate3d(-46px, 0, 0);
+      }
+
+      .icon {
+        flex: none;
+        width: @wrapper-size;
+        font-size: @size;
+        font-weight: bold;
       }
     }
   }
@@ -97,5 +111,23 @@
     align-items: center;
     opacity: 0;
     z-index: 0;
+  }
+}
+
+@keyframes AudioIconPlayingAnimation {
+  0% {
+    transform: translate3d(-46px, 0, 0);
+  }
+
+  25% {
+    transform: translate3d(-92px, 0, 0);
+  }
+
+  75% {
+    transform: translate3d(0, 0, 0);
+  }
+
+  100% {
+    transform: translate3d(-46px, 0, 0);
   }
 }

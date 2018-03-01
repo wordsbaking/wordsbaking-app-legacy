@@ -15,7 +15,14 @@ const ENV = loadENV(IS_PROD ? 'prod' : undefined);
 let {platform, version} = argv;
 let isBeta = !!argv.beta;
 
-let versionProfile = resolveVersion(version);
+let versionProfile =
+  IS_PROD || version
+    ? resolveVersion(version)
+    : {
+        name: 'dev',
+        code: 0,
+        beta: false,
+      };
 
 patchAppIndex(ENV, platform, {
   ...versionProfile,

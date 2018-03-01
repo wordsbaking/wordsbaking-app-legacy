@@ -6,6 +6,7 @@
   z-index: 1;
   border-radius: 2px;
   will-change: transform, opacity;
+  overflow: hidden;
 
   .word-card;
 }
@@ -19,10 +20,6 @@
 
   .term {
     color: @color-theme-xd;
-  }
-
-  .phonetic-symbols {
-    color: @color-text-xl;
   }
 
   .flags-wrapper {
@@ -51,23 +48,6 @@
 
     .term {
       color: @color-theme-xxf;
-    }
-
-    .phonetic-symbols {
-      color: @color-theme-f;
-    }
-
-    .icon.audio {
-      color: @color-theme-xxf;
-    }
-  }
-
-  &.new-word,
-  &.marked-word {
-    > .inner .head {
-      .phonetic-symbols {
-        color: @color-fg;
-      }
     }
   }
 
@@ -104,7 +84,6 @@
     width: @details-label-size;
     height: @details-label-size;
     line-height: @details-label-size;
-    border-radius: 2px;
     text-align: center;
     color: @color-theme-text;
     overflow: hidden;

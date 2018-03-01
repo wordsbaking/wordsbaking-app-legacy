@@ -5,12 +5,17 @@
         <span class="term">{{term}}</span>
         <span class="phonetic-symbols" *ngIf="phonetic">{{phonetic}}</span>
       </div>
-      <div class="toolbar">
-        <button
-          class="icon audio audio-play-button"
-          [class.hidden]="!(audioOn$ | async)"
-          (wbPress)="reciteTerm()"></button>
-      </div>
+      <button
+        class="audio-play-button {{audioMode$ | async}}"
+        (wbPress)="reciteTerm()">
+        <span class="audio-icon">
+          <span class="icon-sprint">
+            <i class="icon audio-vol-low"></i>
+            <i class="icon audio-vol-middle"></i>
+            <i class="icon audio-vol-max"></i>
+          </span>
+        </span>
+      </button>
 
       <div class="flags-wrapper">
         <span class="new-flag" *ngIf="new"></span>

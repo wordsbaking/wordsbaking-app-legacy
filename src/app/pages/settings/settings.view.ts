@@ -89,9 +89,10 @@ export class SettingsView {
   );
 
   get appVersion(): string {
-    return APP_PROFILE.version.name;
+    return `${APP_PROFILE.version.name}${APP_PROFILE.version.beta
+      ? ' (beta)'
+      : ''}`;
   }
-  // readonly avatarUrl$ =
 
   constructor(
     private selectionListPopupService: SelectionListPopupService,

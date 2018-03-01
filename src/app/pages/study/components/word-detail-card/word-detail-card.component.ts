@@ -61,7 +61,7 @@ export class WordDetailCardComponent extends WordCardComponentBase
       .first()
       .toPromise()
       .then(async audioMode => {
-        if (audioMode === 'auto') {
+        if (audioMode !== 'off') {
           this.autoPlayAudioTimerHandle = setTimeout(() => {
             this.reciteTerm().catch(logger.error);
           }, 800);
