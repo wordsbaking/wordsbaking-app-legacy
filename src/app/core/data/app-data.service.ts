@@ -18,7 +18,7 @@ export class AppDataService extends ServerDataGroup<AppData> {
   }
 
   protected transformRaw({
-    collectionList = [{id: 'CET-4', name: '大学英语四级'}],
+    collectionList = [{id: 'CET-4', name: '大学英语四级', count: 0}],
   }: Partial<AppData>): AppData {
     return {collectionList};
   }
