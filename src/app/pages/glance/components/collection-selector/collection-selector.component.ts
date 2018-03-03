@@ -56,6 +56,7 @@ export class CollectionSelectorComponent implements OnDestroy {
     let values = await this.selectionListPopupService.show(
       collectionList.map<SelectionListPopup.ListItem<CollectionInfo>>(item => ({
         text: item.name,
+        comment: `(${item.count})`,
         value: item,
         selected: selectedID === item.id,
       })),

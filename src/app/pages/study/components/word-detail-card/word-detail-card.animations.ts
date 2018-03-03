@@ -50,13 +50,3 @@ export const wordDetailCardTransitions = trigger('wordDetailCardTransitions', [
     ]),
   ]),
 ]);
-
-export const wordDetailCardUnlockCountdownTransitions = trigger(
-  'wordDetailCardUnlockCountdownTransitions',
-  [
-    transition(':enter', [
-      style({width: '0%'}),
-      group([animate('4s 400ms linear', style({width: '100%'}))]),
-    ]),
-  ],
-);

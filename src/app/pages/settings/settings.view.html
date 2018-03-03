@@ -102,7 +102,11 @@
         <wb-switch [checked]="settingsConfigService.showGuide$ | async"></wb-switch>
       </wb-settings-view-settings-item>
 
-      <wb-settings-view-settings-item title="软件版本" description="版本号 {{appVersion}}">
+      <wb-settings-view-settings-item
+        title="软件版本"
+        description="版本号 {{appVersion}}"
+        (wbPress)="toggleCheckAppVersion()">
+        <span class="new-version-flag" *ngIf="hasNewVersion$ | async">NEW</span>
       </wb-settings-view-settings-item>
     </wb-settings-view-settings-group>
   </wb-page-content>

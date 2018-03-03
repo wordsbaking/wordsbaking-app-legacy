@@ -28,33 +28,33 @@ export const pageTransitions = [
       [
         animationElementQuery(
           '.page-header',
-          animate('0.2s ease-out', style({transform: 'translateY(0)'})),
+          animate('0.16s ease-out', style({transform: 'translateY(0)'})),
         ),
         animationElementQuery(
           '.page-header > .inner',
-          animate('0.2s ease-out', style({transform: 'translateY(0)'})),
+          animate('0.16s ease-out', style({transform: 'translateY(0)'})),
           {
-            delay: 200,
+            delay: 120,
           },
         ),
         animationElementQuery(
           '.page-content',
-          animate('0.2s linear', style({opacity: '1'})),
+          animate('0.16s linear', style({opacity: '1'})),
           {
-            delay: 200,
+            delay: 120,
           },
         ),
         animationElementQuery(
           '.page-footer',
-          animate('0.2s ease-out', style({transform: 'translateY(0)'})),
+          animate('0.16s ease-out', style({transform: 'translateY(0)'})),
           {
-            delay: 200,
+            delay: 120,
           },
         ),
         style({opacity: 1}),
       ],
       {
-        delay: 200,
+        delay: 160,
       },
     ),
   ]),
@@ -62,22 +62,22 @@ export const pageTransitions = [
     group([
       animationElementQuery(
         '.page-header > .inner',
-        animate('0.2s ease-out', style({transform: 'translateY(-100%)'})),
+        animate('0.16s ease-out', style({transform: 'translateY(-100%)'})),
       ),
       animationElementQuery(
         '.page-header',
-        animate('0.2s ease-out', style({transform: 'translateY(-100%)'})),
+        animate('0.16s ease-out', style({transform: 'translateY(-100%)'})),
         {
-          delay: 200,
+          delay: 120,
         },
       ),
       animationElementQuery(
         '.page-content',
-        animate('0.2s linear', style({opacity: '0'})),
+        animate('0.16s linear', style({opacity: '0'})),
       ),
       animationElementQuery(
         '.page-footer',
-        animate('0.2s ease-out', style({transform: 'translateY(100%)'})),
+        animate('0.16s ease-out', style({transform: 'translateY(100%)'})),
       ),
     ]),
   ]),

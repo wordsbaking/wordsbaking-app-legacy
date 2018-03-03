@@ -85,12 +85,32 @@
     margin: 0;
     padding: 0;
     height: 100%;
+    width: 0;
     background-color: @color-theme;
+    animation: countdownProgressBarAnimation linear 4s forwards;
   }
 
   &.hidden {
     transition: @transition-opacity, @transition-transform;
     opacity: 0;
     transform: translateY(-100%);
+  }
+}
+
+@keyframes countdownProgressBarAnimation {
+  0% {
+    width: 0;
+    opacity: 1;
+  }
+
+  90%,
+  95% {
+    width: 100%;
+    opacity: 1;
+  }
+
+  100% {
+    width: 100%;
+    opacity: 0;
   }
 }

@@ -1,5 +1,5 @@
-<wb-page #page (wbPress)="page.toggleHeaderExtension(false)" [wbPressStop]="false">
-  <wb-page-header (wbPress)="page.toggleHeaderExtension()">
+<wb-page #page>
+  <wb-page-header>
     <div class="user-profile">
       <div class="avatar-wrapper" wbPressLink="/user-profile">
         <span class="avatar"
@@ -15,13 +15,9 @@
     </div>
     <div class="toolbar">
       <span class="time"></span>
-      <span class="icon more"></span>
+      <span class="icon more" wbPressLink="/settings"></span>
     </div>
   </wb-page-header>
-
-  <wb-page-header-extension>
-    <button wbPressLink="/settings" class="ghost">设置</button>
-  </wb-page-header-extension>
 
   <wb-page-content>
     <div class="content-top" *ngIf="stats$ | async as stats">

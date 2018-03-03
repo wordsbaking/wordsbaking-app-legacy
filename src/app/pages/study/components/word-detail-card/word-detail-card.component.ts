@@ -10,8 +10,6 @@ import {
 
 import * as v from 'villa';
 
-import * as logger from 'logger';
-
 import {SettingsConfigService} from 'app/core/config';
 import {WordInfo} from 'app/core/engine';
 import {TTSService} from 'app/platform/common';
@@ -22,19 +20,13 @@ import {
   WordCardComponentBase,
 } from '../common/word-card-component-base';
 
-import {
-  wordDetailCardTransitions,
-  wordDetailCardUnlockCountdownTransitions,
-} from './word-detail-card.animations';
+import {wordDetailCardTransitions} from './word-detail-card.animations';
 
 @Component({
   selector: 'wb-study-view-word-detail-card',
   templateUrl: './word-detail-card.component.html',
   styleUrls: ['./word-detail-card.component.less'],
-  animations: [
-    wordDetailCardTransitions,
-    wordDetailCardUnlockCountdownTransitions,
-  ],
+  animations: [wordDetailCardTransitions],
 })
 export class WordDetailCardComponent extends WordCardComponentBase
   implements AfterViewInit, OnDestroy {
@@ -45,8 +37,7 @@ export class WordDetailCardComponent extends WordCardComponentBase
   @HostBinding('@wordDetailCardTransitions') wordDetailCardTransitions = true;
 
   hideUnlockCountdown = false;
-
-  private autoPlayAudioTimerHandle: number;
+  countdownStarted = false;
 
   constructor(
     ref: ElementRef,
@@ -56,18 +47,6 @@ export class WordDetailCardComponent extends WordCardComponentBase
     super(ttsService, settingsConfigService);
 
     this.element = ref.nativeElement;
-
-    settingsConfigService.audioMode$
-      .first()
-      .toPromise()
-      .then(async audioMode => {
-        if (audioMode !== 'off') {
-          this.autoPlayAudioTimerHandle = setTimeout(() => {
-            this.reciteTerm().catch(logger.error);
-          }, 800);
-        }
-      })
-      .catch(logger.error);
   }
 
   get lock(): boolean {
@@ -92,9 +71,13 @@ export class WordDetailCardComponent extends WordCardComponentBase
 
   ngAfterViewInit(): void {
     this.onViewInit();
+
+    setTimeout(async () => {
+      this.countdownStarted = true;
+      await v.sleep(4000);
+      await this.unlock();
+    }, 100);
   }
 
-  ngOnDestroy(): void {
-    clearTimeout(this.autoPlayAudioTimerHandle);
-  }
+  ngOnDestroy(): void {}
 }

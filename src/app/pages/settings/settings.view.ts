@@ -17,6 +17,8 @@ import {SentenceTtsSpeed, StudyOrder, StudyScope} from 'app/core/engine';
 import {SelectionListPopupService, pageTransitions} from 'app/core/ui';
 import {UserService} from 'app/core/user';
 
+import {AppVersionCheckerService} from '../../app-version-checker.service';
+
 import * as SettingsConfig from './settings-config';
 
 const settingsViewTransition = trigger('settingsViewTransition', [
@@ -34,15 +36,21 @@ export class SettingsView {
 
   @HostBinding('@settingsViewTransition') settingsViewTransition = '';
 
-  readonly lastSyncTimeDescription$ = this.syncService.lastSyncTime$.map(
-    time => {
+  readonly hasNewVersion$ = this.appVersionCheckerService.latestVersion$
+    .map(({code}) => code !== APP_PROFILE.version.code)
+    .publishReplay(1)
+    .refCount();
+
+  readonly lastSyncTimeDescription$ = this.syncService.lastSyncTime$
+    .map(time => {
       if (time) {
         return moment(time).format('YYYY年MM月DD日 HH:mm:ss');
       } else {
         return '等待同步中...';
       }
-    },
-  );
+    })
+    .publishReplay(1)
+    .refCount();
 
   readonly pronunciationDescription$ = this.settingsConfigService.pronunciation$.map(
     pron => SettingsConfig.Pronunciation.getDescription(pron),
@@ -99,6 +107,7 @@ export class SettingsView {
     private dialogService: DialogService,
     private userService: UserService,
     private syncService: SyncService,
+    private appVersionCheckerService: AppVersionCheckerService,
     public settingsConfigService: SettingsConfigService,
     public authConfigService: AuthConfigService,
     public userConfigService: UserConfigService,
@@ -197,6 +206,10 @@ export class SettingsView {
       SettingsConfig.ShowGuide,
       force,
     );
+  }
+
+  toggleCheckAppVersion(): Promise<void> {
+    return this.appVersionCheckerService.tick(false);
   }
 
   async signOut(): Promise<void> {

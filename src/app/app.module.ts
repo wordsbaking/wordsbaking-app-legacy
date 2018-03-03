@@ -29,6 +29,8 @@ import {
   WelcomePageGuardService,
 } from './app-router-guard-services';
 
+import {AppVersionCheckerService} from './app-version-checker.service';
+
 const PlatformAppModule = environment.hybirdApp
   ? CordovaAppModule
   : BrowserAppModule;
@@ -58,6 +60,10 @@ const PlatformAppModule = environment.hybirdApp
   ],
   declarations: [AppView, SplashScreenView],
   bootstrap: [AppView],
-  providers: [AuthGuardService, WelcomePageGuardService],
+  providers: [
+    AuthGuardService,
+    WelcomePageGuardService,
+    AppVersionCheckerService,
+  ],
 })
 export class AppModule {}

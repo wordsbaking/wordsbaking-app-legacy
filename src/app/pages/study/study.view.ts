@@ -26,10 +26,7 @@ export class StudyView {
 
   readonly tagline$ = this.userConfigService.tagline$;
 
-  readonly audioMode$ = this.settingsConfigService.audioMode$
-    .map(mode => (mode === 'auto' ? 'on' : mode))
-    .publishReplay(1)
-    .refCount();
+  readonly audioMode$ = this.settingsConfigService.audioMode$;
 
   constructor(
     public userConfigService: UserConfigService,
@@ -37,7 +34,7 @@ export class StudyView {
   ) {}
 
   switchAudioMode(): void {
-    let modes: AudioMode[] = ['on' /*, 'auto'*/, 'off'];
+    let modes: AudioMode[] = ['on', 'auto', 'off'];
 
     this.audioMode$.first().subscribe(mode => {
       let nextMode = modes[(modes.indexOf(mode) + 1) % modes.length];

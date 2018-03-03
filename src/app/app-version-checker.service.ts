@@ -20,10 +20,6 @@ export class AppVersionCheckerService {
   constructor(private apiService: APIService) {}
 
   open(): void {
-    if (this.checking) {
-      return;
-    }
-
     if (this.tickTimerHandle) {
       clearTimeout(this.tickTimerHandle);
     }
@@ -44,8 +40,8 @@ export class AppVersionCheckerService {
     this.checking = false;
   }
 
-  private async tick(): Promise<void> {
-    if (!this.checking) {
+  async tick(polling = true): Promise<void> {
+    if (polling && !this.checking) {
       return;
     }
 
@@ -63,7 +59,9 @@ export class AppVersionCheckerService {
       });
     }
 
-    this.tickTimerHandle = setTimeout(() => this.tick(), TICK_INTERVAL);
+    if (polling) {
+      this.tickTimerHandle = setTimeout(() => this.tick(), TICK_INTERVAL);
+    }
   }
 }
 

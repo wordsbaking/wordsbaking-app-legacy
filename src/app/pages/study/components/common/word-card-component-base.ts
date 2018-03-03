@@ -189,6 +189,7 @@ export abstract class WordCardComponentBase {
       .toPromise();
 
     if (audioMode === 'off' || this.reciteText !== term) {
+      this.reciteText = undefined;
       return;
     }
 

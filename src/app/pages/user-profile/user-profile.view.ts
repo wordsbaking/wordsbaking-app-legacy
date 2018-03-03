@@ -152,6 +152,7 @@ export class UserProfileView implements OnInit {
         syncPromises.push(this.userConfigService.set('avatar', avatar));
       } catch (e) {
         this.toastService.show('上传头像失败!');
+        this.loadingService.clearFullScreenLoading();
         return;
       }
     }
@@ -175,6 +176,7 @@ export class UserProfileView implements OnInit {
         .result;
     } catch (e) {
       this.toastService.show('保存失败!');
+      this.loadingService.clearFullScreenLoading();
       return;
     }
 

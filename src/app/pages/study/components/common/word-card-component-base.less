@@ -26,6 +26,7 @@
 
   > .inner .content {
     z-index: 1;
+    overflow: hidden;
   }
 
   > .inner .head {
@@ -69,8 +70,7 @@
       padding: 0;
       background-color: transparent;
       transform: translate3d(12px, 0, 0);
-      transition: opacity linear 0.1s, width ease 0.2s height ease 0.2s,
-        font-size ease 0.2s;
+      transition: opacity linear 0.1s;
       // transition: -webkit-tap-highlight-color linear 0.2s;
       -webkit-tap-highlight-color: rgba(0, 0, 0, 0.05);
 

@@ -137,6 +137,7 @@ export const enum MemorizingStatus {
 }
 
 export interface CollectionInfo {
+  count: number;
   name: string;
   id: string;
 }

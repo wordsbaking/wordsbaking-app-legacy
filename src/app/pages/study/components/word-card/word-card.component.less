@@ -6,7 +6,6 @@
   z-index: 1;
   border-radius: 2px;
   will-change: transform, opacity;
-  overflow: hidden;
 
   .word-card;
 }
@@ -41,12 +40,34 @@
   }
 }
 
+:host > .inner .head .audio-play-button.auto {
+  @size: 18px;
+  @wrapper-size: @size + 28;
+
+  width: @wrapper-size;
+  height: @wrapper-size;
+
+  .icon {
+    width: @wrapper-size;
+    font-size: @size;
+    transform: translate3d(6px, -6px, 0);
+  }
+}
+
 :host.obstinate-word {
   > .inner .head {
     transition: @transition-background-color;
     background-color: @color-theme;
 
     .term {
+      color: @color-theme-xxf;
+    }
+
+    .phonetic-symbols {
+      color: @color-theme-f;
+    }
+
+    .audio-play-button {
       color: @color-theme-xxf;
     }
   }
@@ -75,7 +96,7 @@
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    color: @color-theme-g-f;
+    color: @color-theme-g-l;
   }
 
   .details-label {
@@ -94,9 +115,9 @@
 
       .extra-number {
         height: @details-label-size;
-        line-height: @details-label-size + 2px;
+        line-height: @details-label-size;
         font-size: 12px;
-        background-color: @color-text-xl;
+        background-color: @color-theme-g-l;
         overflow: hidden;
       }
 
@@ -129,7 +150,7 @@
 
   button:active {
     transform: none;
-    background: red;
+    background: @color-alert-bg;
   }
 
   button:not(:last-child) {

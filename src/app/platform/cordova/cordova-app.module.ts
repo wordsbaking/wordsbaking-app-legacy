@@ -3,8 +3,6 @@ import {ModuleWithProviders, NgModule} from '@angular/core';
 
 import {TouchModule} from 'app/ui';
 
-import {AppVersionCheckerService} from '../../app-version-checker.service';
-
 import {
   AppService,
   PlatformAppModule,
@@ -21,7 +19,6 @@ import {CordovaTTSService} from './cordova-tts.service';
   imports: [CommonModule, TouchModule],
   entryComponents: [CordovaAppUpdateTipComponent],
   declarations: [CordovaAppUpdateTipComponent],
-  providers: [AppVersionCheckerService],
 })
 export class CordovaAppModule extends PlatformAppModule {
   static forRoot(): ModuleWithProviders {

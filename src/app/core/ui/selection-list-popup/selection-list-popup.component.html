@@ -6,7 +6,10 @@
     *ngFor="let item of items"
     [selected]="item.selected"
     [value]="item.value">
-    <span class="text">{{item.text}}</span>
+    <div class="title">
+      <span class="text">{{item.text}}</span>
+      <span class="comment" *ngIf="item.comment">{{item.comment}}</span>
+    </div>
     <span class="icon check"></span>
   </wb-selection-list-item>
 </wb-selection-list>

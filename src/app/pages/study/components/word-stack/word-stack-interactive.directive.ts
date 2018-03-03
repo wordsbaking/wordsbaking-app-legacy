@@ -18,6 +18,7 @@ import {
 } from 'app/lib/touch-delegate';
 
 import {VIEW_BRIEFS_UNKNOWN_LIMIT} from 'app/constants';
+import {AudioMode, SettingsConfigService} from 'app/core/config';
 import {EngineService, MemorizingStatus} from 'app/core/engine';
 import {UserService} from 'app/core/user';
 import {SnackbarHandler, SnackbarService} from 'app/ui';
@@ -43,6 +44,7 @@ export class WordStackInteractiveDirective implements OnDestroy {
   private preventTapEvent = false;
   private viewedBriefs = false;
   private briefsViewTime = 0;
+  private audioMode: AudioMode;
   private subscriptions: Subscription[] = [];
   private restoreRemovedSnackbarHandler: SnackbarHandler | undefined;
 
@@ -52,6 +54,7 @@ export class WordStackInteractiveDirective implements OnDestroy {
     private wordStackService: WordStackService,
     private engineService: EngineService,
     private snackbarService: SnackbarService,
+    private settingsConfigService: SettingsConfigService,
   ) {
     this.touchDelegate = new TouchDelegate(wordStack.element, false);
     this.touchDelegate.bind(TouchIdentifier.touchStart);
@@ -68,6 +71,9 @@ export class WordStackInteractiveDirective implements OnDestroy {
         } else {
           this.preventTapEvent = false;
         }
+      }),
+      this.settingsConfigService.audioMode$.subscribe(audoMode => {
+        this.audioMode = audoMode;
       }),
     );
   }
@@ -220,6 +226,17 @@ export class WordStackInteractiveDirective implements OnDestroy {
     this.sliding = true;
     this.slideXStartTime = 0;
     this.slideYStartTime = 0;
+
+    if (
+      !(targetWordCardComponent instanceof WordDetailCardComponent) &&
+      this.audioMode === 'auto'
+    ) {
+      setTimeout(() => {
+        if (!targetWordCardComponent!.reciting) {
+          targetWordCardComponent!.reciteTerm().catch(logger.error);
+        }
+      }, 100);
+    }
   }
 
   @HostListener('td-touch-end', ['$event'])
