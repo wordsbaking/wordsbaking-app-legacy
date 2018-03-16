@@ -14,6 +14,8 @@ import {ToastService} from 'app/ui';
 import {fadeTransitions} from 'app/ui/common';
 import {generateStudyStatsID} from 'app/util/helpers';
 
+import {RoutingService} from 'app/platform/common';
+
 import {ONE_DAY_MILLISECONDS, RECENT_DAYS_LIMIT} from 'app/constants';
 import {
   CollectionSelectorComponent,
@@ -37,7 +39,10 @@ export class GlanceView implements OnInit {
   @ViewChild('collectionSelector')
   collectionSelector: CollectionSelectorComponent;
 
-  @HostBinding('@glanceViewTransitions') glanceViewTransitions = 'active';
+  @HostBinding('@glanceViewTransitions')
+  get glanceViewTransitions(): string {
+    return this.routingService.histories.length > 1 ? 'all' : 'no-enter';
+  }
 
   stats$ = this.engineService.stats$;
 
@@ -175,6 +180,7 @@ export class GlanceView implements OnInit {
     private settingsConfigService: SettingsConfigService,
     private toastService: ToastService,
     private navigationService: NavigationService,
+    private routingService: RoutingService,
   ) {}
 
   async ngOnInit(): Promise<void> {

@@ -10,6 +10,7 @@ import {LoadingService, ToastService} from 'app/ui';
 import {APIService, MigrationStatus} from 'app/core/common';
 import {AuthConfigService} from 'app/core/config/auth';
 import {SelectionListPopupService, pageTransitions} from 'app/core/ui';
+import {RoutingService} from 'app/platform/common';
 
 const signInViewTransition = trigger('signInViewTransition', [
   ...pageTransitions,
@@ -24,7 +25,10 @@ const signInViewTransition = trigger('signInViewTransition', [
 export class SignInView implements OnInit {
   form: FormGroup;
 
-  @HostBinding('@signInViewTransition') signInViewTransition = '';
+  @HostBinding('@signInViewTransition')
+  get signInViewTransition(): string {
+    return this.routingService.histories.length > 1 ? 'all' : 'no-enter';
+  }
 
   signedAccount$ = this.authConfigService.account$.map(
     account => account || '',
@@ -38,6 +42,7 @@ export class SignInView implements OnInit {
     private loadingService: LoadingService,
     private router: Router,
     private selectionListPopupService: SelectionListPopupService,
+    private routingService: RoutingService,
   ) {}
 
   ngOnInit(): void {

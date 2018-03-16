@@ -222,7 +222,7 @@ export class WordStackComponent implements OnInit, OnDestroy {
 
   async ngOnInit(): Promise<void> {
     // 目的让页面过场动画不卡顿
-    await v.sleep(700);
+    await v.sleep(1000);
 
     let showGuide = await this.settingsConfigService.showGuide$
       .first()

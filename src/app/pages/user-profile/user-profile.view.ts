@@ -28,7 +28,8 @@ const userProfileViewTransitions = trigger('userProfileViewTransitions', [
 })
 export class UserProfileView implements OnInit {
   form: FormGroup;
-  @HostBinding('@userProfileViewTransitions') userProfileViewTransitions = '';
+  @HostBinding('@userProfileViewTransitions')
+  userProfileViewTransitions = 'all';
 
   private saving = false;
 

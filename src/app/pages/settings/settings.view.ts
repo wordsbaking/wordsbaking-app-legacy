@@ -34,10 +34,10 @@ const settingsViewTransition = trigger('settingsViewTransition', [
 export class SettingsView {
   @ViewChild(PopupComponent) userManagerMenuPopupComponent: PopupComponent;
 
-  @HostBinding('@settingsViewTransition') settingsViewTransition = '';
+  @HostBinding('@settingsViewTransition') settingsViewTransition = 'all';
 
   readonly hasNewVersion$ = this.appVersionCheckerService.latestVersion$
-    .map(({code}) => code !== APP_PROFILE.version.code)
+    .map(({code}) => code > APP_PROFILE.version.code)
     .publishReplay(1)
     .refCount();
 

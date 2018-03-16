@@ -10,7 +10,7 @@ import {
 import {animationElementQuery} from 'app/util';
 
 export const pageTransitions = [
-  transition(':enter', [
+  transition('* => all', [
     animationElementQuery(
       '.page-header',
       style({transform: 'translateY(-100%)'}),
@@ -28,33 +28,33 @@ export const pageTransitions = [
       [
         animationElementQuery(
           '.page-header',
-          animate('0.16s ease-out', style({transform: 'translateY(0)'})),
+          animate('0.2s ease-out', style({transform: 'translateY(0)'})),
         ),
         animationElementQuery(
           '.page-header > .inner',
-          animate('0.16s ease-out', style({transform: 'translateY(0)'})),
+          animate('0.2s ease-out', style({transform: 'translateY(0)'})),
           {
             delay: 120,
           },
         ),
         animationElementQuery(
           '.page-content',
-          animate('0.16s linear', style({opacity: '1'})),
+          animate('0.2s linear', style({opacity: '1'})),
           {
-            delay: 120,
+            delay: 200,
           },
         ),
         animationElementQuery(
           '.page-footer',
-          animate('0.16s ease-out', style({transform: 'translateY(0)'})),
+          animate('0.2s ease-out', style({transform: 'translateY(0)'})),
           {
-            delay: 120,
+            delay: 200,
           },
         ),
         style({opacity: 1}),
       ],
       {
-        delay: 160,
+        delay: 200,
       },
     ),
   ]),
@@ -62,22 +62,22 @@ export const pageTransitions = [
     group([
       animationElementQuery(
         '.page-header > .inner',
-        animate('0.16s ease-out', style({transform: 'translateY(-100%)'})),
+        animate('0.2s ease-out', style({transform: 'translateY(-100%)'})),
       ),
       animationElementQuery(
         '.page-header',
-        animate('0.16s ease-out', style({transform: 'translateY(-100%)'})),
+        animate('0.2s ease-out', style({transform: 'translateY(-100%)'})),
         {
-          delay: 120,
+          delay: 200,
         },
       ),
       animationElementQuery(
         '.page-content',
-        animate('0.16s linear', style({opacity: '0'})),
+        animate('0.2s linear', style({opacity: '0'})),
       ),
       animationElementQuery(
         '.page-footer',
-        animate('0.16s ease-out', style({transform: 'translateY(100%)'})),
+        animate('0.2s ease-out', style({transform: 'translateY(100%)'})),
       ),
     ]),
   ]),

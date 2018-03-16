@@ -6,7 +6,7 @@ import * as logger from 'logger';
 
 import {APIService} from 'app/core/common';
 
-const TICK_INTERVAL = 3000;
+const TICK_INTERVAL = 60 * 1000;
 
 @Injectable()
 export class AppVersionCheckerService {

@@ -35,7 +35,6 @@ export class SplashScreenView {
       this.authConfigService.account$.first().toPromise(),
     ]);
 
-    await new Promise<void>(resolve => setTimeout(resolve, 200));
     await this.router.navigate(
       apiKey
         ? ['/glance']

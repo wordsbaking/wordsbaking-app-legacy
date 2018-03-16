@@ -26,6 +26,8 @@ export type RouteEventType =
   | NavigationError;
 
 export abstract class RoutingService {
+  readonly histories: string[] = [];
+
   routeConfigurationData$ = new BehaviorSubject<
     RouteConfigurationData | undefined
   >(undefined);
@@ -83,8 +85,19 @@ export abstract class RoutingService {
     } else if (event instanceof RouteConfigLoadEnd) {
       this.onRouteConfigLoadEnd(event);
     } else if (event instanceof ActivationStart) {
-      this.routeConfigurationData$.next(event.snapshot
-        .data as RouteConfigurationData);
+      let routeConfigurationData = event.snapshot
+        .data as RouteConfigurationData;
+      let pageName = routeConfigurationData && routeConfigurationData.name;
+
+      this.routeConfigurationData$.next(routeConfigurationData);
+
+      if (
+        pageName !== 'splash' &&
+        this.histories[this.histories.length - 1] !== pageName
+      ) {
+        this.histories.push(pageName);
+      }
+
       this.onActivationStart(event);
     } else if (event instanceof ActivationEnd) {
       this.activeRoute$.next(event.snapshot.routeConfig as Route);

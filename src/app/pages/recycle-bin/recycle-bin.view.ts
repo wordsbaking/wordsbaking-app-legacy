@@ -28,7 +28,7 @@ const recycleBinTransition = trigger('recycleBinTransition', [
 export class RecycleBinView implements OnDestroy {
   @ViewChild('page') page: PageComponent;
 
-  @HostBinding('@recycleBinTransition') recycleBinTransition = '';
+  @HostBinding('@recycleBinTransition') recycleBinTransition = 'all';
 
   recentWords$ = new BehaviorSubject<string[] | undefined>(undefined);
   moreWords$ = new BehaviorSubject<string[] | undefined>(undefined);

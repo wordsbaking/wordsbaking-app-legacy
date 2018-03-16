@@ -18,6 +18,7 @@ import {
 @Injectable()
 export class CordovaAppService extends AppService {
   private latestPreventBackButtonTime: number;
+
   constructor(
     private toastService: ToastService,
     private loadingService: LoadingService,
@@ -31,7 +32,7 @@ export class CordovaAppService extends AppService {
   }
 
   init(): void {
-    let zone = this.zone;
+    // let zone = this.zone;
     let Keyboard = window.Keyboard!;
 
     Keyboard.shrinkView(false);
@@ -46,10 +47,10 @@ export class CordovaAppService extends AppService {
       this.loadEruda().catch(logger.error);
     }
 
-    setTimeout(() => this.appVersionCheckerService.open(), 3000);
+    setTimeout(() => this.appVersionCheckerService.open(), 60 * 1000);
 
     this.appVersionCheckerService.latestVersion$
-      .filter(({code}) => code !== APP_PROFILE.version.code)
+      .filter(({code}) => code > APP_PROFILE.version.code)
       .subscribe(({name: version, beta, description, downloadUrl}) => {
         let factory = this.resolve.resolveComponentFactory(
           CordovaAppUpdateTipComponent,
@@ -96,19 +97,19 @@ export class CordovaAppService extends AppService {
       return;
     }
 
-    if (this.androidBackButtonBlockers.length) {
-      while (true) {
-        let blocker = this.androidBackButtonBlockers.shift();
+    // if (this.androidBackButtonBlockers.length) {
+    //   while (true) {
+    //     let blocker = this.androidBackButtonBlockers.shift();
 
-        // tslint:disable-next-line:no-boolean-literal-compare
-        if (blocker && blocker() !== false) {
-          this.zone.run(() => undefined);
-          return;
-        } else {
-          break;
-        }
-      }
-    }
+    //     // tslint:disable-next-line:no-boolean-literal-compare
+    //     if (blocker && blocker() !== false) {
+    //       this.zone.run(() => undefined);
+    //       return;
+    //     } else {
+    //       break;
+    //     }
+    //   }
+    // }
 
     if (this.loadingService.hasFullScreenLoading) {
       this.loadingService.clearFullScreenLoading();

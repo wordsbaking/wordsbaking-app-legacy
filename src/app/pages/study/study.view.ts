@@ -22,7 +22,7 @@ const studyViewTransitions = trigger('studyViewTransitions', [
   animations: [studyViewTransitions],
 })
 export class StudyView {
-  @HostBinding('@studyViewTransitions') studyViewTransitions = '';
+  @HostBinding('@studyViewTransitions') studyViewTransitions = 'all';
 
   readonly tagline$ = this.userConfigService.tagline$;
 

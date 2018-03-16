@@ -10,6 +10,7 @@ import {AuthConfigService} from 'app/core/config/auth';
 import {NavigationService} from 'app/core/navigation';
 import {pageTransitions} from 'app/core/ui';
 import {UserService} from 'app/core/user';
+import {RoutingService} from 'app/platform/common';
 
 const signUpViewTransitions = trigger('signUpViewTransitions', [
   ...pageTransitions,
@@ -24,7 +25,10 @@ const signUpViewTransitions = trigger('signUpViewTransitions', [
 export class SignUpView implements OnInit {
   form: FormGroup;
 
-  @HostBinding('@signUpViewTransitions') signUpViewTransitions = '';
+  @HostBinding('@signUpViewTransitions')
+  get signUpViewTransitions(): string {
+    return this.routingService.histories.length > 1 ? 'all' : 'no-enter';
+  }
 
   whyAccountDescriptionVisible = false;
 
@@ -40,6 +44,7 @@ export class SignUpView implements OnInit {
     private userService: UserService,
     private router: Router,
     private ref: ElementRef,
+    private routingService: RoutingService,
   ) {
     this.element = this.ref.nativeElement;
   }
