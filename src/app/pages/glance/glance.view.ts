@@ -17,6 +17,7 @@ import {generateStudyStatsID} from 'app/util/helpers';
 import {RoutingService} from 'app/platform/common';
 
 import {ONE_DAY_MILLISECONDS, RECENT_DAYS_LIMIT} from 'app/constants';
+
 import {
   CollectionSelectorComponent,
   DailyStudyInfo,
@@ -185,7 +186,10 @@ export class GlanceView implements OnInit {
 
   async ngOnInit(): Promise<void> {
     // 为了保证页面切入动画流畅, 同步任务拍后处理
-    await v.sleep(1100);
+    if (this.routingService.histories.length > 1) {
+      await v.sleep(1100);
+    }
+
     await this.syncService.sync();
   }
 

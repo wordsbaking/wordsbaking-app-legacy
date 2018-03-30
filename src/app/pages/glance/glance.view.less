@@ -69,19 +69,21 @@ wb-page-header {
   .toolbar {
     flex: none;
     display: flex;
-    flex-direction: column;
-    align-items: flex-end;
-    justify-content: space-between;
+    justify-content: flex-start;
+    align-items: flex-start;
 
-    .time {
-      line-height: 1;
+    .more-btn {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin: 0;
+      padding: 10px;
+      margin-bottom: -2px;
+      transform: translate3d(10px, -2px, 0) rotate(90deg);
     }
 
     .icon.more {
-      margin-bottom: -2px;
       font-size: @size-text-normal;
-      padding: 8px;
-      transform: translate3d(8px, 8px, 0);
     }
   }
 }

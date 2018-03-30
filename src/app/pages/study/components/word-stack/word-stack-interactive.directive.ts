@@ -326,15 +326,15 @@ export class WordStackInteractiveDirective implements OnDestroy {
           return;
         }
 
-        targetWordCardComponent!.removed = true;
-        wordStackService.remove(targetWordCardComponent!.word, false);
-
         if (targetWordCardComponent instanceof WordDetailCardComponent) {
           wordStack.hideWordDetail().catch(logger.error);
           await v.sleep(280);
         } else {
           await v.sleep(210);
         }
+
+        targetWordCardComponent!.removed = true;
+        wordStackService.remove(targetWordCardComponent!.word, false);
 
         if (!wordStack.guideMode) {
           await this.fillWordStack();

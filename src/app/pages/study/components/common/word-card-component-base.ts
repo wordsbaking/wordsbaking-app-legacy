@@ -45,6 +45,12 @@ export abstract class WordCardComponentBase {
     .publishReplay(1)
     .refCount();
 
+  readonly phonetic$ = this.settingsConfigService.pronunciation$
+    .distinctUntilChanged()
+    .map(phonetic => this.prons[phonetic])
+    .publishReplay(1)
+    .refCount();
+
   protected elementStyle: CSSStyleDeclaration;
   protected innerElement: HTMLElement;
   protected innerElementStyle: CSSStyleDeclaration;
@@ -146,10 +152,16 @@ export abstract class WordCardComponentBase {
     return this.word.term;
   }
 
-  get phonetic(): string | undefined {
+  get prons() {
     let {prons} = this.word;
-    let usProns = prons && prons.us;
-    return usProns ? usProns.join(', ') : undefined;
+
+    let usProns = prons && prons.us ? prons.us.join(', ') : '';
+    let gbProns = prons && prons.gb ? prons.gb.join(', ') : '';
+
+    return {
+      us: usProns || gbProns,
+      gb: gbProns || usProns,
+    };
   }
 
   get briefExtra(): number {
@@ -386,7 +398,6 @@ export abstract class WordCardComponentBase {
     let percentage = offset / WORD_CARD_WIDTH;
 
     this.respondSideXToRight(offset);
-
     this.expandedRemovalConfirmButtons = false;
     this.removalConfirmButtonsElementStyle.opacity = 0 as any;
 
@@ -402,17 +413,19 @@ export abstract class WordCardComponentBase {
         Date.now() - startTime,
       );
 
-      let newX = momentumInfo.destination ? 0 : WORD_CARD_WIDTH;
+      let newX =
+        momentumInfo.destination && percentage < 0.2 ? 0 : WORD_CARD_WIDTH;
 
       this.animating = true;
 
-      let slideOutDuration = momentumInfo.destination
-        ? Math.min(momentumInfo.duration, 200)
-        : Math.max(momentumInfo.duration, 200);
+      let slideOutDuration =
+        newX === 0
+          ? Math.min(momentumInfo.duration, 200)
+          : Math.min(momentumInfo.duration || 200, (1 - percentage) * 200);
 
-      if (offset / WORD_CARD_WIDTH > 0.8 && newX) {
-        slideOutDuration = 60;
-      }
+      // if (percentage > 0.8 && newX) {
+      //   slideOutDuration = 60;
+      // }
 
       if (complete) {
         complete(newX === WORD_CARD_WIDTH);
@@ -425,9 +438,7 @@ export abstract class WordCardComponentBase {
         Easing.circular,
         this.respondSideXToRight.bind(this),
       )
-        .then(() => {
-          this.animating = false;
-        })
+        .then(() => (this.animating = false))
         .catch(noop);
     }
 

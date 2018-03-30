@@ -14,30 +14,17 @@ wb-page-header {
     display: flex;
     align-items: center;
     min-height: @size-page-header-min-height;
-    padding: 0 12px;
-    transform: translate3d(12px, 0, 0);
+    padding: 0 0 0 12px;
+    transform: translate3d(8px, 0, 0);
 
-    .time {
-      margin-right: 8px;
-    }
+    .more-btn {
+      margin: 0;
+      padding: 4px 8px;
+      height: auto;
+      line-height: 1;
 
-    .avatar-wrapper {
-      flex: none;
-      width: 26px;
-      height: 26px;
-      transform: translate3d(7px, 0, 0);
-      border-radius: 2px;
-      border: solid 1px @color-theme-text;
-      background-color: @color-fg-f;
-      overflow: hidden;
-
-      .avatar {
-        display: block;
-        width: 100%;
-        height: 100%;
-        background-position: center;
-        background-size: 100% 100%;
-        border-radius: 2px;
+      .icon {
+        transform: rotate(90deg);
       }
     }
   }

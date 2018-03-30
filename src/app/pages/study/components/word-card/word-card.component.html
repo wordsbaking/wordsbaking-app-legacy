@@ -3,7 +3,7 @@
     <div class="head">
       <div class="info">
         <span class="term">{{term}}</span>
-        <span class="phonetic-symbols" *ngIf="phonetic">{{phonetic}}</span>
+        <span class="phonetic-symbols" *ngIf="prons.us || prons.gb">{{phonetic$ | async}}</span>
       </div>
       <button
         class="audio-play-button {{audioMode$ | async}}"

@@ -27,9 +27,11 @@ export interface WordDataSentence {
 
 export type PronunciationType = 'us' | 'gb';
 
+export type Pronunciations = {[pronunciation in PronunciationType]?: string[]};
+
 export interface WordDataItem {
   term: string;
-  prons?: {[pronunciation in PronunciationType]?: string[]};
+  prons?: Pronunciations;
   briefs: WordDataMeaning[];
   meanings: WordDataMeaning[];
   sentences?: WordDataSentence[];

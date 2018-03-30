@@ -4,10 +4,10 @@
       <span class="icon back"></span>
       <span class="title tagline">{{tagline$ | async}}</span>
     </button>
-    <div class="toolbar" (wbPress)="page.toggleHeaderExtension()">
-      <div class="avatar-wrapper">
-        <span class="avatar" [style.backgroundImage]="'url('+ (this.userConfigService.avatarUrl$ | async) +')'"></span>
-      </div>
+    <div class="toolbar">
+      <button class="more-btn" (wbPress)="page.toggleHeaderExtension()">
+        <span class="icon more"></span>
+      </button>
     </div>
   </wb-page-header>
 

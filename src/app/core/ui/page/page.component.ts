@@ -1,10 +1,5 @@
 import {Location} from '@angular/common';
-import {
-  ChangeDetectionStrategy,
-  Component,
-  ElementRef,
-  NgZone,
-} from '@angular/core';
+import {ChangeDetectionStrategy, Component, ElementRef} from '@angular/core';
 
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 
@@ -19,48 +14,16 @@ import {pageHeaderExtensionTransitions} from './page.animations';
 })
 export class PageComponent {
   headerExtensionRendered$ = new BehaviorSubject<boolean>(false);
-  headerExtensionExpanded$ = new BehaviorSubject<boolean>(false);
   element: HTMLElement;
 
-  constructor(
-    ref: ElementRef,
-    private location: Location,
-    private zone: NgZone,
-  ) {
+  constructor(ref: ElementRef, private location: Location) {
     this.element = ref.nativeElement;
   }
 
   toggleHeaderExtension(force?: boolean): void {
     let rendered = this.headerExtensionRendered$.value;
-    let expanded = this.headerExtensionExpanded$.value;
 
-    if (force !== undefined) {
-      if (!force && !expanded) {
-        return;
-      }
-
-      if (!rendered) {
-        this.headerExtensionRendered$.next(true);
-      }
-
-      expanded = force;
-    } else {
-      if (!rendered) {
-        this.headerExtensionRendered$.next(true);
-      }
-
-      expanded = !expanded;
-    }
-
-    if (expanded === !!this.headerExtensionExpanded$.value) {
-      return;
-    }
-
-    this.headerExtensionExpanded$.next(expanded);
-
-    if (!expanded && !IS_IPHONE) {
-      this.headerExtensionRendered$.next(false);
-    }
+    this.headerExtensionRendered$.next(force === undefined ? !rendered : force);
   }
 
   back(): void {

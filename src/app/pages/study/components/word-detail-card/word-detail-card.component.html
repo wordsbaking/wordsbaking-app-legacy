@@ -4,7 +4,11 @@
       <div class="head">
         <div class="info">
           <span class="term" (wbPress)="reciteTerm()">{{term}}</span>
-          <span class="phonetic-symbols" *ngIf="phonetic" (wbPress)="reciteTerm()">{{phonetic}}</span>
+          <span class="phonetic-symbols"
+            *ngIf="prons.us || prons.gb"
+            (wbPress)="reciteTerm()">
+            {{phonetic$ | async}}
+          </span>
         </div>
         <button
           class="audio-play-button {{audioMode$ | async}}"
