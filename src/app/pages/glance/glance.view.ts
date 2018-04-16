@@ -174,6 +174,36 @@ export class GlanceView implements OnInit {
     .publishReplay(1)
     .refCount();
 
+  overallProgressHint$ = this.stats$
+    .map(stats => `${stats.collectionStudied} / ${stats.collectionTotal}`)
+    .publishReplay(1)
+    .refCount();
+
+  todayNew$ = this.stats$
+    .map(stats => stats.todayNew)
+    .publishReplay(1)
+    .refCount();
+
+  todayReviewed$ = this.stats$
+    .map(stats => stats.todayReviewed)
+    .publishReplay(1)
+    .refCount();
+
+  todayReviewGoal$ = this.stats$
+    .map(stats => stats.todayReviewGoal)
+    .publishReplay(1)
+    .refCount();
+
+  wordsbookTodayNew$ = this.stats$
+    .map(stats => stats.wordsbookTodayNew)
+    .publishReplay(1)
+    .refCount();
+
+  wordsbookTotal$ = this.stats$
+    .map(stats => stats.wordsbookTotal)
+    .publishReplay(1)
+    .refCount();
+
   constructor(
     public syncService: SyncService,
     public userConfigService: UserConfigService,

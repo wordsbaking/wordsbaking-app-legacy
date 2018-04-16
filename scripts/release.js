@@ -140,7 +140,7 @@ Release profile:
   };
 
   await exec(
-    `yarn ${isBrowser ? 'build' : 'build:hybird'} --prod -aot false`,
+    `yarn ${isBrowser ? 'build' : 'build:hybird'} --prod --aot false`,
     execOptions,
   );
 
@@ -156,7 +156,7 @@ Release profile:
 
     let logData = '';
 
-    let cordovaBuildCommand = `cordova build --release ${platform} -device -- --build-version=${version}`;
+    let cordovaBuildCommand = `cordova build --release ${platform} --device -- --build-version=${version}`;
 
     await exec(cordovaBuildCommand, {
       cwd: cordovaAppDir,
@@ -173,7 +173,7 @@ Release profile:
       throw new Error('Cordova building failed!');
     } else if (
       platform === 'ios' &&
-      logData.indexOf('** BUILD SUCCEEDED **') === -1
+      logData.indexOf('** EXPORT SUCCEEDED **') === -1
     ) {
       throw new Error('Cordova building failed!');
     }

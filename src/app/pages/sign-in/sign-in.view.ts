@@ -61,17 +61,23 @@ export class SignInView implements OnInit {
   async signIn(): Promise<void> {
     let form = this.form;
 
+    let emailControl = form.get('email')!;
+    let passwordControl = form.get('password')!;
+
+    emailControl.setValue(`${emailControl.value}`.trim());
+
     if (form.invalid) {
-      if (form.get('email')!.errors) {
+      if (emailControl.errors) {
         await this.toastService.show('邮箱格式不正确!');
-      } else if (form.get('password')!.errors) {
+      } else if (passwordControl.errors) {
         await this.toastService.show('请填写账号密码!');
       }
 
       return;
     }
 
-    let {email: {value: email}, password: {value: password}} = form.controls;
+    let email = emailControl.value;
+    let password = passwordControl.value;
 
     let loadingHandler = this.loadingService.show('登录中...');
 

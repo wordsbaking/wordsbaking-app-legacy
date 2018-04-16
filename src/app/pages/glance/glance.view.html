@@ -21,11 +21,11 @@
   </wb-page-header>
 
   <wb-page-content>
-    <div class="content-top" *ngIf="stats$ | async as stats">
+    <div class="content-top">
       <wb-glance-view-collection-selector #collectionSelector></wb-glance-view-collection-selector>
       <wb-glance-view-progress
         title="总体进度"
-        [info]="stats.collectionStudied + '/' + stats.collectionTotal"
+        [info]="overallProgressHint$ | async"
         [percentage]="overallProgressPercentage$ | async"
         [pendingPercentage]="overallProgressPendingPercentage$ | async">
       </wb-glance-view-progress>
@@ -39,18 +39,18 @@
       <div class="progress-details">
         <wb-glance-view-progress-simple
           title="新学"
-          [done]="stats.todayNew"
+          [done]="todayNew$ | async"
           [total]="todayNewGoal$ | async">
         </wb-glance-view-progress-simple>
         <wb-glance-view-progress-simple
           title="复习"
-          [done]="stats.todayReviewed"
-          [total]="stats.todayReviewGoal">
+          [done]="todayReviewed$ | async"
+          [total]="todayReviewGoal$ | async">
         </wb-glance-view-progress-simple>
         <wb-glance-view-progress-simple
           title="生词本"
-          [done]="stats.wordsbookTodayNew"
-          [total]="stats.wordsbookTotal">
+          [done]="wordsbookTodayNew$ | async"
+          [total]="wordsbookTotal$ | async">
         </wb-glance-view-progress-simple>
       </div>
     </div>

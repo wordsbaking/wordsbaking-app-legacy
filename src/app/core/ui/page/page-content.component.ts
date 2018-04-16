@@ -5,4 +5,6 @@ import {Component} from '@angular/core';
   template: '<ng-content></ng-content>',
   styleUrls: ['./page-content.component.less'],
 })
-export class PageContentComponent {}
+export class PageContentComponent {
+  constructor() {}
+}

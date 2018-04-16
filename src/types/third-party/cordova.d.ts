@@ -7,8 +7,13 @@ interface CordovaAppStatic {
   backHistory(): void;
 }
 
+interface CordovaDeviceProfile {
+  version: string;
+}
+
 interface Window {
   cordova?: CordovaStatic;
+  device?: CordovaDeviceProfile;
 }
 
 interface Navigator {

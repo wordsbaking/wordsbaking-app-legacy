@@ -27,6 +27,10 @@
       window.IS_IPHONE = /iphone/i.test(UA);
       window.IS_BROWSER = !/wordsbaking/i.test(UA);
       window.IS_CORDOVA = /wordsbaking/i.test(UA);
+
+      if (/iPhone OS 10_\d/i.test(UA)) {
+        document.body.className = document.body.className + ' ' + 'ios-10';
+      }
     })();
   </script>
 </body>
