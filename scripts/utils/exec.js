@@ -19,7 +19,7 @@ function exec(execute, options = {}) {
 
   if (logger) {
     logger.log && processInstance.stdout.on('data', logger.log);
-    logger.error && processInstance.stdin.on('error', logger.error);
+    logger.error && processInstance.stderr.on('error', logger.error);
   }
 
   return v.awaitable(processInstance);
