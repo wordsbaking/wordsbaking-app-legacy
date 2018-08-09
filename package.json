@@ -18,7 +18,7 @@
     "build": "ng build",
     "post-build": "node scripts/post-build.js",
     "build:dev": "yarn build",
-    "build:hybird": "yarn build -e hybird-prod",
+    "build:hybird": "yarn build -e hybird-prod --sourcemaps=false",
     "cordova:run": "cd ../wordsbaking-app-cordova/www && cordova run",
     "cordova:prepare": "rimraf ../wordsbaking-app-cordova/www && cp -r ./bld ../wordsbaking-app-cordova/www",
     "cordova:build:android": "cd ../wordsbaking-app-cordova/www && cordova build android --release",
